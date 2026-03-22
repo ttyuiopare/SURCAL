@@ -1,0 +1,813 @@
+__SURCAL__
+
+Product Requirements Document
+
+Version 2\.0  —  Updated March 2026
+
+Scotty Reed  |  Built on Glide \+ Make \+ Claude API \+ Stripe
+
+__Platform__
+
+Glide
+
+__AI__
+
+Claude API
+
+__Automation__
+
+Make
+
+__Payments__
+
+Stripe Connect
+
+# __1\.  Product Overview__
+
+SURCAL \(pronounced like 'circle'\) is a reverse marketplace — buyers post what they need, sellers compete by submitting bids, and Claude AI automatically scores every bid so buyers see the best options first\. The name came from taking the word supercalifragilisticexpialidocious and removing the letters that didn't fit\.
+
+SURCAL works for anything: freelance work, physical products, local services, creative projects, custom orders\. If you need it and someone can provide it, SURCAL is the fastest way to connect the two\.
+
+The platform takes a 5% fee on every completed transaction\. Stripe Connect handles the payment split automatically — sellers receive 95% directly to their bank account, SURCAL keeps 5%\.
+
+# __2\.  Problem Statement__
+
+Traditional marketplaces make buyers do all the work\. You browse hundreds of listings, compare options manually, reach out to sellers one by one, and hope someone gets back to you at a reasonable price\. Sellers compete in a feed where visibility depends on paid promotion rather than quality\.
+
+SURCAL flips this\. Buyers post once and sellers come to them\. Claude AI does the quality filtering automatically so buyers never have to read through bad bids\. The best bid wins — not the one that paid for placement\.
+
+# __3\.  Brand__
+
+## __3\.1  Name__
+
+SURCAL\. Derived from supercalifragilisticexpialidocious by removing unwanted letters\. Pronounced like 'circle' — which is intentional\. A marketplace where buyers and sellers come full circle on a deal\. Also works as 'SURE\-CAL' — as in you're sure about your purchase\.
+
+## __3\.2  Color palette__
+
+__Color__
+
+__Hex__
+
+__Use__
+
+Navy \(Primary\)
+
+\#1E3A5F
+
+Main buttons, headers, page titles, nav bar
+
+Blue \(Secondary\)
+
+\#2E5FA3
+
+Links, section headings, secondary buttons
+
+Teal \(AI accent\)
+
+\#1D9E75
+
+AI score badges, AI feature labels, Claude branding
+
+Purple \(App theme\)
+
+\#533AB7
+
+Current Glide theme — matches buyer button color
+
+Green \(Success\)
+
+\#27AE60
+
+Won bids, accepted status, positive states
+
+Orange \(Warning\)
+
+\#E67E22
+
+Deadlines, pending status, time pressure
+
+Red \(Danger\)
+
+\#E74C3C
+
+Flagged bids, errors, suspicious content
+
+# __4\.  User Personas__
+
+## __4\.1  The Buyer__
+
+Anyone who needs a product or service and wants competitive pricing without doing the searching themselves\. They post a request, sit back, and review AI\-scored bids\. They don't search, browse, or reach out to anyone — sellers come to them\.
+
+Buyers can attach a photo to their request so sellers immediately understand what's needed\. This is especially useful for physical items, repairs, or anything visual\.
+
+## __4\.2  The Seller__
+
+A freelancer, service provider, or vendor who wants to find clients actively looking for what they offer\. Instead of spending money on ads or competing in a crowded listing feed, they browse open buyer requests and submit targeted bids\. They see their own AI score so they learn what makes a winning bid over time\.
+
+# __5\.  Tech Stack__
+
+Decided during Spring Break 2026 — switched from Xano \+ Softr to Glide \+ Make for simplicity\. No code required at any step\.
+
+__Tool__
+
+__Role__
+
+__Cost__
+
+__Why chosen__
+
+Glide
+
+Frontend \+ database
+
+Free to start
+
+All\-in\-one — pages, data, auth in one place\. No connecting two tools\.
+
+Make
+
+Automation layer
+
+Free tier
+
+Connects Glide to Claude API and Stripe without code\.
+
+Claude API
+
+AI features
+
+~$1–5/mo at low volume
+
+Bid scoring, fraud flagging, request improvement\.
+
+Stripe Connect
+
+Payments \+ payouts
+
+2\.9% \+ 30c per transaction
+
+Marketplace\-specific\. Auto\-splits payment between seller and platform\.
+
+Namecheap
+
+Domain \(optional\)
+
+~$10–15/yr
+
+surcal\.com or getsurcal\.com — buy when ready to launch publicly\.
+
+Total cost to build and test during Spring Break 2026: $0\. First real cost is Claude API \(~$5\) once real bids are being scored\. Glide paid plan needed at ~$49/mo when public user count exceeds free tier limit\.
+
+  
+
+
+# __6\.  Feature Requirements__
+
+## __6\.1  Core features — v1 \(Spring Break build\)__
+
+__Feature__
+
+__Description__
+
+__Priority__
+
+__Status__
+
+User signup \+ login
+
+Glide built\-in auth — email and password
+
+P0
+
+Done via Glide Settings
+
+Buyer \+ seller roles
+
+Role selected on signup — controls which pages each user sees
+
+P0
+
+In progress
+
+Post a Request
+
+Buyer submits title, description, budget, deadline, optional photo
+
+P0
+
+Built
+
+Photo upload on requests
+
+Buyers can attach an image to show exactly what they need
+
+P0
+
+Built
+
+Browse Requests
+
+Sellers see all open requests as cards with search
+
+P0
+
+Built
+
+Request Detail
+
+Full request info — tapping a card opens detail screen
+
+P0
+
+In progress
+
+Submit a Bid
+
+Sellers bid with price, message, timeline
+
+P0
+
+In progress
+
+AI bid scoring
+
+Claude scores each bid 1–10 with reasoning via Make automation
+
+P0
+
+Not started
+
+AI fraud flagging
+
+Claude flags low quality or suspicious bids
+
+P0
+
+Not started
+
+AI request improvement
+
+Claude rewrites vague buyer requests into clear briefs
+
+P1
+
+Not started
+
+View Bids
+
+Buyers see all bids on their request sorted by AI score
+
+P0
+
+Not started
+
+My Requests
+
+Buyers see their own posted requests and bid counts
+
+P0
+
+Not started
+
+My Bids
+
+Sellers track all bids they've submitted \+ their AI scores
+
+P0
+
+Not started
+
+Stripe payments
+
+Buyer pays accepted bid via Stripe Checkout
+
+P1
+
+Not started
+
+Seller payouts
+
+Stripe Connect pays seller 95%, SURCAL keeps 5%
+
+P1
+
+Not started
+
+## __6\.2  Out of scope for v1__
+
+- Mobile app \(iOS/Android\) — Glide web app works on mobile browser
+- In\-app messaging between buyer and seller
+- Reviews and ratings system
+- Social login \(Google, Apple\)
+- Advanced seller profiles and portfolios
+- Subscription plans for sellers
+- Analytics dashboard
+- Multi\-language or multi\-currency support
+
+  
+
+
+# __7\.  App Pages__
+
+__Page__
+
+__Who sees it__
+
+__Purpose__
+
+__Build status__
+
+Home
+
+Everyone
+
+Landing page — hero, how it works, buyer/seller buttons
+
+Built
+
+Sign Up / Login
+
+New \+ returning users
+
+Glide built\-in auth screen
+
+Auto \(Glide\)
+
+Post a Request
+
+Buyers
+
+Form — title, description, budget, deadline, photo
+
+Built
+
+Browse Requests
+
+Sellers
+
+Card list of all open requests with search
+
+Built
+
+Request Detail
+
+Sellers
+
+Full request info \+ Submit a Bid button
+
+In progress
+
+Submit a Bid
+
+Sellers
+
+Form — price, message, timeline
+
+In progress
+
+My Requests
+
+Buyers
+
+Their posted requests \+ bid counts \+ notification dots
+
+Not started
+
+View Bids
+
+Buyers
+
+All bids on a request sorted by AI score with Accept button
+
+Not started
+
+My Bids
+
+Sellers
+
+All bids they've submitted \+ their AI scores \+ status
+
+Not started
+
+# __8\.  AI Features \(Claude API via Make\)__
+
+Every AI feature runs through Make automations that call the Claude API\. Glide triggers the automation via webhook, Make calls Claude, Claude returns JSON, Make saves the result back to Glide's data table\.
+
+__Feature__
+
+__Trigger__
+
+__Claude prompt goal__
+
+__Output saved to__
+
+Bid scoring
+
+Bid submitted
+
+Score 1–10 \+ reason \+ flagged boolean
+
+Bids table: ai\_score, ai\_reason, flagged
+
+Fraud flagging
+
+Bid submitted \(same call\)
+
+Flag if vague, spammy, or suspicious
+
+Bids table: flagged column
+
+Request improvement
+
+Request posted
+
+Rewrite description to be clearer \+ more specific
+
+Requests table: ai\_description column
+
+## __8\.1  Bid scoring prompt__
+
+Score this seller bid 1\-10\. Return ONLY JSON — no other text: \{ "score": number, "reason": string \(max 15 words\), "flagged": boolean \}\. Flag true if vague, spam, or suspicious\. Buyer request: \[TITLE\] — \[DESCRIPTION\]\. Budget: $\[BUDGET\]\. Bid: Price $\[PRICE\], Timeline: \[TIMELINE\], Message: \[MESSAGE\]
+
+## __8\.2  Request improvement prompt__
+
+Rewrite this buyer request to be clearer and more specific so sellers can give better bids\. Keep it under 80 words\. Preserve the original intent\. Request: \[TITLE\] — \[DESCRIPTION\]\. Budget: $\[BUDGET\]\.
+
+  
+
+
+# __9\.  Data Tables \(Glide\)__
+
+## __9\.1  Requests table__
+
+__Column__
+
+__Type__
+
+__Notes__
+
+title
+
+Text
+
+Short title of the request
+
+description
+
+Text
+
+Full description of what buyer needs
+
+budget
+
+Number
+
+Dollar amount buyer will pay
+
+deadline
+
+Date
+
+When buyer needs it by
+
+status
+
+Text
+
+open / in\_progress / closed — default: open
+
+buyer\_email
+
+Email
+
+Auto\-set to signed\-in user's email on submit
+
+image
+
+Image
+
+Optional photo uploaded by buyer
+
+ai\_description
+
+Text
+
+Claude's improved version — set by Make automation
+
+created\_at
+
+Date/Time
+
+Auto\-filled by Glide
+
+## __9\.2  Bids table__
+
+__Column__
+
+__Type__
+
+__Notes__
+
+request\_id
+
+Text
+
+Row ID of the request being bid on
+
+seller\_email
+
+Email
+
+Auto\-set to signed\-in user's email on submit
+
+price
+
+Number
+
+Seller's bid price in dollars
+
+message
+
+Text
+
+Seller's pitch — 'Why are you the best choice?'
+
+timeline
+
+Text
+
+How long seller says it will take — free text
+
+ai\_score
+
+Number
+
+Claude's score out of 10 — set by Make automation
+
+ai\_reason
+
+Text
+
+Claude's explanation — set by Make automation
+
+flagged
+
+Boolean
+
+true if Claude flagged as suspicious — set by Make
+
+status
+
+Text
+
+pending / accepted / rejected — default: pending
+
+created\_at
+
+Date/Time
+
+Auto\-filled by Glide
+
+## __9\.3  Users table \(Glide auto\-creates\)__
+
+__Column__
+
+__Type__
+
+__Notes__
+
+email
+
+Email
+
+Auto\-filled by Glide on signup
+
+name
+
+Text
+
+Full name entered on signup
+
+role
+
+Text
+
+buyer or seller — set on first login screen
+
+created\_at
+
+Date/Time
+
+Auto\-filled by Glide
+
+# __10\.  Business Model__
+
+## __10\.1  Revenue__
+
+SURCAL takes a 5% platform fee on every completed transaction using Stripe Connect's application\_fee\_amount parameter\. The split is fully automatic — no manual invoicing, no chasing payments\.
+
+__Transaction__
+
+__SURCAL earns__
+
+__Seller receives__
+
+$100 job
+
+$5\.00
+
+$95\.00 \(minus Stripe 2\.9% \+ 30c = ~$92\.05\)
+
+$250 job
+
+$12\.50
+
+$237\.50 \(minus Stripe fee = ~$230\.45\)
+
+$500 job
+
+$25\.00
+
+$475\.00 \(minus Stripe fee = ~$461\.35\)
+
+## __10\.2  Revenue projections__
+
+__Scenario__
+
+__Transactions/mo__
+
+__Avg value__
+
+__SURCAL monthly revenue__
+
+Early \(friends testing\)
+
+10
+
+$75
+
+~$37\.50
+
+Getting traction
+
+50
+
+$100
+
+~$250
+
+Real growth
+
+200
+
+$150
+
+~$1,500
+
+Scaling
+
+1,000
+
+$200
+
+~$10,000
+
+  
+
+
+# __11\.  Build Timeline__
+
+## __11\.1  Spring Break 2026 \(current\)__
+
+Starting from zero coding knowledge\. Built Xano backend \(later switched to Glide\), built home page, Post a Request, Browse Requests with image upload, all in the first day\. Switching to Glide \+ Make stack for simplicity\.
+
+__Day__
+
+__Goal__
+
+__Status__
+
+Day 1
+
+Glide setup, data tables, home page, Post a Request, Browse Requests
+
+Done
+
+Day 2
+
+Request Detail, Submit a Bid, My Requests, View Bids, My Bids
+
+In progress
+
+Day 3
+
+Make automation — Claude API bid scoring wired up
+
+Not started
+
+Day 4
+
+Make automation — request improvement \+ full AI testing
+
+Not started
+
+Day 5
+
+Stripe Connect setup \+ payment flow
+
+Not started
+
+Day 6
+
+Full end\-to\-end testing with real people
+
+Not started
+
+Day 7
+
+Fix bugs, polish UI, publish \+ share link
+
+Not started
+
+## __11\.2  After spring break \(school \+ track schedule\)__
+
+__Phase__
+
+__Timeline__
+
+__Goal__
+
+Polish
+
+Weeks 1–2 back at school
+
+Fix issues found during testing, improve mobile UX
+
+First users
+
+Week 3–4
+
+Get 10 real buyers and 10 real sellers using the app
+
+First transaction
+
+Week 5–6
+
+First real money moving through the platform
+
+Public launch
+
+Week 8–10
+
+Share on Reddit, social media, relevant communities
+
+# __12\.  Risks & Mitigations__
+
+__Risk__
+
+__Likelihood__
+
+__Mitigation__
+
+Low seller supply at launch
+
+High
+
+Manually recruit first 10 sellers before opening to public
+
+AI scoring inaccurate
+
+Medium
+
+Let buyers override scores, collect feedback to improve prompts
+
+Glide free tier limits hit
+
+Medium
+
+Upgrade to paid plan when first real users arrive \(~$49/mo\)
+
+Stripe Connect seller onboarding friction
+
+Low
+
+Use Stripe's hosted onboarding — well documented and tested
+
+Scope creep delaying launch
+
+High
+
+Stick to v1 feature list, log new ideas for v2
+
+Make automation failures
+
+Medium
+
+Add error handling in Make, monitor with Make's built\-in logs
+
+__SURCAL__
+
+*Built by Scotty Reed  —  Spring Break 2026*
+
+*From supercalifragilisticexpialidocious to a real business\.*
+

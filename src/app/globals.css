@@ -1,0 +1,192 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap');
+
+:root {
+  /* PRD Brand Colors */
+  --primary-magenta: #E5007D;
+  --ai-purple: #8B5CF6;
+  --success-green: #27AE60;
+  --warning-orange: #E67E22;
+  --danger-red: #E74C3C;
+  --primary-navy: var(--primary-magenta);
+  --secondary-blue: var(--ai-purple);
+  --ai-teal: var(--ai-purple);
+
+  /* Application Theme Colors - Dark Theme */
+  --bg-color: #0B0E14; /* Deep dark background */
+  --bg-surface: #151A23; /* Glass cards */
+  --text-primary: #F8FAFC; /* White text */
+  --text-secondary: #94A3B8; /* Muted text */
+  --border-light: #2A3441;
+
+  /* Spacing & Layout */
+  --container-padding: 2rem;
+  --section-spacing: 6rem;
+  --border-radius-lg: 16px;
+  --border-radius-md: 12px;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--font-dmsans), 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6, .heading-xl, .heading-lg, .heading-md {
+  font-family: var(--font-bebas), 'Bebas Neue', sans-serif;
+  letter-spacing: 0.05em;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--primary-magenta);
+}
+
+/* UI Cards - Clean Glass */
+.glass-card {
+  background: rgba(21, 26, 35, 0.7);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  border-color: rgba(229, 0, 125, 0.3);
+}
+
+/* Typography Utilities */
+.heading-xl {
+  font-size: clamp(3rem, 8vw, 5rem);
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+.heading-lg {
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: var(--text-primary);
+}
+
+.text-lead {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+/* Buttons */
+.button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-magenta);
+  color: #FFFFFF;
+  padding: 0.8rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button-primary:hover {
+  transform: scale(1.02);
+  background: #C4006B; /* Darker magenta */
+  color: #FFFFFF;
+  box-shadow: 0 0 15px rgba(229, 0, 125, 0.4);
+}
+
+.button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--primary-magenta);
+  padding: 0.8rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  border: 1px solid var(--primary-magenta);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.button-secondary:hover {
+  background: rgba(229, 0, 125, 0.1); 
+}
+
+/* Navigation Shell */
+.glass-nav {
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  z-index: 50;
+  background: rgba(11, 14, 20, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem var(--container-padding);
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-links a {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.nav-links a:hover {
+  color: var(--primary-magenta);
+}
+
+/* Tags and Badges */
+.badge-ai {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--ai-purple);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}

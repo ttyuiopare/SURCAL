@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SURCAL — The Buyer's Market</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+var h=React.createElement;
+function I(ch){return function(p){p=p||{};var s=p.size||24,co=p.color||"currentColor",f=p.fill||"none",st=p.style||{};return h("svg",{xmlns:"http://www.w3.org/2000/svg",width:s,height:s,viewBox:"0 0 24 24",fill:f==="none"?"none":f,stroke:co,strokeWidth:2,strokeLinecap:"round",strokeLinejoin:"round",style:st},ch(h))}}
+window.lucideReact={
+Search:I(function(h){return[h("circle",{key:0,cx:11,cy:11,r:8}),h("path",{key:1,d:"m21 21-4.3-4.3"})]}),
+Plus:I(function(h){return[h("path",{key:0,d:"M5 12h14"}),h("path",{key:1,d:"M12 5v14"})]}),
+ChevronRight:I(function(h){return h("path",{d:"m9 18 6-6-6-6"})}),
+ArrowRight:I(function(h){return[h("path",{key:0,d:"M5 12h14"}),h("path",{key:1,d:"m12 5 7 7-7 7"})]}),
+Star:I(function(h){return h("polygon",{points:"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"})}),
+Clock:I(function(h){return[h("circle",{key:0,cx:12,cy:12,r:10}),h("polyline",{key:1,points:"12 6 12 12 16 14"})]}),
+DollarSign:I(function(h){return[h("line",{key:0,x1:12,y1:1,x2:12,y2:23}),h("path",{key:1,d:"M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"})]}),
+Users:I(function(h){return[h("path",{key:0,d:"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"}),h("circle",{key:1,cx:9,cy:7,r:4}),h("path",{key:2,d:"M22 21v-2a4 4 0 0 0-3-3.87"}),h("path",{key:3,d:"M16 3.13a4 4 0 0 1 0 7.75"})]}),
+Shield:I(function(h){return h("path",{d:"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"})}),
+Zap:I(function(h){return h("polygon",{points:"13 2 3 14 12 14 11 22 21 10 12 10 13 2"})}),
+TrendingUp:I(function(h){return[h("polyline",{key:0,points:"22 7 13.5 15.5 8.5 10.5 2 17"}),h("polyline",{key:1,points:"16 7 22 7 22 13"})]}),
+Heart:I(function(h){return h("path",{d:"M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"})}),
+MessageSquare:I(function(h){return h("path",{d:"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"})}),
+Bell:I(function(h){return[h("path",{key:0,d:"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"}),h("path",{key:1,d:"M10.3 21a1.94 1.94 0 0 0 3.4 0"})]}),
+Settings:I(function(h){return[h("path",{key:0,d:"M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"}),h("circle",{key:1,cx:12,cy:12,r:3})]}),
+LogOut:I(function(h){return[h("path",{key:0,d:"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"}),h("polyline",{key:1,points:"16 17 21 12 16 7"}),h("line",{key:2,x1:21,y1:12,x2:9,y2:12})]}),
+Filter:I(function(h){return h("polygon",{points:"22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"})}),
+MapPin:I(function(h){return[h("path",{key:0,d:"M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"}),h("circle",{key:1,cx:12,cy:10,r:3})]}),
+Calendar:I(function(h){return[h("rect",{key:0,width:18,height:18,x:3,y:4,rx:2}),h("line",{key:1,x1:16,y1:2,x2:16,y2:6}),h("line",{key:2,x1:8,y1:2,x2:8,y2:6}),h("line",{key:3,x1:3,y1:10,x2:21,y2:10})]}),
+Award:I(function(h){return[h("circle",{key:0,cx:12,cy:8,r:6}),h("path",{key:1,d:"M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"})]}),
+CheckCircle:I(function(h){return[h("path",{key:0,d:"M22 11.08V12a10 10 0 1 1-5.93-9.14"}),h("path",{key:1,d:"m9 11 3 3L22 4"})]}),
+Eye:I(function(h){return[h("path",{key:0,d:"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"}),h("circle",{key:1,cx:12,cy:12,r:3})]}),
+ThumbsUp:I(function(h){return[h("path",{key:0,d:"M7 10v12"}),h("path",{key:1,d:"M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"})]}),
+ArrowLeft:I(function(h){return[h("path",{key:0,d:"m12 19-7-7 7-7"}),h("path",{key:1,d:"M19 12H5"})]}),
+Send:I(function(h){return[h("path",{key:0,d:"m22 2-7 20-4-9-9-4Z"}),h("path",{key:1,d:"M22 2 11 13"})]}),
+X:I(function(h){return[h("path",{key:0,d:"M18 6 6 18"}),h("path",{key:1,d:"m6 6 12 12"})]}),
+Menu:I(function(h){return[h("line",{key:0,x1:4,y1:12,x2:20,y2:12}),h("line",{key:1,x1:4,y1:6,x2:20,y2:6}),h("line",{key:2,x1:4,y1:18,x2:20,y2:18})]}),
+ChevronDown:I(function(h){return h("path",{d:"m6 9 6 6 6-6"})}),
+Sparkles:I(function(h){return[h("path",{key:0,d:"m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"}),h("path",{key:1,d:"M5 3v4"}),h("path",{key:2,d:"M19 17v4"}),h("path",{key:3,d:"M3 5h4"}),h("path",{key:4,d:"M17 19h4"})]}),
+Target:I(function(h){return[h("circle",{key:0,cx:12,cy:12,r:10}),h("circle",{key:1,cx:12,cy:12,r:6}),h("circle",{key:2,cx:12,cy:12,r:2})]}),
+Globe:I(function(h){return[h("circle",{key:0,cx:12,cy:12,r:10}),h("path",{key:1,d:"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"}),h("path",{key:2,d:"M2 12h20"})]}),
+Lock:I(function(h){return[h("rect",{key:0,width:18,height:11,x:3,y:11,rx:2}),h("path",{key:1,d:"M7 11V7a5 5 0 0 1 10 0v4"})]}),
+Layers:I(function(h){return[h("path",{key:0,d:"m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.84Z"}),h("path",{key:1,d:"m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"}),h("path",{key:2,d:"m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"})]}),
+BarChart3:I(function(h){return[h("path",{key:0,d:"M3 3v18h18"}),h("path",{key:1,d:"M18 17V9"}),h("path",{key:2,d:"M13 17V5"}),h("path",{key:3,d:"M8 17v-3"})]}),
+User:I(function(h){return[h("path",{key:0,d:"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"}),h("circle",{key:1,cx:12,cy:7,r:4})]}),
+Home:I(function(h){return[h("path",{key:0,d:"m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"}),h("polyline",{key:1,points:"9 22 9 12 15 12 15 22"})]}),
+ShoppingBag:I(function(h){return[h("path",{key:0,d:"M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"}),h("path",{key:1,d:"M3 6h18"}),h("path",{key:2,d:"M16 10a4 4 0 0 1-8 0"})]}),
+PlusCircle:I(function(h){return[h("circle",{key:0,cx:12,cy:12,r:10}),h("path",{key:1,d:"M8 12h8"}),h("path",{key:2,d:"M12 8v8"})]}),
+LayoutDashboard:I(function(h){return[h("rect",{key:0,width:7,height:9,x:3,y:3,rx:1}),h("rect",{key:1,width:7,height:5,x:14,y:3,rx:1}),h("rect",{key:2,width:7,height:9,x:14,y:12,rx:1}),h("rect",{key:3,width:7,height:5,x:3,y:16,rx:1})]}),
+HelpCircle:I(function(h){return[h("circle",{key:0,cx:12,cy:12,r:10}),h("path",{key:1,d:"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"}),h("path",{key:2,d:"M12 17h.01"})]}),
+ExternalLink:I(function(h){return[h("path",{key:0,d:"M15 3h6v6"}),h("path",{key:1,d:"M10 14 21 3"}),h("path",{key:2,d:"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"})]}),
+Edit3:I(function(h){return[h("path",{key:0,d:"M12 20h9"}),h("path",{key:1,d:"M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"})]}),
+Trash2:I(function(h){return[h("path",{key:0,d:"M3 6h18"}),h("path",{key:1,d:"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"}),h("path",{key:2,d:"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"}),h("line",{key:3,x1:10,y1:11,x2:10,y2:17}),h("line",{key:4,x1:14,y1:11,x2:14,y2:17})]}),
+MoreHorizontal:I(function(h){return[h("circle",{key:0,cx:12,cy:12,r:1}),h("circle",{key:1,cx:19,cy:12,r:1}),h("circle",{key:2,cx:5,cy:12,r:1})]}),
+Share2:I(function(h){return[h("circle",{key:0,cx:18,cy:5,r:3}),h("circle",{key:1,cx:6,cy:12,r:3}),h("circle",{key:2,cx:18,cy:19,r:3}),h("line",{key:3,x1:8.59,y1:13.51,x2:15.42,y2:17.49}),h("line",{key:4,x1:15.41,y1:6.51,x2:8.59,y2:10.49})]}),
+Flag:I(function(h){return[h("path",{key:0,d:"M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"}),h("line",{key:1,x1:4,y1:22,x2:4,y2:15})]}),
+Bookmark:I(function(h){return h("path",{d:"m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"})}),
+Check:I(function(h){return h("path",{d:"M20 6 9 17l-5-5"})}),
+Copy:I(function(h){return[h("rect",{key:0,width:13,height:13,x:9,y:9,rx:2}),h("path",{key:1,d:"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"})]}),
+Info:I(function(h){return[h("circle",{key:0,cx:12,cy:12,r:10}),h("path",{key:1,d:"M12 16v-4"}),h("path",{key:2,d:"M12 8h.01"})]}),
+};
+})();
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: #0A0A0F; font-family: 'DM Sans', sans-serif; color: #F5F5F7; overflow-x: hidden; }
+  ::selection { background: #E5007D44; color: #fff; }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #0A0A0F; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+  input:focus, textarea:focus, select:focus { border-color: #E5007D66 !important; outline: none; }
+  button:hover { opacity: 0.92; }
+  select option { background: #1A1A26; color: #F5F5F7; }
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7); }
+  @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes toastOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+  .toast-enter { animation: toastIn 0.3s ease forwards; }
+  .toast-exit { animation: toastOut 0.3s ease forwards; }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeInUp 0.5s ease forwards; }
+  @keyframes aiPulse { 0%,100% { box-shadow: 0 0 8px rgba(139,92,246,0.2); } 50% { box-shadow: 0 0 20px rgba(139,92,246,0.4); } }
+  .ai-glow { animation: aiPulse 3s ease-in-out infinite; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
+const {
+  Search, Plus, ChevronRight, ArrowRight, Star, Clock, DollarSign, Users, Shield, Zap,
+  TrendingUp, Heart, MessageSquare, Bell, Settings, LogOut, Filter, MapPin, Calendar,
+  Award, CheckCircle, Eye, ThumbsUp, ArrowLeft, Send, X, Menu, ChevronDown, Sparkles,
+  Target, Globe, Lock, Layers, BarChart3, User, Home, ShoppingBag, PlusCircle,
+  LayoutDashboard, HelpCircle, ExternalLink, Edit3, Trash2, MoreHorizontal, Share2,
+  Flag, Bookmark, Check, Copy, Info
+} = lucideReact;
+
+// Design tokens
+const M = "#E5007D";
+const ML = "#FF1A8C";
+const MD = "#B80064";
+const DARK = "#0A0A0F";
+const TP = "#F5F5F7";
+const TS = "#8E8E9A";
+const TM = "#5A5A6A";
+
+// Images
+const IMG = {
+  hero: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1400&q=80",
+  sneakers: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80",
+  camera: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&q=80",
+  furniture: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80",
+  art: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=600&q=80",
+  watch: "https://images.unsplash.com/photo-1524592094714-0f0654e20324?w=600&q=80",
+  vinyl: "https://images.unsplash.com/photo-1539375665275-f9de415ef9ac?w=600&q=80",
+  tech: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80",
+  headphones: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80",
+  guitar: "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=600&q=80",
+  pW: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80",
+  pM: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80",
+  pM2: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&q=80",
+  pW2: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80",
+  pM3: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80",
+  community: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80",
+};
+
+// Categories (static — these are the marketplace categories)
+const CATS = [
+  { name: "Electronics", icon: "⚡", count: 0 },
+  { name: "Fashion", icon: "👔", count: 0 },
+  { name: "Collectibles", icon: "🏆", count: 0 },
+  { name: "Home & Garden", icon: "🏠", count: 0 },
+  { name: "Music", icon: "🎵", count: 0 },
+  { name: "Sports", icon: "⚽", count: 0 },
+  { name: "Art", icon: "🎨", count: 0 },
+  { name: "Books", icon: "📚", count: 0 },
+];
+
+// Live data — starts empty, populated from Supabase
+let REQS = [];
+let BIDS = [];
+
+const STAT_DATA = [
+  { label:"Active Requests", value:"0", icon:Target },
+  { label:"Fulfilled Today", value:"0", icon:CheckCircle },
+  { label:"Verified Sellers", value:"0", icon:Shield },
+  { label:"Avg. Response", value:"—", icon:Zap },
+];
+
+// ─── DATA HOOKS ───
+function useRequests() {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetch() {
+      const { data, error } = await supabase
+        .from("requests")
+        .select("*, profiles!requests_buyer_id_fkey(username, avatar_url, buyer_rating), categories(name, slug)")
+        .eq("status", "open")
+        .order("created_at", { ascending: false });
+      if (data) {
+        setRequests(data.map(r => ({
+          id: r.id,
+          title: r.title,
+          cat: r.categories?.name || "General",
+          budget: r.budget_min && r.budget_max ? "$" + r.budget_min.toLocaleString() + " - $" + r.budget_max.toLocaleString() : "Open",
+          budget_min: r.budget_min,
+          budget_max: r.budget_max,
+          bids: r.bid_count || 0,
+          time: r.expires_at ? timeLeft(r.expires_at) : "No deadline",
+          img: IMG[Object.keys(IMG)[Math.floor(Math.random() * 10)]] || IMG.hero,
+          user: r.profiles?.username || "Anonymous",
+          avatar: r.profiles?.avatar_url || IMG.pM,
+          urgent: r.urgency === "urgent" || r.urgency === "high",
+          desc: r.description,
+          loc: r.location || "",
+          tags: r.tags || [],
+          raw: r,
+        })));
+      }
+      setLoading(false);
+    }
+    fetch();
+
+    // Real-time subscription
+    const channel = supabase.channel("requests_realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "requests" }, () => fetch())
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, []);
+
+  return { requests, loading };
+}
+
+function useBids(requestId) {
+  const [bids, setBids] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!requestId) { setLoading(false); return; }
+    async function fetch() {
+      const { data } = await supabase
+        .from("bids")
+        .select("*, profiles!bids_seller_id_fkey(username, avatar_url, seller_rating, total_sales, is_seller)")
+        .eq("request_id", requestId)
+        .order("created_at", { ascending: false });
+      if (data) {
+        setBids(data.map(b => ({
+          id: b.id,
+          seller: b.profiles?.username || "Seller",
+          avatar: b.profiles?.avatar_url || IMG.pM,
+          price: "$" + parseFloat(b.amount).toLocaleString(),
+          rating: b.profiles?.seller_rating || 0,
+          reviews: b.profiles?.total_sales || 0,
+          msg: b.message || "",
+          time: timeAgo(b.created_at),
+          verified: b.profiles?.is_seller || false,
+          delivery_time: b.delivery_time || "",
+          status: b.status,
+          raw: b,
+        })));
+      }
+      setLoading(false);
+    }
+    fetch();
+    const channel = supabase.channel("bids_" + requestId)
+      .on("postgres_changes", { event: "*", schema: "public", table: "bids", filter: "request_id=eq." + requestId }, () => fetch())
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [requestId]);
+
+  return { bids, loading };
+}
+
+function timeLeft(dateStr) {
+  const diff = new Date(dateStr) - new Date();
+  if (diff <= 0) return "Expired";
+  const hours = Math.floor(diff / 3600000);
+  if (hours < 24) return hours + "h left";
+  return Math.floor(hours / 24) + "d left";
+}
+
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return mins + "m ago";
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return hours + "h ago";
+  return Math.floor(hours / 24) + "d ago";
+}
+
+// ─── EMPTY STATE COMPONENT ───
+function EmptyState({ icon, title, subtitle, actionLabel, onAction }) {
+  const IconComp = icon || Target;
+  return React.createElement("div", { style:{ textAlign:"center", padding:"80px 20px" } },
+    React.createElement("div", { style:{ width:64, height:64, borderRadius:"16px", background:`${M}12`, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 24px" } },
+      React.createElement(IconComp, { size:28, color:M })
+    ),
+    React.createElement("h3", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"28px", color:TP, letterSpacing:"1px", marginBottom:"12px" } }, title),
+    React.createElement("p", { style:{ fontSize:"15px", color:TS, fontFamily:"'DM Sans',sans-serif", maxWidth:400, margin:"0 auto 24px", lineHeight:1.6 } }, subtitle),
+    onAction && React.createElement("button", { onClick:onAction, style:bP }, actionLabel || "Get Started", " ", React.createElement(ArrowRight,{size:16}))
+  );
+}
+
+const PRICING_PLANS = [
+  {
+    name: "Free",
+    tier: "free",
+    price: "$0",
+    desc: "Perfect for occasional buyers",
+    features: [
+      "100 requests/month",
+      "100 bids/month",
+      "Basic messaging",
+      "Standard listing",
+      "Community access"
+    ],
+    cta: "Get Started",
+    popular: false,
+  },
+  {
+    name: "Pro",
+    tier: "pro",
+    price: "$9.99",
+    period: "/month",
+    desc: "Best for active buyers",
+    features: [
+      "Unlimited requests",
+      "Unlimited bids",
+      "Priority listing",
+      "Verified badge",
+      "Advanced analytics",
+      "Dedicated support"
+    ],
+    cta: "Upgrade Now",
+    popular: true,
+  },
+  {
+    name: "Business",
+    tier: "business",
+    price: "$29.99",
+    period: "/month",
+    desc: "For power buyers & sellers",
+    features: [
+      "Everything in Pro",
+      "Featured listings",
+      "Bulk tools",
+      "API access",
+      "Custom storefront",
+      "Priority customer support"
+    ],
+    cta: "Upgrade Now",
+    popular: false,
+  },
+];
+
+// ─── AI COLOR ───
+const AI = "#8B5CF6"; // Purple for AI features
+const AIL = "#A78BFA";
+const AID = "#6D28D9";
+
+// ─── AI PRICE DATABASE (simulated market data) ───
+const AI_MARKET_DATA = {
+  "Music": { avg: 2800, low: 800, high: 6000, trend: "+5.2%", demand: "High" },
+  "Fashion": { avg: 1200, low: 60, high: 5500, trend: "+12.1%", demand: "Very High" },
+  "Collectibles": { avg: 3200, low: 500, high: 25000, trend: "+8.7%", demand: "High" },
+  "Home & Garden": { avg: 950, low: 200, high: 4000, trend: "-2.1%", demand: "Medium" },
+  "Electronics": { avg: 380, low: 50, high: 2000, trend: "+3.5%", demand: "High" },
+  "Sports": { avg: 450, low: 100, high: 3000, trend: "+1.8%", demand: "Medium" },
+  "Art": { avg: 8500, low: 500, high: 50000, trend: "+15.3%", demand: "Medium" },
+  "Books": { avg: 120, low: 10, high: 2000, trend: "-0.5%", demand: "Low" },
+};
+
+// ─── AI SELLER TRUST SCORING ───
+function calcTrustScore(seller) {
+  const ratingScore = (seller.rating / 5) * 40;
+  const reviewScore = Math.min(seller.reviews / 200, 1) * 25;
+  const verifiedScore = seller.verified ? 20 : 0;
+  const timeScore = 15; // base score for being active
+  return Math.round(ratingScore + reviewScore + verifiedScore + timeScore);
+}
+
+function getTrustLevel(score) {
+  if (score >= 90) return { label: "ELITE SELLER", color: "#FFB800", icon: "Award" };
+  if (score >= 75) return { label: "TRUSTED", color: AIL, icon: "Shield" };
+  if (score >= 60) return { label: "VERIFIED", color: "#4A90D9", icon: "CheckCircle" };
+  return { label: "NEW", color: TS, icon: "User" };
+}
+
+// ─── AI SMART MATCH SCORING ───
+function calcMatchScore(request, seller) {
+  let score = 60 + Math.random() * 35;
+  if (seller.verified) score += 5;
+  if (seller.rating >= 4.8) score += 5;
+  return Math.min(Math.round(score), 99);
+}
+
+// ─── AI REQUEST SUGGESTIONS ───
+const AI_SUGGESTIONS = {
+  "Electronics": { tags: ["brand-new", "like-new", "warranty", "fast-shipping"], tips: "Include the exact model number, acceptable conditions, and whether you need accessories/original packaging." },
+  "Fashion": { tags: ["vintage", "deadstock", "size-specific", "authentic"], tips: "Specify exact size, era/year range, acceptable condition levels, and any authentication requirements." },
+  "Collectibles": { tags: ["first-edition", "authenticated", "graded", "mint-condition"], tips: "Include authentication requirements, acceptable grading (e.g., CGC, PSA), and provenance preferences." },
+  "Home & Garden": { tags: ["mid-century", "handmade", "solid-wood", "restored"], tips: "Include dimensions, material preferences, acceptable condition, and whether you need delivery/shipping." },
+  "Music": { tags: ["first-press", "original", "playable", "complete-set"], tips: "Specify pressing details (country, label, catalog number), acceptable vinyl/sleeve grades, and required inserts." },
+  "Sports": { tags: ["game-used", "signed", "regulation", "performance"], tips: "Include sport-specific sizing, brand preferences, and whether you need certifications for signed items." },
+  "Art": { tags: ["original", "signed", "limited-edition", "framed"], tips: "Include medium, size range, authentication requirements, and framing/presentation preferences." },
+  "Books": { tags: ["first-edition", "signed", "hardcover", "dust-jacket"], tips: "Specify edition, binding type, acceptable condition for dust jacket and pages, and any inscription preferences." },
+};
+
+// Styles
+const glass = { background:"rgba(255,255,255,0.03)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,0.07)", borderRadius:"16px" };
+const gCard = { ...glass, padding:"24px", transition:"all 0.3s cubic-bezier(0.4,0,0.2,1)" };
+const bP = { background:`linear-gradient(135deg,${M},${MD})`, color:"#fff", border:"none", borderRadius:"12px", padding:"14px 28px", fontSize:"15px", fontWeight:700, fontFamily:"'Bebas Neue','Oswald',sans-serif", letterSpacing:"1.5px", textTransform:"uppercase", cursor:"pointer", transition:"all 0.3s ease", display:"inline-flex", alignItems:"center", gap:"8px" };
+const bS = { background:"rgba(255,255,255,0.05)", color:TP, border:"1px solid rgba(255,255,255,0.1)", borderRadius:"12px", padding:"14px 28px", fontSize:"15px", fontWeight:700, fontFamily:"'Bebas Neue','Oswald',sans-serif", letterSpacing:"1.5px", textTransform:"uppercase", cursor:"pointer", transition:"all 0.3s ease", display:"inline-flex", alignItems:"center", gap:"8px" };
+const iS = { background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:"12px", padding:"14px 18px", color:TP, fontSize:"15px", fontFamily:"'DM Sans',sans-serif", width:"100%", outline:"none", transition:"border-color 0.2s ease" };
+const bdg = (c=M) => ({ background:`${c}22`, color:c, padding:"4px 12px", borderRadius:"100px", fontSize:"12px", fontWeight:700, fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"1px", textTransform:"uppercase", display:"inline-flex", alignItems:"center", gap:"4px" });
+
+// ─── AI STYLE TOKENS ───
+const aiGlass = { background:"rgba(139,92,246,0.06)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:`1px solid rgba(139,92,246,0.15)`, borderRadius:"16px" };
+const aiGrad = `linear-gradient(135deg, ${AI}, ${AID})`;
+const aiBdg = { background:`${AI}22`, color:AIL, padding:"3px 10px", borderRadius:"100px", fontSize:"10px", fontWeight:700, fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"1.2px", textTransform:"uppercase", display:"inline-flex", alignItems:"center", gap:"4px" };
+
+// ─── AI COMPONENTS ───
+
+// AI Badge (inline)
+function AIBadge({ text="AI", size="sm" }) {
+  const p = size==="sm" ? "2px 8px" : "4px 12px";
+  const fs = size==="sm" ? "9px" : "11px";
+  return React.createElement("span", { style:{ ...aiBdg, padding:p, fontSize:fs } },
+    React.createElement(Sparkles, { size: size==="sm" ? 8 : 10, color:AIL }),
+    text
+  );
+}
+
+// AI Insight Pill (inline hint next to prices, scores, etc.)
+function AIInsight({ text, icon=Sparkles }) {
+  return React.createElement("div", { style:{ display:"inline-flex", alignItems:"center", gap:"6px", background:`${AI}10`, border:`1px solid ${AI}20`, borderRadius:"8px", padding:"6px 12px", fontSize:"12px", color:AIL, fontFamily:"'DM Sans',sans-serif" } },
+    React.createElement(icon, { size:12, color:AIL }),
+    text
+  );
+}
+
+// AI Price Advisor Panel
+function AIPriceAdvisor({ category, budgetMin, budgetMax }) {
+  const data = AI_MARKET_DATA[category] || AI_MARKET_DATA["Electronics"];
+  const min = parseFloat(budgetMin) || 0;
+  const max = parseFloat(budgetMax) || 0;
+  let verdict = "Set a budget to get AI analysis";
+  let verdictColor = TS;
+  if (max > 0) {
+    if (max < data.low) { verdict = "Below market — you may not get responses"; verdictColor = "#FF6B6B"; }
+    else if (max < data.avg * 0.7) { verdict = "Below average — competitive but limited"; verdictColor = "#FFB800"; }
+    else if (max <= data.avg * 1.3) { verdict = "Fair market range — good chance of quality bids"; verdictColor = "#4ADE80"; }
+    else { verdict = "Above average — expect premium offers"; verdictColor = "#4ADE80"; }
+  }
+
+  return React.createElement("div", { style:{ ...aiGlass, padding:"20px", marginTop:"20px" } },
+    React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"16px" } },
+      React.createElement("div", { style:{ width:28, height:28, borderRadius:"8px", background:aiGrad, display:"flex", alignItems:"center", justifyContent:"center" } },
+        React.createElement(Sparkles, { size:14, color:"#fff" })
+      ),
+      React.createElement("span", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"16px", letterSpacing:"1px", color:AIL } }, "AI PRICE ADVISOR"),
+    ),
+    React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"12px", marginBottom:"16px" } },
+      [
+        { label:"Market Low", value:"$"+data.low.toLocaleString() },
+        { label:"Average", value:"$"+data.avg.toLocaleString() },
+        { label:"Market High", value:"$"+data.high.toLocaleString() },
+      ].map((s,i) => React.createElement("div", { key:i, style:{ background:"rgba(139,92,246,0.08)", borderRadius:"10px", padding:"10px", textAlign:"center" } },
+        React.createElement("div", { style:{ fontSize:"11px", color:TM, fontFamily:"'DM Sans',sans-serif", marginBottom:"4px" } }, s.label),
+        React.createElement("div", { style:{ fontSize:"16px", fontWeight:700, color:TP, fontFamily:"'DM Sans',sans-serif" } }, s.value)
+      ))
+    ),
+    React.createElement("div", { style:{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"12px" } },
+      React.createElement("div", { style:{ fontSize:"12px", color:TS } }, "Trend: ", React.createElement("span", { style:{ color: data.trend.startsWith("+") ? "#4ADE80" : "#FF6B6B", fontWeight:600 } }, data.trend)),
+      React.createElement("div", { style:{ fontSize:"12px", color:TS } }, "Demand: ", React.createElement("span", { style:{ color:AIL, fontWeight:600 } }, data.demand))
+    ),
+    max > 0 && React.createElement("div", { style:{ background:"rgba(0,0,0,0.2)", borderRadius:"8px", padding:"10px 14px", fontSize:"13px", color:verdictColor, fontFamily:"'DM Sans',sans-serif", fontWeight:600, display:"flex", alignItems:"center", gap:"8px" } },
+      React.createElement(Zap, { size:14, color:verdictColor }),
+      verdict
+    )
+  );
+}
+
+// AI Trust Score Badge (for sellers)
+function AITrustBadge({ seller }) {
+  const score = calcTrustScore(seller);
+  const trust = getTrustLevel(score);
+  const IconComp = { Award, Shield, CheckCircle, User }[trust.icon] || Shield;
+  return React.createElement("div", { style:{ display:"inline-flex", alignItems:"center", gap:"6px", background:`${trust.color}15`, border:`1px solid ${trust.color}25`, borderRadius:"8px", padding:"4px 10px" } },
+    React.createElement(IconComp, { size:12, color:trust.color }),
+    React.createElement("span", { style:{ fontSize:"11px", fontWeight:700, color:trust.color, fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"0.8px" } }, trust.label),
+    React.createElement("span", { style:{ fontSize:"11px", color:trust.color, fontFamily:"'DM Sans',sans-serif", fontWeight:600, opacity:0.8 } }, score+"%")
+  );
+}
+
+// AI Smart Match Panel (for seller hub / browse)
+function AISmartMatchPanel({ requests, setPage }) {
+  const toast = useToast();
+  const scored = requests.map(r => ({ ...r, matchScore: calcMatchScore(r, { verified:true, rating:4.8 }) }))
+    .sort((a,b) => b.matchScore - a.matchScore).slice(0,3);
+
+  return React.createElement("div", { style:{ ...aiGlass, padding:"24px", marginBottom:"32px" } },
+    React.createElement("div", { style:{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"20px" } },
+      React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"10px" } },
+        React.createElement("div", { style:{ width:32, height:32, borderRadius:"10px", background:aiGrad, display:"flex", alignItems:"center", justifyContent:"center" } },
+          React.createElement(Target, { size:16, color:"#fff" })
+        ),
+        React.createElement("div", null,
+          React.createElement("span", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"18px", letterSpacing:"1px", color:AIL } }, "AI SMART MATCH"),
+          React.createElement("div", { style:{ fontSize:"11px", color:TM, fontFamily:"'DM Sans',sans-serif" } }, "Requests matched to your profile")
+        )
+      ),
+      React.createElement(AIBadge, { text:"POWERED BY AI", size:"md" })
+    ),
+    scored.map((r,i) => React.createElement("div", { key:i, onClick:()=>setPage("detail"), style:{ display:"flex", alignItems:"center", gap:"16px", padding:"14px", background:"rgba(139,92,246,0.04)", borderRadius:"12px", marginBottom:i<scored.length-1?"12px":"0", cursor:"pointer", transition:"all 0.2s", border:"1px solid rgba(139,92,246,0.08)" } },
+      React.createElement("div", { style:{ width:44, height:44, borderRadius:"10px", background:aiGrad, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:"16px", fontWeight:700, color:"#fff", fontFamily:"'Bebas Neue',sans-serif" } }, r.matchScore+"%"),
+      React.createElement("div", { style:{ flex:1, minWidth:0 } },
+        React.createElement("div", { style:{ fontWeight:600, color:TP, fontSize:"14px", fontFamily:"'DM Sans',sans-serif", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" } }, r.title),
+        React.createElement("div", { style:{ fontSize:"12px", color:TS, fontFamily:"'DM Sans',sans-serif", marginTop:"2px" } }, r.budget, " • ", r.bids, " bids")
+      ),
+      React.createElement("div", { style:{ fontSize:"12px", color:AIL, fontFamily:"'DM Sans',sans-serif", fontWeight:600, whiteSpace:"nowrap" } }, r.time)
+    ))
+  );
+}
+
+// AI Request Assistant (live suggestions for Post Request page)
+function AIRequestAssistant({ category, title, desc }) {
+  const suggestions = AI_SUGGESTIONS[category] || AI_SUGGESTIONS["Electronics"];
+  const titleLen = (title||"").length;
+  const descLen = (desc||"").length;
+  const [expanded, setExpanded] = useState(true);
+
+  let titleFeedback = "Start typing to get AI suggestions";
+  let titleColor = TM;
+  if (titleLen > 0 && titleLen < 20) { titleFeedback = "Too short — add specifics like brand, model, year"; titleColor = "#FFB800"; }
+  else if (titleLen >= 20 && titleLen < 40) { titleFeedback = "Good — consider adding condition or edition details"; titleColor = "#4ADE80"; }
+  else if (titleLen >= 40) { titleFeedback = "Great detail level — this will attract quality bids"; titleColor = "#4ADE80"; }
+
+  let descFeedback = "Add a description for AI analysis";
+  let descColor = TM;
+  if (descLen > 0 && descLen < 50) { descFeedback = "Add more detail — mention condition, specs, or preferences"; descColor = "#FFB800"; }
+  else if (descLen >= 50 && descLen < 150) { descFeedback = "Good start — consider adding authentication or shipping needs"; descColor = AIL; }
+  else if (descLen >= 150) { descFeedback = "Excellent description — sellers will know exactly what you need"; descColor = "#4ADE80"; }
+
+  return React.createElement("div", { style:{ ...aiGlass, padding:"20px", marginTop:"24px" } },
+    React.createElement("div", { onClick:()=>setExpanded(!expanded), style:{ display:"flex", alignItems:"center", justifyContent:"space-between", cursor:"pointer" } },
+      React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"8px" } },
+        React.createElement("div", { style:{ width:28, height:28, borderRadius:"8px", background:aiGrad, display:"flex", alignItems:"center", justifyContent:"center" } },
+          React.createElement(Sparkles, { size:14, color:"#fff" })
+        ),
+        React.createElement("span", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"16px", letterSpacing:"1px", color:AIL } }, "AI REQUEST ASSISTANT")
+      ),
+      React.createElement(ChevronDown, { size:16, color:AIL, style:{ transform:expanded?"rotate(180deg)":"none", transition:"transform 0.2s" } })
+    ),
+    expanded && React.createElement("div", { style:{ marginTop:"16px" } },
+      React.createElement("div", { style:{ marginBottom:"14px" } },
+        React.createElement("div", { style:{ fontSize:"11px", color:TM, fontFamily:"'DM Sans',sans-serif", marginBottom:"4px", textTransform:"uppercase", letterSpacing:"0.5px" } }, "Title Quality"),
+        React.createElement("div", { style:{ fontSize:"12px", color:titleColor, fontFamily:"'DM Sans',sans-serif", display:"flex", alignItems:"center", gap:"6px" } },
+          React.createElement(titleLen >= 20 ? CheckCircle : Info, { size:12, color:titleColor }),
+          titleFeedback
+        )
+      ),
+      React.createElement("div", { style:{ marginBottom:"14px" } },
+        React.createElement("div", { style:{ fontSize:"11px", color:TM, fontFamily:"'DM Sans',sans-serif", marginBottom:"4px", textTransform:"uppercase", letterSpacing:"0.5px" } }, "Description Quality"),
+        React.createElement("div", { style:{ fontSize:"12px", color:descColor, fontFamily:"'DM Sans',sans-serif", display:"flex", alignItems:"center", gap:"6px" } },
+          React.createElement(descLen >= 50 ? CheckCircle : Info, { size:12, color:descColor }),
+          descFeedback
+        )
+      ),
+      React.createElement("div", { style:{ marginBottom:"14px" } },
+        React.createElement("div", { style:{ fontSize:"11px", color:TM, fontFamily:"'DM Sans',sans-serif", marginBottom:"6px", textTransform:"uppercase", letterSpacing:"0.5px" } }, "Pro Tip"),
+        React.createElement("div", { style:{ fontSize:"12px", color:TS, fontFamily:"'DM Sans',sans-serif", lineHeight:1.5, background:"rgba(139,92,246,0.06)", borderRadius:"8px", padding:"10px 12px" } }, suggestions.tips)
+      ),
+      React.createElement("div", null,
+        React.createElement("div", { style:{ fontSize:"11px", color:TM, fontFamily:"'DM Sans',sans-serif", marginBottom:"6px", textTransform:"uppercase", letterSpacing:"0.5px" } }, "Suggested Tags"),
+        React.createElement("div", { style:{ display:"flex", gap:"6px", flexWrap:"wrap" } },
+          suggestions.tags.map(t => React.createElement("span", { key:t, style:{ background:`${AI}15`, color:AIL, padding:"4px 10px", borderRadius:"100px", fontSize:"11px", fontFamily:"'DM Sans',sans-serif", fontWeight:600, cursor:"pointer" } }, "#"+t))
+        )
+      )
+    )
+  );
+}
+
+// AI Insights Panel (dedicated panel for Detail/Seller pages)
+function AIInsightsPanel({ request, bids }) {
+  const data = AI_MARKET_DATA[request.cat] || AI_MARKET_DATA["Electronics"];
+  const bidPrices = bids.map(b => parseFloat(b.price.replace(/[$,]/g, "")));
+  const avgBid = bidPrices.length ? Math.round(bidPrices.reduce((a,b)=>a+b,0) / bidPrices.length) : 0;
+  const bestDeal = bids.reduce((best, b) => {
+    const score = calcTrustScore(b) * 0.4 + (1 - parseFloat(b.price.replace(/[$,]/g, "")) / data.high) * 0.6 * 100;
+    return score > best.score ? { seller: b.seller, score } : best;
+  }, { seller: "", score: 0 });
+
+  return React.createElement("div", { style:{ ...aiGlass, padding:"20px", marginBottom:"24px" } },
+    React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"16px" } },
+      React.createElement("div", { style:{ width:28, height:28, borderRadius:"8px", background:aiGrad, display:"flex", alignItems:"center", justifyContent:"center" } },
+        React.createElement(Sparkles, { size:14, color:"#fff" })
+      ),
+      React.createElement("span", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"16px", letterSpacing:"1px", color:AIL } }, "AI INSIGHTS")
+    ),
+    React.createElement("div", { style:{ display:"flex", flexDirection:"column", gap:"12px" } },
+      React.createElement("div", { style:{ background:"rgba(139,92,246,0.06)", borderRadius:"10px", padding:"12px" } },
+        React.createElement("div", { style:{ fontSize:"11px", color:TM, fontFamily:"'DM Sans',sans-serif", marginBottom:"4px" } }, "MARKET POSITION"),
+        React.createElement("div", { style:{ fontSize:"14px", fontWeight:600, color:TP, fontFamily:"'DM Sans',sans-serif" } }, "Category avg: $"+data.avg.toLocaleString()),
+        React.createElement("div", { style:{ fontSize:"12px", color: data.trend.startsWith("+") ? "#4ADE80" : "#FF6B6B", fontFamily:"'DM Sans',sans-serif", marginTop:"2px" } }, "Trending ", data.trend, " this month")
+      ),
+      avgBid > 0 && React.createElement("div", { style:{ background:"rgba(139,92,246,0.06)", borderRadius:"10px", padding:"12px" } },
+        React.createElement("div", { style:{ fontSize:"11px", color:TM, fontFamily:"'DM Sans',sans-serif", marginBottom:"4px" } }, "BID ANALYSIS"),
+        React.createElement("div", { style:{ fontSize:"14px", fontWeight:600, color:TP, fontFamily:"'DM Sans',sans-serif" } }, "Avg bid: $"+avgBid.toLocaleString()),
+        React.createElement("div", { style:{ fontSize:"12px", color:AIL, fontFamily:"'DM Sans',sans-serif", marginTop:"2px" } }, bids.length+" bids • "+data.demand+" demand")
+      ),
+      bestDeal.seller && React.createElement("div", { style:{ background:"rgba(74,222,128,0.06)", borderRadius:"10px", padding:"12px", border:"1px solid rgba(74,222,128,0.1)" } },
+        React.createElement("div", { style:{ fontSize:"11px", color:TM, fontFamily:"'DM Sans',sans-serif", marginBottom:"4px" } }, "AI RECOMMENDED"),
+        React.createElement("div", { style:{ fontSize:"13px", fontWeight:600, color:"#4ADE80", fontFamily:"'DM Sans',sans-serif", display:"flex", alignItems:"center", gap:"6px" } },
+          React.createElement(Sparkles, { size:12, color:"#4ADE80" }),
+          bestDeal.seller, " — best value + trust combo"
+        )
+      )
+    )
+  );
+}
+
+// Toast system
+const ToastCtx = createContext();
+
+function ToastProvider({ children }) {
+  const [toasts, setToasts] = useState([]);
+  const idRef = useRef(0);
+
+  const toast = useCallback((message, type="success") => {
+    const id = ++idRef.current;
+    setToasts(t => [...t, { id, message, type, exiting: false }]);
+    setTimeout(() => {
+      setToasts(t => t.map(x => x.id === id ? { ...x, exiting: true } : x));
+      setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 300);
+    }, 2500);
+  }, []);
+
+  return React.createElement(ToastCtx.Provider, { value: toast },
+    children,
+    React.createElement("div", { style: { position:"fixed", top:84, right:20, zIndex:9999, display:"flex", flexDirection:"column", gap:"8px" } },
+      toasts.map(t => React.createElement("div", {
+        key: t.id,
+        className: t.exiting ? "toast-exit" : "toast-enter",
+        style: {
+          ...glass,
+          padding:"14px 20px",
+          display:"flex", alignItems:"center", gap:"10px",
+          fontSize:"14px", fontFamily:"'DM Sans',sans-serif", color:TP,
+          minWidth:260,
+          borderLeft: t.type === "success" ? `3px solid ${M}` : t.type === "info" ? "3px solid #4A90D9" : "3px solid #FFB800",
+        }
+      },
+        React.createElement(t.type === "success" ? CheckCircle : t.type === "info" ? Info : Bell, { size:16, color: t.type === "success" ? ML : t.type === "info" ? "#4A90D9" : "#FFB800" }),
+        t.message
+      ))
+    )
+  );
+}
+
+function useToast() { return useContext(ToastCtx); }
+
+// ─── SUPABASE CLIENT ───
+const SUPABASE_URL = "https://gqdtslzwxbffiteoshuj.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxZHRzbHp3eGJmZml0ZW9zaHVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MjU1ODAsImV4cCI6MjA4OTMwMTU4MH0.8mXAIzQCn5V1E_BvBBk0ZyNpFo0wFWChdPXijsRgdao";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Auth context
+const AuthCtx = createContext();
+
+function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(session.user);
+        fetchProfile(session.user.id);
+      }
+      setLoading(false);
+    });
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        fetchProfile(session.user.id);
+      } else {
+        setUser(null);
+        setProfile(null);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchProfile = async (uid) => {
+    const { data } = await supabase.from("profiles").select("*").eq("id", uid).single();
+    if (data) setProfile(data);
+  };
+
+  const signup = async (email, password, username) => {
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options: { data: { username, full_name: username } }
+    });
+    if (error) throw error;
+    return data;
+  };
+
+  const signin = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
+  };
+
+  const signout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setProfile(null);
+  };
+
+  const authUser = user ? { ...user, username: profile?.username || user.email?.split("@")[0], avatar_url: profile?.avatar_url, profile } : null;
+
+  return React.createElement(AuthCtx.Provider, { value: { user: authUser, loading, signup, signin, signout, profile, supabase } }, children);
+}
+
+function useAuth() { return useContext(AuthCtx); }
+
+// Logo
+function Logo({ size="md" }) {
+  const fs = { sm:20, md:28, lg:40 }[size];
+  return React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"10px", cursor:"pointer" } },
+    React.createElement("div", { style:{ width:fs+8, height:fs+8, background:`linear-gradient(135deg,${M},${MD})`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:`0 0 30px ${M}44` } },
+      React.createElement("div", { style:{ width:fs-4, height:fs-4, border:"2.5px solid rgba(255,255,255,0.9)", borderRadius:"50%" } })
+    ),
+    React.createElement("span", { style:{ fontFamily:"'Bebas Neue','Oswald',sans-serif", fontSize:fs, fontWeight:400, letterSpacing:"4px", color:TP, textTransform:"uppercase" } }, "SURCAL")
+  );
+}
+
+// Auth modal
+function AuthModal({ onClose, onAuth }) {
+  const [tab, setTab] = useState("signin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const { signup, signin } = useAuth();
+  const toast = useToast();
+
+  const handleSubmit = async () => {
+    if (!email || !password) {
+      toast("Please fill all fields", "info");
+      return;
+    }
+    try {
+      if (tab === "signup") {
+        if (!username) {
+          toast("Please enter a username", "info");
+          return;
+        }
+        const result = await signup(email, password, username);
+        // Check if email confirmation is required
+        if (result?.user?.identities?.length === 0) {
+          toast("Account may already exist — try signing in", "info");
+          setTab("signin");
+          return;
+        }
+        if (result?.user && !result?.session) {
+          // Email confirmation is required
+          toast("Check your email for a confirmation link, then sign in!", "info");
+          setTab("signin");
+          return;
+        }
+        toast("Account created! Welcome to SURCAL", "success");
+        onAuth();
+        onClose();
+      } else {
+        await signin(email, password);
+        toast("Signed in successfully!", "success");
+        onAuth();
+        onClose();
+      }
+    } catch (err) {
+      const msg = err.message || "Authentication failed";
+      if (msg.includes("Email not confirmed")) {
+        toast("Check your email for a confirmation link first", "info");
+      } else if (msg.includes("Invalid login")) {
+        toast("Wrong email or password — try again", "info");
+      } else {
+        toast(msg, "info");
+      }
+    }
+  };
+
+  return React.createElement("div", { style:{ position:"fixed", inset:0, background:"rgba(0,0,0,0.8)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:2000 } },
+    React.createElement("div", { style:{ ...glass, padding:"40px", width:"100%", maxWidth:400 } },
+      React.createElement("div", { style:{ display:"flex", gap:"8px", marginBottom:"32px" } },
+        ["signin","signup"].map(t => React.createElement("button", { key:t, onClick:()=>setTab(t), style:{
+          flex:1, padding:"12px", borderRadius:"10px", border:"none", fontWeight:600, fontFamily:"'DM Sans',sans-serif",
+          background: tab===t ? M : "rgba(255,255,255,0.05)", color: tab===t ? "#fff" : TS, cursor:"pointer"
+        } }, t==="signin"?"Sign In":"Sign Up"))
+      ),
+      React.createElement("div", { style:{ display:"flex", flexDirection:"column", gap:"16px" } },
+        React.createElement("input", { type:"email", placeholder:"Email", value:email, onChange:e=>setEmail(e.target.value), style:iS }),
+        tab==="signup" && React.createElement("input", { type:"text", placeholder:"Username", value:username, onChange:e=>setUsername(e.target.value), style:iS }),
+        React.createElement("input", { type:"password", placeholder:"Password", value:password, onChange:e=>setPassword(e.target.value), style:iS }),
+        React.createElement("button", { onClick:handleSubmit, style:{ ...bP, width:"100%" } }, tab==="signin"?"Sign In":"Create Account"),
+        React.createElement("button", { onClick:onClose, style:{ ...bS, width:"100%" } }, "Cancel")
+      )
+    )
+  );
+}
+
+// NavBar
+function NavBar({ page, setPage, user, onAuthOpen }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const toast = useToast();
+  const { signout } = useAuth();
+
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", h);
+    return () => window.removeEventListener("scroll", h);
+  }, []);
+
+  const notifs = [
+    { text:"New bid on your Fender Stratocaster request", time:"2m ago", unread:true },
+    { text:"Margaux accepted your bid!", time:"1h ago", unread:true },
+    { text:"Your Credenza request expires tomorrow", time:"3h ago", unread:false },
+  ];
+
+  return React.createElement("nav", { style:{
+    position:"fixed", top:0, left:0, right:0, zIndex:1000,
+    background: scrolled ? "rgba(10,10,15,0.85)" : "transparent",
+    backdropFilter: scrolled ? "blur(24px)" : "none",
+    WebkitBackdropFilter: scrolled ? "blur(24px)" : "none",
+    borderBottom: scrolled ? "1px solid rgba(255,255,255,0.05)" : "none",
+    transition:"all 0.4s ease", padding:"0 40px",
+  }},
+    React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", display:"flex", alignItems:"center", justifyContent:"space-between", height:72 } },
+      React.createElement("div", { onClick:() => setPage("home"), style:{cursor:"pointer"} }, React.createElement(Logo)),
+      React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"4px" } },
+        ["home","browse","post","dashboard","how"].map(k => React.createElement("button", { key:k, onClick:() => setPage(k), style:{
+          background: page===k ? `${M}18` : "transparent",
+          color: page===k ? ML : TS,
+          border:"none", borderRadius:"10px", padding:"8px 18px",
+          fontSize:"13px", fontWeight:600, fontFamily:"'DM Sans',sans-serif",
+          cursor:"pointer", transition:"all 0.2s ease", letterSpacing:"0.3px",
+        } }, k==="how"?"How It Works":k.charAt(0).toUpperCase()+k.slice(1)))
+      ),
+      React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"12px" } },
+        user && React.createElement("button", { onClick:()=>setPage("messages"), style:{
+          background: page==="messages" ? `${M}15` : "transparent", border:"none", color: page==="messages" ? ML : TS,
+          cursor:"pointer", padding:8, borderRadius:"10px", transition:"all 0.2s"
+        } }, React.createElement(MessageSquare, { size:20 })),
+        React.createElement("button", { onClick:()=>setNotifOpen(!notifOpen), style:{
+          background: notifOpen ? `${M}15` : "transparent", border:"none", color: notifOpen ? ML : TS,
+          cursor:"pointer", padding:8, borderRadius:"10px", transition:"all 0.2s", position:"relative"
+        } },
+          React.createElement(Bell, { size:20 }),
+          React.createElement("div", { style:{ position:"absolute", top:6, right:6, width:8, height:8, borderRadius:"50%", background:M, border:`2px solid ${DARK}` } })
+        ),
+        notifOpen && React.createElement("div", { style:{
+          position:"absolute", top:50, right:0, width:340, ...glass, padding:"8px 0", zIndex:100,
+        } },
+          React.createElement("div", { style:{ padding:"12px 16px", borderBottom:"1px solid rgba(255,255,255,0.06)", fontSize:"14px", fontWeight:700, fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"1.5px", color:TP } }, "NOTIFICATIONS"),
+          notifs.map((n,i) => React.createElement("div", { key:i, onClick:() => setNotifOpen(false), style:{
+            padding:"12px 16px", cursor:"pointer", display:"flex", gap:"10px", alignItems:"flex-start",
+            background: n.unread ? `${M}08` : "transparent",
+            borderBottom:"1px solid rgba(255,255,255,0.04)",
+            transition:"background 0.2s",
+          } },
+            React.createElement("div", { style:{ width:8, height:8, borderRadius:"50%", background: n.unread ? ML : "transparent", marginTop:6, flexShrink:0 } }),
+            React.createElement("div", null,
+              React.createElement("div", { style:{ fontSize:"13px", color:TP, fontFamily:"'DM Sans',sans-serif", lineHeight:1.4 } }, n.text),
+              React.createElement("div", { style:{ fontSize:"11px", color:TM, fontFamily:"'DM Sans',sans-serif", marginTop:4 } }, n.time)
+            )
+          )),
+          React.createElement("div", { onClick:() => { setNotifOpen(false); setPage("dashboard"); }, style:{ padding:"12px 16px", textAlign:"center", fontSize:"13px", color:ML, fontFamily:"'DM Sans',sans-serif", fontWeight:600, cursor:"pointer" } }, "View All Notifications")
+        ),
+        user ? React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"8px" } },
+          React.createElement("div", { style:{
+            width:36, height:36, borderRadius:"50%",
+            background:`linear-gradient(135deg,${M},${MD})`,
+            display:"flex", alignItems:"center", justifyContent:"center",
+            cursor:"pointer", fontSize:"14px", fontWeight:700, color:"#fff",
+            fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"1px",
+          }, onClick:() => setPage("profile") }, (user.username || user.email || "U").charAt(0).toUpperCase()),
+          React.createElement("button", { onClick:() => { signout(); setPage("home"); toast("Signed out", "success"); }, style:{ ...bS, padding:"8px 16px", fontSize:"13px" } }, "Sign Out")
+        ) : React.createElement("button", { onClick:onAuthOpen, style:{ ...bP, padding:"8px 16px", fontSize:"13px" } }, "Sign In")
+      )
+    )
+  );
+}
+
+// StatBar
+function StatBar() {
+  return React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"16px", maxWidth:1320, margin:"0 auto", padding:"0 40px" } },
+    STAT_DATA.map(s => React.createElement("div", { key:s.label, style:{ ...gCard, display:"flex", alignItems:"center", gap:"16px", padding:"20px 24px" } },
+      React.createElement("div", { style:{ width:44, height:44, borderRadius:"12px", background:`${M}15`, display:"flex", alignItems:"center", justifyContent:"center" } },
+        React.createElement(s.icon, { size:20, color:ML })
+      ),
+      React.createElement("div", null,
+        React.createElement("div", { style:{ fontSize:"24px", fontWeight:400, color:TP, fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"1px" } }, s.value),
+        React.createElement("div", { style:{ fontSize:"12px", color:TS, fontFamily:"'DM Sans',sans-serif" } }, s.label)
+      )
+    ))
+  );
+}
+
+// ReqCard
+function ReqCard({ r, onClick }) {
+  const [h, setH] = useState(false);
+  return React.createElement("div", {
+    onClick, onMouseEnter:()=>setH(true), onMouseLeave:()=>setH(false),
+    style:{ ...gCard, padding:0, overflow:"hidden", cursor:"pointer",
+      transform: h?"translateY(-4px)":"translateY(0)",
+      boxShadow: h?`0 20px 60px rgba(0,0,0,0.4), 0 0 40px ${M}11`:"0 4px 20px rgba(0,0,0,0.2)",
+      border: h?`1px solid ${M}33`:"1px solid rgba(255,255,255,0.07)",
+    }
+  },
+    React.createElement("div", { style:{ position:"relative", height:200, overflow:"hidden" } },
+      React.createElement("img", { src:r.img, alt:"", style:{ width:"100%", height:"100%", objectFit:"cover", transition:"transform 0.5s ease", transform: h?"scale(1.05)":"scale(1)" } }),
+      React.createElement("div", { style:{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(10,10,15,0.9) 0%, transparent 60%)" } }),
+      React.createElement("div", { style:{ position:"absolute", top:14, left:14, display:"flex", gap:"6px" } },
+        r.urgent && React.createElement("div", { style:bdg("#FF4444") }, React.createElement(Zap,{size:10}), " Urgent"),
+        React.createElement("div", { style:{ ...aiBdg, background:"rgba(139,92,246,0.3)", backdropFilter:"blur(8px)" } }, React.createElement(Sparkles,{size:8}), Math.round(70+Math.random()*25)+"% Match")
+      ),
+      React.createElement("div", { style:{ position:"absolute", top:14, right:14, ...bdg(M) } }, r.cat),
+      React.createElement("div", { style:{ position:"absolute", bottom:14, left:14, right:14, display:"flex", justifyContent:"space-between", alignItems:"flex-end" } },
+        React.createElement("div", { style:{ fontSize:"22px", fontWeight:400, color:TP, fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"0.5px" } }, r.budget),
+        React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"4px", fontSize:"12px", color:TS, fontFamily:"'DM Sans',sans-serif" } }, React.createElement(Clock,{size:12}), " ", r.time)
+      )
+    ),
+    React.createElement("div", { style:{ padding:"20px" } },
+      React.createElement("h3", { style:{ fontSize:"16px", fontWeight:600, color:TP, fontFamily:"'DM Sans',sans-serif", lineHeight:1.4, marginBottom:"14px", display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" } }, r.title),
+      React.createElement("div", { style:{ display:"flex", alignItems:"center", justifyContent:"space-between" } },
+        React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"10px" } },
+          React.createElement("img", { src:r.avatar, alt:"", style:{ width:28, height:28, borderRadius:"50%", objectFit:"cover" } }),
+          React.createElement("span", { style:{ fontSize:"13px", color:TS, fontFamily:"'DM Sans',sans-serif" } }, r.user)
+        ),
+        React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"4px", fontSize:"13px", color:ML, fontWeight:600, fontFamily:"'DM Sans',sans-serif" } }, React.createElement(Users,{size:14}), " ", r.bids)
+      )
+    )
+  );
+}
+
+// Pages
+
+function HomePage({ setPage, goToDetail }) {
+  const { requests, loading } = useRequests();
+  return React.createElement("div", null,
+    React.createElement("section", { style:{ position:"relative", minHeight:"92vh", display:"flex", alignItems:"center", overflow:"hidden" } },
+      React.createElement("div", { style:{ position:"absolute", inset:0, backgroundImage:`url(${IMG.hero})`, backgroundSize:"cover", backgroundPosition:"center", filter:"brightness(0.2)" } }),
+      React.createElement("div", { style:{ position:"absolute", inset:0, background:`radial-gradient(ellipse at 30% 50%, ${M}12 0%, transparent 60%)` } }),
+      React.createElement("div", { style:{ position:"absolute", bottom:0, left:0, right:0, height:"30%", background:`linear-gradient(to top, ${DARK}, transparent)` } }),
+      React.createElement("div", { style:{ position:"relative", maxWidth:1320, margin:"0 auto", padding:"0 40px", width:"100%" } },
+        React.createElement("div", { style:{ maxWidth:720 } },
+          React.createElement("div", { style:{ ...bdg(M), marginBottom:"24px" } }, React.createElement(Sparkles,{size:12}), " The Buyer's Market"),
+          React.createElement("h1", { style:{ fontFamily:"'Bebas Neue','Oswald',sans-serif", fontSize:"82px", fontWeight:400, color:TP, lineHeight:0.95, letterSpacing:"-1px", marginBottom:"24px" } },
+            "YOU SET", React.createElement("br"), "THE PRICE.", React.createElement("br"),
+            React.createElement("span", { style:{color:ML} }, "THEY COMPETE.")
+          ),
+          React.createElement("p", { style:{ fontSize:"18px", color:TS, fontFamily:"'DM Sans',sans-serif", lineHeight:1.7, maxWidth:520, marginBottom:"40px" } },
+            "Post what you're looking for and let verified sellers bid to fulfill your request. The reverse marketplace where buyers hold the power."
+          ),
+          React.createElement("div", { style:{ display:"flex", gap:"16px", flexWrap:"wrap" } },
+            React.createElement("button", { onClick:()=>setPage("post"), style:bP }, "Post a Request ", React.createElement(ArrowRight,{size:18})),
+            React.createElement("button", { onClick:()=>setPage("browse"), style:bS }, "Browse Requests")
+          )
+        )
+      )
+    ),
+    React.createElement("section", { style:{ marginTop:"-40px", position:"relative", zIndex:10, marginBottom:"80px" } }, React.createElement(StatBar)),
+    React.createElement("section", { style:{ maxWidth:1320, margin:"0 auto", padding:"0 40px 80px" } },
+      React.createElement("div", { style:{ textAlign:"center", marginBottom:"60px" } },
+        React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"48px", color:TP, letterSpacing:"2px", marginBottom:"12px" } }, "HOW SURCAL WORKS"),
+        React.createElement("p", { style:{ fontSize:"16px", color:TS, fontFamily:"'DM Sans',sans-serif" } }, "Three simple steps to finding exactly what you want")
+      ),
+      React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"24px" } },
+        [
+          { s:"01", t:"POST YOUR REQUEST", d:"Describe what you're looking for, set your budget range, and add a deadline. Be as specific as you want.", i:Edit3 },
+          { s:"02", t:"RECEIVE BIDS", d:"Verified sellers compete to fulfill your request with their best offers. Compare prices, ratings, and reviews.", i:Users },
+          { s:"03", t:"CHOOSE & TRANSACT", d:"Pick the bid that works best for you. Secure payment through our escrow system protects both parties.", i:Shield },
+        ].map(x => React.createElement("div", { key:x.s, onClick:()=>setPage("how"), style:{ ...gCard, textAlign:"center", padding:"48px 32px", cursor:"pointer" } },
+          React.createElement("div", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"64px", color:`${M}22`, letterSpacing:"2px", lineHeight:1 } }, x.s),
+          React.createElement("div", { style:{ width:56, height:56, borderRadius:"16px", background:`${M}12`, display:"flex", alignItems:"center", justifyContent:"center", margin:"20px auto" } }, React.createElement(x.i, {size:24,color:ML})),
+          React.createElement("h3", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"22px", color:TP, letterSpacing:"2px", marginBottom:"12px" } }, x.t),
+          React.createElement("p", { style:{ fontSize:"14px", color:TS, fontFamily:"'DM Sans',sans-serif", lineHeight:1.7 } }, x.d)
+        ))
+      )
+    ),
+    React.createElement("section", { style:{ maxWidth:1320, margin:"0 auto", padding:"0 40px 80px" } },
+      React.createElement("div", { style:{ ...aiGlass, padding:"40px", display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:"24px", position:"relative", overflow:"hidden" } },
+        React.createElement("div", { style:{ position:"absolute", inset:0, background:`radial-gradient(ellipse at top left, ${AI}12 0%, transparent 60%)` } }),
+        React.createElement("div", { style:{ position:"relative", gridColumn:"1 / -1", marginBottom:"8px", display:"flex", alignItems:"center", gap:"12px" } },
+          React.createElement("div", { style:{ width:36, height:36, borderRadius:"10px", background:aiGrad, display:"flex", alignItems:"center", justifyContent:"center" } },
+            React.createElement(Sparkles, { size:18, color:"#fff" })
+          ),
+          React.createElement("div", null,
+            React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"28px", color:AIL, letterSpacing:"2px" } }, "POWERED BY AI"),
+            React.createElement("p", { style:{ fontSize:"13px", color:TM, fontFamily:"'DM Sans',sans-serif" } }, "Smart features that make every transaction better")
+          )
+        ),
+        [
+          { icon:DollarSign, title:"PRICE ADVISOR", desc:"AI analyzes market data to recommend fair budgets and flag over/underpriced bids in real time." },
+          { icon:Shield, title:"SELLER VERIFICATION", desc:"Trust scores calculated from response time, completion rate, reviews, and account history." },
+          { icon:Target, title:"SMART MATCH", desc:"Automatically pairs your requests with the most qualified sellers based on their expertise." },
+          { icon:Sparkles, title:"REQUEST ASSISTANT", desc:"Live AI coaching as you write — better descriptions mean better bids from better sellers." },
+        ].map((f,i) => React.createElement("div", { key:i, style:{ position:"relative", background:"rgba(139,92,246,0.04)", borderRadius:"12px", padding:"20px", border:"1px solid rgba(139,92,246,0.08)" } },
+          React.createElement("div", { style:{ width:32, height:32, borderRadius:"8px", background:`${AI}20`, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:"12px" } },
+            React.createElement(f.icon, { size:16, color:AIL })
+          ),
+          React.createElement("h4", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"16px", color:TP, letterSpacing:"1px", marginBottom:"8px" } }, f.title),
+          React.createElement("p", { style:{ fontSize:"13px", color:TS, fontFamily:"'DM Sans',sans-serif", lineHeight:1.5 } }, f.desc)
+        ))
+      )
+    ),
+    React.createElement("section", { style:{ maxWidth:1320, margin:"0 auto", padding:"0 40px 80px" } },
+      React.createElement("div", { style:{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"36px" } },
+        React.createElement("div", null,
+          React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"42px", color:TP, letterSpacing:"2px" } }, "TRENDING REQUESTS"),
+          React.createElement("p", { style:{ fontSize:"14px", color:TS, fontFamily:"'DM Sans',sans-serif", marginTop:"4px" } }, "Hot items people are looking for right now")
+        ),
+        React.createElement("button", { onClick:()=>setPage("browse"), style:bS }, "View All ", React.createElement(ChevronRight,{size:16}))
+      ),
+      requests.length > 0 ?
+        React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"20px" } },
+          requests.slice(0,4).map(r => React.createElement(ReqCard, { key:r.id, r, onClick:()=>goToDetail(r) }))
+        ) :
+        React.createElement(EmptyState, { icon:ShoppingBag, title:"NO REQUESTS YET", subtitle:"Be the first to post a request and let sellers come to you.", actionLabel:"Post a Request", onAction:()=>setPage("post") })
+    ),
+    React.createElement("section", { style:{ maxWidth:1320, margin:"0 auto", padding:"0 40px 80px" } },
+      React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"42px", color:TP, letterSpacing:"2px", marginBottom:"36px" } }, "EXPLORE CATEGORIES"),
+      React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"16px" } },
+        CATS.map(c => React.createElement("div", { key:c.name, onClick:()=>setPage("browse"), style:{ ...gCard, display:"flex", alignItems:"center", gap:"16px", cursor:"pointer", padding:"20px 24px" } },
+          React.createElement("span", { style:{fontSize:"28px"} }, c.icon),
+          React.createElement("div", null,
+            React.createElement("div", { style:{ fontSize:"16px", fontWeight:600, color:TP, fontFamily:"'DM Sans',sans-serif" } }, c.name),
+            React.createElement("div", { style:{ fontSize:"12px", color:TS, fontFamily:"'DM Sans',sans-serif" } }, c.count.toLocaleString()+" requests")
+          )
+        ))
+      )
+    ),
+    React.createElement("section", { style:{ maxWidth:1320, margin:"0 auto", padding:"0 40px 100px" } },
+      React.createElement("div", { style:{ ...glass, padding:"80px", textAlign:"center", position:"relative", overflow:"hidden" } },
+        React.createElement("div", { style:{ position:"absolute", inset:0, background:`radial-gradient(ellipse at center, ${M}08 0%, transparent 70%)` } }),
+        React.createElement("div", { style:{position:"relative"} },
+          React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"56px", color:TP, letterSpacing:"2px", marginBottom:"16px" } }, "STOP SEARCHING.", React.createElement("br"), "START REQUESTING."),
+          React.createElement("p", { style:{ fontSize:"16px", color:TS, fontFamily:"'DM Sans',sans-serif", marginBottom:"36px", maxWidth:480, margin:"0 auto 36px" } }, "Join thousands of buyers who've flipped the script on traditional marketplaces."),
+          React.createElement("button", { onClick:()=>setPage("post"), style:{ ...bP, padding:"18px 40px", fontSize:"16px" } }, "Post Your First Request ", React.createElement(ArrowRight,{size:20}))
+        )
+      )
+    )
+  );
+}
+
+function BrowsePage({ setPage, user, onAuthOpen, goToDetail }) {
+  const [search, setSearch] = useState("");
+  const [activeCat, setActiveCat] = useState("All");
+  const [sortBy, setSortBy] = useState("trending");
+  const { requests, loading } = useRequests();
+
+  let filtered = requests.filter(r =>
+    (activeCat==="All" || r.cat===activeCat) &&
+    (search==="" || r.title.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  if (sortBy==="most-bids") filtered = [...filtered].sort((a,b)=>b.bids-a.bids);
+  if (sortBy==="newest") filtered = [...filtered].reverse();
+
+  return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+    React.createElement("div", { style:{marginBottom:"40px"} },
+      React.createElement("h1", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"56px", color:TP, letterSpacing:"2px" } }, "BROWSE REQUESTS"),
+      React.createElement("p", { style:{ fontSize:"16px", color:TS, fontFamily:"'DM Sans',sans-serif", marginTop:"8px" } }, "Find requests you can fulfill and start earning")
+    ),
+    React.createElement("div", { style:{ display:"flex", gap:"16px", marginBottom:"32px" } },
+      React.createElement("div", { style:{ flex:1, position:"relative" } },
+        React.createElement(Search, { size:18, color:TM, style:{ position:"absolute", left:16, top:"50%", transform:"translateY(-50%)", pointerEvents:"none" } }),
+        React.createElement("input", { type:"text", placeholder:"Search requests...", value:search, onChange:e=>setSearch(e.target.value), style:{ ...iS, paddingLeft:46 } })
+      ),
+      React.createElement("select", { value:sortBy, onChange:e=>setSortBy(e.target.value), style:{ ...iS, width:"auto", minWidth:180, cursor:"pointer" } },
+        React.createElement("option", {value:"trending"}, "Trending"),
+        React.createElement("option", {value:"newest"}, "Newest First"),
+        React.createElement("option", {value:"most-bids"}, "Most Bids")
+      )
+    ),
+    React.createElement("div", { style:{ display:"flex", gap:"8px", marginBottom:"40px", flexWrap:"wrap" } },
+      ["All", ...CATS.map(c=>c.name)].map(cat => React.createElement("button", { key:cat, onClick:()=>setActiveCat(cat), style:{
+        background: activeCat===cat ? M : "rgba(255,255,255,0.04)",
+        color: activeCat===cat ? "#fff" : TS,
+        border: activeCat===cat ? "none" : "1px solid rgba(255,255,255,0.08)",
+        borderRadius:"100px", padding:"8px 20px", fontSize:"13px", fontWeight:600,
+        fontFamily:"'DM Sans',sans-serif", cursor:"pointer", transition:"all 0.2s ease",
+      } }, cat))
+    ),
+    React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"20px" } },
+      filtered.map(r => React.createElement(ReqCard, { key:r.id, r, onClick:()=>goToDetail(r) }))
+    ),
+    loading && React.createElement("div", { style:{ textAlign:"center", padding:"60px", color:TS } }, "Loading requests..."),
+    !loading && !filtered.length && React.createElement(EmptyState, { icon:Search, title: requests.length === 0 ? "NO REQUESTS YET" : "NO MATCHES", subtitle: requests.length === 0 ? "The marketplace is fresh and waiting. Be the first to post what you're looking for!" : "Try adjusting your search or filters.", actionLabel:"Post a Request", onAction:()=>setPage("post") })
+  );
+}
+
+function PostPage({ setPage, user, onAuthOpen }) {
+  const toast = useToast();
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
+  const [category, setCategory] = useState("Electronics");
+  const [budgetMin, setBudgetMin] = useState("");
+  const [budgetMax, setBudgetMax] = useState("");
+
+  if (!user) {
+    return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+      React.createElement("div", { style:{ textAlign:"center", padding:"60px 20px" } },
+        React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"42px", color:TP, letterSpacing:"2px", marginBottom:"16px" } }, "SIGN IN TO POST"),
+        React.createElement("p", { style:{ fontSize:"16px", color:TS, fontFamily:"'DM Sans',sans-serif", marginBottom:"32px" } }, "You need to be signed in to post a request"),
+        React.createElement("button", { onClick:onAuthOpen, style:bP }, "Sign In Now ", React.createElement(ArrowRight,{size:18}))
+      )
+    );
+  }
+
+  const handleSubmit = async () => {
+    if (!title || !desc || !budgetMin || !budgetMax) {
+      toast("Please fill all fields", "info");
+      return;
+    }
+    try {
+      // Get category ID from Supabase
+      const { data: catData } = await supabase.from("categories").select("id").eq("name", category).single();
+      const { error } = await supabase.from("requests").insert({
+        buyer_id: user.id,
+        category_id: catData?.id || null,
+        title,
+        description: desc,
+        budget_min: parseFloat(budgetMin),
+        budget_max: parseFloat(budgetMax),
+        urgency: "medium",
+        status: "open",
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      });
+      if (error) throw error;
+      toast("Request posted successfully!", "success");
+      setTimeout(() => setPage("browse"), 1000);
+    } catch (err) {
+      toast(err.message || "Failed to post request", "info");
+    }
+  };
+
+  return React.createElement("div", { style:{ maxWidth:800, margin:"0 auto", padding:"100px 40px 80px" } },
+    React.createElement("h1", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"56px", color:TP, letterSpacing:"2px", marginBottom:"40px" } }, "POST A REQUEST"),
+    React.createElement("div", { style:{ display:"flex", flexDirection:"column", gap:"24px" } },
+      React.createElement("div", null,
+        React.createElement("label", { style:{ fontSize:"14px", fontWeight:600, color:TP, display:"block", marginBottom:"8px" } }, "What are you looking for?"),
+        React.createElement("input", { type:"text", placeholder:"e.g., Vintage Fender Stratocaster", value:title, onChange:e=>setTitle(e.target.value), style:iS })
+      ),
+      React.createElement("div", null,
+        React.createElement("label", { style:{ fontSize:"14px", fontWeight:600, color:TP, display:"block", marginBottom:"8px" } }, "Description"),
+        React.createElement("textarea", { placeholder:"Provide details about what you're looking for...", value:desc, onChange:e=>setDesc(e.target.value), style:{ ...iS, minHeight:120, fontFamily:"'DM Sans',sans-serif" } })
+      ),
+      React.createElement("div", null,
+        React.createElement("label", { style:{ fontSize:"14px", fontWeight:600, color:TP, display:"block", marginBottom:"8px" } }, "Category"),
+        React.createElement("select", { value:category, onChange:e=>setCategory(e.target.value), style:iS },
+          CATS.map(c => React.createElement("option", { key:c.name, value:c.name }, c.name))
+        )
+      ),
+      React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"16px" } },
+        React.createElement("div", null,
+          React.createElement("label", { style:{ fontSize:"14px", fontWeight:600, color:TP, display:"block", marginBottom:"8px" } }, "Min Budget"),
+          React.createElement("input", { type:"number", placeholder:"$0", value:budgetMin, onChange:e=>setBudgetMin(e.target.value), style:iS })
+        ),
+        React.createElement("div", null,
+          React.createElement("label", { style:{ fontSize:"14px", fontWeight:600, color:TP, display:"block", marginBottom:"8px" } }, "Max Budget"),
+          React.createElement("input", { type:"number", placeholder:"$5000", value:budgetMax, onChange:e=>setBudgetMax(e.target.value), style:iS })
+        )
+      ),
+      React.createElement("div", { style:{ display:"flex", gap:"16px" } },
+        React.createElement("button", { onClick:handleSubmit, style:bP }, "Post Request ", React.createElement(ArrowRight,{size:18})),
+        React.createElement("button", { onClick:()=>setPage("home"), style:bS }, "Cancel")
+      ),
+      React.createElement(AIPriceAdvisor, { category, budgetMin, budgetMax }),
+      React.createElement(AIRequestAssistant, { category, title, desc })
+    )
+  );
+}
+
+function DetailPage({ setPage, user, onAuthOpen, request }) {
+  const toast = useToast();
+  const [placingBid, setPlacingBid] = useState(false);
+  const [bidPrice, setBidPrice] = useState("");
+  const [bidMsg, setBidMsg] = useState("");
+  const req = request;
+  const { bids, loading: bidsLoading } = useBids(req?.raw?.id || req?.id);
+
+  if (!req) {
+    return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+      React.createElement(EmptyState, { icon:Search, title:"NO REQUEST SELECTED", subtitle:"Browse the marketplace to find a request to view.", actionLabel:"Browse Requests", onAction:()=>setPage("browse") })
+    );
+  }
+
+  const handlePlaceBid = async () => {
+    if (!user) {
+      onAuthOpen();
+      return;
+    }
+    if (!bidPrice) {
+      toast("Please enter a bid price", "info");
+      return;
+    }
+    try {
+      const { error } = await supabase.from("bids").insert({
+        request_id: req.raw?.id || req.id,
+        seller_id: user.id,
+        amount: parseFloat(bidPrice),
+        message: bidMsg || null,
+        delivery_time: "3-5 days",
+      });
+      if (error) throw error;
+      toast("Bid placed successfully!", "success");
+      setPlacingBid(false);
+      setBidPrice("");
+      setBidMsg("");
+    } catch (err) {
+      toast(err.message || "Failed to place bid", "info");
+    }
+  };
+
+  return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+    React.createElement("button", { onClick:()=>setPage("browse"), style:{ ...bS, marginBottom:"32px" } }, React.createElement(ArrowLeft,{size:16}), " Back to Browse"),
+    React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"2fr 1fr", gap:"40px" } },
+      React.createElement("div", null,
+        React.createElement("img", { src:req.img, alt:"", style:{ width:"100%", height:400, objectFit:"cover", borderRadius:"16px", marginBottom:"32px" } }),
+        React.createElement("h1", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"42px", color:TP, letterSpacing:"1px", marginBottom:"16px" } }, req.title),
+        React.createElement("div", { style:{ fontSize:"24px", fontWeight:400, color:ML, fontFamily:"'Bebas Neue',sans-serif", marginBottom:"24px" } }, req.budget),
+        React.createElement("p", { style:{ fontSize:"16px", color:TS, fontFamily:"'DM Sans',sans-serif", lineHeight:1.7, marginBottom:"32px" } }, req.desc),
+        React.createElement("div", { style:{ marginTop:"40px" } },
+          React.createElement("h3", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"24px", color:TP, letterSpacing:"1px", marginBottom:"24px" } }, "BIDS ("+bids.length+")"),
+          bids.length === 0 && !bidsLoading && React.createElement("div", { style:{ ...gCard, textAlign:"center", padding:"40px" } },
+            React.createElement(Users, { size:28, color:TM, style:{margin:"0 auto 12px"} }),
+            React.createElement("p", { style:{ color:TS, fontFamily:"'DM Sans',sans-serif", fontSize:"14px" } }, "No bids yet — be the first seller to bid on this request!")
+          ),
+          bids.map(b => React.createElement("div", { key:b.id, style:{ ...gCard, marginBottom:"16px" } },
+            React.createElement("div", { style:{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"12px" } },
+              React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"12px" } },
+                React.createElement("img", { src:b.avatar, alt:"", style:{ width:40, height:40, borderRadius:"50%", objectFit:"cover" } }),
+                React.createElement("div", null,
+                  React.createElement("div", { style:{ fontWeight:600, color:TP, fontSize:"15px" } }, b.seller),
+                  React.createElement("div", { style:{ fontSize:"13px", color:TS } }, b.rating+" ("+b.reviews+" reviews)")
+                )
+              ),
+              React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"8px" } },
+                b.verified && React.createElement("div", { style:bdg(ML) }, React.createElement(CheckCircle,{size:10}), " Verified"),
+                React.createElement(AITrustBadge, { seller:b })
+              )
+            ),
+            React.createElement("p", { style:{ fontSize:"14px", color:TS, fontFamily:"'DM Sans',sans-serif", lineHeight:1.6, marginBottom:"12px" } }, b.msg),
+            React.createElement("div", { style:{ display:"flex", justifyContent:"space-between", alignItems:"center" } },
+              React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"8px" } },
+                React.createElement("div", { style:{ fontSize:"13px", color:TM } }, b.time),
+                React.createElement(AIInsight, { text: parseFloat(b.price.replace(/[$,]/g,"")) <= (AI_MARKET_DATA[req.cat]||{avg:3000}).avg ? "Fair price" : "Above avg", icon:DollarSign })
+              ),
+              React.createElement("div", { style:{ fontSize:"18px", fontWeight:700, color:ML } }, b.price)
+            )
+          ))
+        )
+      ),
+      React.createElement("div", null,
+        React.createElement(AIInsightsPanel, { request:req, bids:bids }),
+        React.createElement("div", { style:{ ...gCard, marginBottom:"24px" } },
+          React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"16px" } },
+            React.createElement("img", { src:req.avatar, alt:"", style:{ width:48, height:48, borderRadius:"50%", objectFit:"cover" } }),
+            React.createElement("div", null,
+              React.createElement("div", { style:{ fontWeight:600, color:TP } }, req.user),
+              React.createElement("div", { style:{ fontSize:"13px", color:TS } }, "4.9 rating")
+            )
+          ),
+          React.createElement("div", { style:{ fontSize:"13px", color:TS, marginBottom:"16px", padding:"12px 0", borderTop:"1px solid rgba(255,255,255,0.05)", borderBottom:"1px solid rgba(255,255,255,0.05)" } },
+            React.createElement("div", null, React.createElement(MapPin,{size:14,style:{display:"inline",marginRight:"6px"}}) , req.loc),
+            React.createElement("div", { style:{marginTop:"8px"} }, React.createElement(Clock,{size:14,style:{display:"inline",marginRight:"6px"}}), req.time)
+          )
+        ),
+        placingBid ? React.createElement("div", { style:{ ...gCard, padding:"20px" } },
+          React.createElement("label", { style:{ fontSize:"14px", fontWeight:600, color:TP, display:"block", marginBottom:"8px" } }, "Your Bid Amount"),
+          React.createElement("input", { type:"number", placeholder:"$2500", value:bidPrice, onChange:e=>setBidPrice(e.target.value), style:{ ...iS, marginBottom:"12px" } }),
+          React.createElement("label", { style:{ fontSize:"14px", fontWeight:600, color:TP, display:"block", marginBottom:"8px" } }, "Message to Buyer"),
+          React.createElement("textarea", { placeholder:"Describe what you're offering...", value:bidMsg, onChange:e=>setBidMsg(e.target.value), style:{ ...iS, minHeight:80, fontFamily:"'DM Sans',sans-serif", marginBottom:"16px" } }),
+          React.createElement("div", { style:{ display:"flex", gap:"8px" } },
+            React.createElement("button", { onClick:handlePlaceBid, style:{ ...bP, flex:1 } }, "Place Bid ", React.createElement(Check,{size:16})),
+            React.createElement("button", { onClick:()=>setPlacingBid(false), style:{ ...bS, flex:1 } }, "Cancel")
+          )
+        ) : React.createElement("button", { onClick:()=>setPlacingBid(true), style:{ ...bP, width:"100%", justifyContent:"center", padding:"16px" } }, "Place a Bid")
+      )
+    )
+  );
+}
+
+function DashboardPage({ setPage, user, onAuthOpen, goToDetail }) {
+  const toast = useToast();
+
+  if (!user) {
+    return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+      React.createElement("div", { style:{ textAlign:"center", padding:"60px 20px" } },
+        React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"42px", color:TP, letterSpacing:"2px", marginBottom:"16px" } }, "SIGN IN TO CONTINUE"),
+        React.createElement("button", { onClick:onAuthOpen, style:bP }, "Sign In Now ", React.createElement(ArrowRight,{size:18}))
+      )
+    );
+  }
+
+  return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+    React.createElement("h1", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"56px", color:TP, letterSpacing:"2px", marginBottom:"40px" } }, "DASHBOARD"),
+    React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"20px", marginBottom:"40px" } },
+      [
+        { label:"Active Requests", value:"4", icon:Target, color:"#E5007D" },
+        { label:"Open Bids Received", value:"12", icon:Users, color:"#FF1A8C" },
+        { label:"Messages", value:"3", icon:MessageSquare, color:"#4A90D9" }
+      ].map((s,i) => React.createElement("div", { key:i, style:{ ...gCard, display:"flex", alignItems:"center", gap:"16px" } },
+        React.createElement("div", { style:{ width:48, height:48, borderRadius:"12px", background:`${s.color}15`, display:"flex", alignItems:"center", justifyContent:"center" } },
+          React.createElement(s.icon, { size:24, color:s.color })
+        ),
+        React.createElement("div", null,
+          React.createElement("div", { style:{ fontSize:"28px", fontWeight:600, color:TP } }, s.value),
+          React.createElement("div", { style:{ fontSize:"12px", color:TS } }, s.label)
+        )
+      ))
+    ),
+    React.createElement("div", { style:{ marginBottom:"40px" } },
+      React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"28px", color:TP, letterSpacing:"1px", marginBottom:"20px" } }, "YOUR REQUESTS"),
+      REQS.slice(0,2).map(r => React.createElement("div", { key:r.id, onClick:()=>setPage("detail"), style:{ ...gCard, marginBottom:"16px", cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" } },
+        React.createElement("div", null,
+          React.createElement("h4", { style:{ fontWeight:600, color:TP, marginBottom:"6px" } }, r.title),
+          React.createElement("div", { style:{ fontSize:"13px", color:TS } }, r.budget, " • ", r.bids, " bids")
+        ),
+        React.createElement("button", { onClick:(e)=>{ e.stopPropagation(); toast("Viewing request details...", "success"); setPage("detail"); }, style:bS }, "View ", React.createElement(ChevronRight,{size:16}))
+      ))
+    )
+  );
+}
+
+function ProfilePage({ setPage, user, onAuthOpen }) {
+  const toast = useToast();
+
+  if (!user) {
+    return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+      React.createElement("div", { style:{ textAlign:"center", padding:"60px 20px" } },
+        React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"42px", color:TP, letterSpacing:"2px", marginBottom:"16px" } }, "SIGN IN TO CONTINUE"),
+        React.createElement("button", { onClick:onAuthOpen, style:bP }, "Sign In Now ", React.createElement(ArrowRight,{size:18}))
+      )
+    );
+  }
+
+  return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+    React.createElement("h1", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"56px", color:TP, letterSpacing:"2px", marginBottom:"40px" } }, "PROFILE"),
+    React.createElement("div", { style:{ ...gCard, maxWidth:600, marginBottom:"40px" } },
+      React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"24px", marginBottom:"32px", paddingBottom:"32px", borderBottom:"1px solid rgba(255,255,255,0.05)" } },
+        React.createElement("div", { style:{ width:80, height:80, borderRadius:"50%", background:`linear-gradient(135deg,${M},${MD})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"32px", fontWeight:700, color:"#fff" } }, user.avatar),
+        React.createElement("div", null,
+          React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"28px", color:TP, letterSpacing:"1px" } }, user.username),
+          React.createElement("p", { style:{ fontSize:"14px", color:TS, marginTop:"4px" } }, user.email)
+        )
+      ),
+      React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"24px", marginBottom:"32px", paddingBottom:"32px", borderBottom:"1px solid rgba(255,255,255,0.05)" } },
+        React.createElement("div", null,
+          React.createElement("div", { style:{ fontSize:"12px", fontWeight:700, color:TM, fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"1px", marginBottom:"8px" } }, "MEMBER SINCE"),
+          React.createElement("div", { style:{ fontSize:"16px", color:TP } }, "March 2026")
+        ),
+        React.createElement("div", null,
+          React.createElement("div", { style:{ fontSize:"12px", fontWeight:700, color:TM, fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"1px", marginBottom:"8px" } }, "RATING"),
+          React.createElement("div", { style:{ fontSize:"16px", color:TP } }, "4.9 / 5.0")
+        ),
+        React.createElement("div", null,
+          React.createElement("div", { style:{ fontSize:"12px", fontWeight:700, color:TM, fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"1px", marginBottom:"8px" } }, "TRANSACTIONS"),
+          React.createElement("div", { style:{ fontSize:"16px", color:TP } }, "23")
+        ),
+        React.createElement("div", null,
+          React.createElement("div", { style:{ fontSize:"12px", fontWeight:700, color:TM, fontFamily:"'Bebas Neue',sans-serif", letterSpacing:"1px", marginBottom:"8px" } }, "VERIFIED"),
+          React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"4px", color:ML, fontWeight:600 } }, React.createElement(CheckCircle,{size:16}), " Yes")
+        )
+      ),
+      React.createElement("button", { onClick:()=>toast("Settings opening soon...", "info"), style:{ ...bS, width:"100%", justifyContent:"center" } }, React.createElement(Settings,{size:16}), " Settings")
+    )
+  );
+}
+
+function HowPage({ setPage }) {
+  return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+    React.createElement("h1", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"56px", color:TP, letterSpacing:"2px", marginBottom:"40px" } }, "HOW IT WORKS"),
+    React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"40px", marginBottom:"60px" } },
+      [
+        { t:"POSTING YOUR REQUEST", d:"Posting on SURCAL is simple. Describe what you're looking for in detail, set your budget range, and choose a deadline. The more specific you are, the better bids you'll receive from sellers who know exactly what you want." },
+        { t:"RECEIVING & REVIEWING BIDS", d:"Once posted, verified sellers will start bidding to fulfill your request. You can review their profiles, ratings, and previous reviews. Compare offers side by side to find the best match for your needs." },
+        { t:"ESCROW & PAYMENT", d:"All transactions are protected through our secure escrow system. Payment is held safely until you confirm the item meets your expectations. This protects both buyers and sellers from fraud." },
+        { t:"DELIVERY & COMPLETION", d:"Once payment is released, the seller ships your item. Track delivery in real-time. Upon receipt, inspect the item and confirm it matches the description. Release payment to complete the transaction." }
+      ].map((x,i) => React.createElement("div", { key:i, style:gCard },
+        React.createElement("div", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"14px", color:ML, letterSpacing:"2px", marginBottom:"12px" } }, ("0"+(i+1)).slice(-2)),
+        React.createElement("h3", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"22px", color:TP, letterSpacing:"1px", marginBottom:"12px" } }, x.t),
+        React.createElement("p", { style:{ fontSize:"14px", color:TS, fontFamily:"'DM Sans',sans-serif", lineHeight:1.7 } }, x.d)
+      ))
+    ),
+    React.createElement("div", { style:{ ...gCard, padding:"40px", textAlign:"center" } },
+      React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"28px", color:TP, letterSpacing:"1px", marginBottom:"16px" } }, "TRUST & SAFETY"),
+      React.createElement("p", { style:{ fontSize:"15px", color:TS, fontFamily:"'DM Sans',sans-serif", lineHeight:1.7, maxWidth:600, margin:"0 auto" } }, "SURCAL is built on trust. All sellers are verified, all transactions are protected, and our support team is always here to help resolve any disputes. Your safety is our priority.")
+    )
+  );
+}
+
+function MessagesPage({ setPage, user, onAuthOpen }) {
+  if (!user) {
+    return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+      React.createElement("div", { style:{ textAlign:"center", padding:"60px 20px" } },
+        React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"42px", color:TP, letterSpacing:"2px", marginBottom:"16px" } }, "SIGN IN TO CONTINUE"),
+        React.createElement("button", { onClick:onAuthOpen, style:bP }, "Sign In Now ", React.createElement(ArrowRight,{size:18}))
+      )
+    );
+  }
+
+  const conversations = [
+    { id:1, seller:"Vintage Vault Co.", avatar:IMG.pM3, lastMsg:"I can ship today if you'd like", time:"2h ago" },
+    { id:2, seller:"Retro Strings", avatar:IMG.pW2, lastMsg:"Great! I'll get it packaged up", time:"5h ago" },
+    { id:3, seller:"Fretboard Finds", avatar:IMG.pM2, lastMsg:"Photos sent to your email", time:"1d ago" }
+  ];
+
+  return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+    React.createElement("h1", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"56px", color:TP, letterSpacing:"2px", marginBottom:"40px" } }, "MESSAGES"),
+    React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"1fr 2fr", gap:"24px" } },
+      React.createElement("div", null,
+        React.createElement("h3", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"16px", color:TP, letterSpacing:"1px", marginBottom:"16px" } }, "CONVERSATIONS"),
+        conversations.map(c => React.createElement("div", { key:c.id, style:{ ...gCard, marginBottom:"12px", cursor:"pointer", padding:"16px" } },
+          React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"12px" } },
+            React.createElement("img", { src:c.avatar, alt:"", style:{ width:40, height:40, borderRadius:"50%", objectFit:"cover" } }),
+            React.createElement("div", null,
+              React.createElement("div", { style:{ fontWeight:600, color:TP, fontSize:"14px" } }, c.seller),
+              React.createElement("div", { style:{ fontSize:"12px", color:TS, marginTop:"2px" } }, c.time)
+            )
+          )
+        ))
+      ),
+      React.createElement("div", { style:{ ...gCard, display:"flex", flexDirection:"column" } },
+        React.createElement("div", { style:{ paddingBottom:"16px", borderBottom:"1px solid rgba(255,255,255,0.05)", marginBottom:"16px" } },
+          React.createElement("h3", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"20px", color:TP, letterSpacing:"1px" } }, "Vintage Vault Co.")
+        ),
+        React.createElement("div", { style:{ flex:1, overflowY:"auto", marginBottom:"16px", display:"flex", flexDirection:"column", gap:"12px" } },
+          [
+            { me:false, text:"Hi! I have the 67 Strat you're looking for" },
+            { me:true, text:"That's awesome! What condition is it in?" },
+            { me:false, text:"Excellent condition, all original parts. I can send detailed photos" },
+            { me:true, text:"Perfect! What's your best price?" },
+            { me:false, text:"I can do $3,200 with shipping included. Can ship today if you'd like" }
+          ].map((m,i) => React.createElement("div", { key:i, style:{ display:"flex", justifyContent: m.me?"flex-end":"flex-start" } },
+            React.createElement("div", { style:{ ...gCard, maxWidth:"70%", padding:"12px 16px", background: m.me?`${M}33`:"rgba(255,255,255,0.04)" } },
+              React.createElement("p", { style:{ fontSize:"14px", color:TP, margin:0 } }, m.text)
+            )
+          ))
+        ),
+        React.createElement("div", { style:{ display:"flex", gap:"8px" } },
+          React.createElement("input", { type:"text", placeholder:"Type a message...", style:{ ...iS, flex:1 } }),
+          React.createElement("button", { style:{ ...bP, padding:"12px 20px" } }, React.createElement(Send,{size:16}))
+        )
+      )
+    )
+  );
+}
+
+function SellerPage({ setPage, user, onAuthOpen, goToDetail }) {
+  const toast = useToast();
+  const { requests } = useRequests();
+
+  if (!user) {
+    return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+      React.createElement("div", { style:{ textAlign:"center", padding:"60px 20px" } },
+        React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"42px", color:TP, letterSpacing:"2px", marginBottom:"16px" } }, "SIGN IN TO CONTINUE"),
+        React.createElement("button", { onClick:onAuthOpen, style:bP }, "Sign In Now ", React.createElement(ArrowRight,{size:18}))
+      )
+    );
+  }
+
+  return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+    React.createElement("h1", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"56px", color:TP, letterSpacing:"2px", marginBottom:"40px" } }, "SELLER HUB"),
+    React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"20px", marginBottom:"40px" } },
+      [
+        { label:"This Month Earnings", value:"$2,450", icon:DollarSign, color:M },
+        { label:"Available Requests", value:"127", icon:Target, color:ML },
+        { label:"Active Bids", value:"8", icon:Users, color:"#4A90D9" },
+        { label:"Your Rating", value:"4.9", icon:Star, color:"#FFB800" }
+      ].map((s,i) => React.createElement("div", { key:i, style:{ ...gCard, display:"flex", alignItems:"center", gap:"16px" } },
+        React.createElement("div", { style:{ width:48, height:48, borderRadius:"12px", background:`${s.color}15`, display:"flex", alignItems:"center", justifyContent:"center" } },
+          React.createElement(s.icon, { size:24, color:s.color })
+        ),
+        React.createElement("div", null,
+          React.createElement("div", { style:{ fontSize:"24px", fontWeight:600, color:TP } }, s.value),
+          React.createElement("div", { style:{ fontSize:"12px", color:TS } }, s.label)
+        )
+      ))
+    ),
+    React.createElement("div", { style:{ marginBottom:"40px" } },
+      requests.length > 0 && React.createElement(AISmartMatchPanel, { requests, setPage }),
+      React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"28px", color:TP, letterSpacing:"1px", marginBottom:"20px" } }, "ALL AVAILABLE REQUESTS"),
+      requests.length === 0 ? React.createElement(EmptyState, { icon:Target, title:"NO REQUESTS YET", subtitle:"When buyers post requests, they'll show up here for you to bid on.", actionLabel:"Check Back Later", onAction:()=>setPage("home") }) :
+      requests.slice(0,5).map(r => React.createElement("div", { key:r.id, onClick:()=>goToDetail(r), style:{ ...gCard, marginBottom:"16px", cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center" } },
+        React.createElement("div", null,
+          React.createElement("h4", { style:{ fontWeight:600, color:TP, marginBottom:"6px" } }, r.title),
+          React.createElement("div", { style:{ fontSize:"13px", color:TS } }, r.budget, " • ", r.bids, " bids • ", r.time)
+        ),
+        React.createElement("button", { onClick:(e)=>{ e.stopPropagation(); goToDetail(r); }, style:bS }, "View ", React.createElement(ChevronRight,{size:16}))
+      ))
+    )
+  );
+}
+
+function PricingPage({ setPage, user, onAuthOpen }) {
+  const toast = useToast();
+  const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [joinedTiers, setJoinedTiers] = useState({});
+
+  const handleJoinWaitlist = async (planName, tier) => {
+    if (tier === "free") {
+      if (!user) { onAuthOpen(); return; }
+      toast("You're on the Free plan! Start browsing and posting requests.", "success");
+      setPage("browse");
+      return;
+    }
+    const emailToUse = user ? user.email : waitlistEmail;
+    if (!emailToUse || !emailToUse.includes("@")) {
+      toast("Enter your email to join the waitlist", "info");
+      return;
+    }
+    try {
+      const { error } = await supabase.from("pricing_waitlist").insert({
+        email: emailToUse,
+        plan_interest: tier,
+        user_id: user ? user.id : null,
+      });
+      if (error && error.code === "23505") {
+        toast("You're already on the " + planName + " waitlist!", "info");
+      } else if (error) {
+        throw error;
+      } else {
+        toast("You're on the " + planName + " waitlist! We'll notify you when it launches.", "success");
+      }
+      setJoinedTiers(prev => ({ ...prev, [tier]: true }));
+      setWaitlistEmail("");
+    } catch (err) {
+      toast("Something went wrong — try again", "info");
+    }
+  };
+
+  return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+    React.createElement("div", { style:{ textAlign:"center", marginBottom:"60px" } },
+      React.createElement("h1", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"56px", color:TP, letterSpacing:"2px", marginBottom:"16px" } }, "SIMPLE, TRANSPARENT PRICING"),
+      React.createElement("p", { style:{ fontSize:"16px", color:TS, fontFamily:"'DM Sans',sans-serif", maxWidth:600, margin:"0 auto" } }, "Choose the plan that fits your needs. Pro and Business plans launching soon — join the waitlist to get early access.")
+    ),
+    React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"24px", marginBottom:"60px" } },
+      PRICING_PLANS.map((plan,i) => React.createElement("div", { key:i, style:{
+        ...gCard,
+        padding:"40px 32px",
+        position:"relative",
+        border: plan.popular ? `2px solid ${M}` : "1px solid rgba(255,255,255,0.07)",
+        transform: plan.popular ? "scale(1.05)" : "scale(1)",
+      } },
+        plan.popular && React.createElement("div", { style:{ position:"absolute", top:-12, left:"50%", transform:"translateX(-50%)", ...bdg(M) } }, React.createElement(Sparkles,{size:10}), " POPULAR"),
+        plan.tier !== "free" && React.createElement("div", { style:{ position:"absolute", top: plan.popular ? 20 : -12, right: plan.popular ? 16 : "auto", left: plan.popular ? "auto" : "50%", transform: plan.popular ? "none" : "translateX(-50%)", ...bdg("#4A90D9") } }, "COMING SOON"),
+        React.createElement("h3", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"28px", color:TP, letterSpacing:"1px", marginBottom:"8px" } }, plan.name),
+        React.createElement("p", { style:{ fontSize:"13px", color:TS, marginBottom:"20px", fontFamily:"'DM Sans',sans-serif" } }, plan.desc),
+        React.createElement("div", { style:{ marginBottom:"24px" } },
+          React.createElement("span", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"42px", color:ML, fontWeight:700 } }, plan.price),
+          plan.period && React.createElement("span", { style:{ fontSize:"14px", color:TS, fontFamily:"'DM Sans',sans-serif" } }, plan.period)
+        ),
+        plan.tier === "free" ?
+          React.createElement("button", { onClick:()=>handleJoinWaitlist(plan.name, plan.tier), style:{ ...bP, width:"100%", justifyContent:"center", marginBottom:"32px" } }, "Get Started Free") :
+          joinedTiers[plan.tier] ?
+            React.createElement("div", { style:{ ...bS, width:"100%", justifyContent:"center", marginBottom:"32px", background:`${M}15`, borderColor:M, color:ML, cursor:"default" } }, React.createElement(CheckCircle,{size:16}), " On Waitlist!") :
+            React.createElement("div", { style:{ marginBottom:"32px" } },
+              !user && React.createElement("input", { type:"email", placeholder:"Your email", value:waitlistEmail, onChange:e=>setWaitlistEmail(e.target.value), style:{ ...iS, marginBottom:"8px", fontSize:"13px", padding:"10px 14px" } }),
+              React.createElement("button", { onClick:()=>handleJoinWaitlist(plan.name, plan.tier), style:{ ...bP, width:"100%", justifyContent:"center" } }, React.createElement(Bell,{size:14}), " Join Waitlist")
+            ),
+        React.createElement("div", { style:{ borderTop:"1px solid rgba(255,255,255,0.05)", paddingTop:"24px" } },
+          plan.features.map((f,j) => React.createElement("div", { key:j, style:{ display:"flex", alignItems:"center", gap:"10px", marginBottom:"12px", fontSize:"14px", color:TS, fontFamily:"'DM Sans',sans-serif" } },
+            React.createElement(Check,{size:16,color:ML}),
+            f
+          ))
+        )
+      ))
+    ),
+    React.createElement("div", { style:{ ...gCard, padding:"40px", textAlign:"center" } },
+      React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"28px", color:TP, letterSpacing:"1px", marginBottom:"12px" } }, "FREQUENTLY ASKED"),
+      React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"24px", maxWidth:800, margin:"0 auto", marginTop:"32px", textAlign:"left" } },
+        [
+          { q:"Can I cancel anytime?", a:"Yes, cancel your subscription anytime with no penalties." },
+          { q:"Do you offer refunds?", a:"We offer a 14-day money-back guarantee on all plans." },
+          { q:"Can I change plans?", a:"Absolutely. Upgrade or downgrade instantly." },
+          { q:"What if I need more help?", a:"Our support team is available 24/7 to assist you." }
+        ].map((x,i) => React.createElement("div", { key:i, style:{ padding:"20px", background:"rgba(255,255,255,0.02)", borderRadius:"12px" } },
+          React.createElement("h4", { style:{ fontWeight:600, color:TP, marginBottom:"8px", fontSize:"14px" } }, x.q),
+          React.createElement("p", { style:{ fontSize:"13px", color:TS, fontFamily:"'DM Sans',sans-serif", margin:0 } }, x.a)
+        ))
+      )
+    )
+  );
+}
+
+function CommunityPage({ setPage }) {
+  const testimonials = [
+    { name:"Vivienne Ashcroft", role:"Art Collector", text:"SURCAL changed how I shop. Instead of endless searching, sellers now come to me with their best offers.", avatar:IMG.pW },
+    { name:"Callum Wentworth", role:"Vintage Dealer", text:"As a seller, this platform gives me access to serious buyers who know what they want. Best marketplace I've used.", avatar:IMG.pM },
+    { name:"Nadia Ostrova", role:"Watches Enthusiast", text:"The escrow system gives me confidence. I've completed 15 transactions without any issues whatsoever.", avatar:IMG.pW2 },
+  ];
+
+  return React.createElement("div", { style:{ maxWidth:1320, margin:"0 auto", padding:"100px 40px 80px" } },
+    React.createElement("div", { style:{ position:"relative", height:300, borderRadius:"16px", overflow:"hidden", marginBottom:"80px" } },
+      React.createElement("img", { src:IMG.community, alt:"", style:{ width:"100%", height:"100%", objectFit:"cover", filter:"brightness(0.4)" } }),
+      React.createElement("div", { style:{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", textAlign:"center" } },
+        React.createElement("div", null,
+          React.createElement("h1", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"56px", color:TP, letterSpacing:"2px", marginBottom:"16px" } }, "OUR COMMUNITY"),
+          React.createElement("p", { style:{ fontSize:"16px", color:TS, fontFamily:"'DM Sans',sans-serif" } }, "Thousands of buyers and sellers using SURCAL every day")
+        )
+      )
+    ),
+    React.createElement("section", { style:{ marginBottom:"80px" } },
+      React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"42px", color:TP, letterSpacing:"2px", marginBottom:"40px", textAlign:"center" } }, "WHAT PEOPLE ARE SAYING"),
+      React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"24px" } },
+        testimonials.map((t,i) => React.createElement("div", { key:i, style:gCard },
+          React.createElement("div", { style:{ display:"flex", alignItems:"center", gap:"12px", marginBottom:"16px" } },
+            React.createElement("img", { src:t.avatar, alt:"", style:{ width:44, height:44, borderRadius:"50%", objectFit:"cover" } }),
+            React.createElement("div", null,
+              React.createElement("div", { style:{ fontWeight:600, color:TP, fontSize:"14px" } }, t.name),
+              React.createElement("div", { style:{ fontSize:"12px", color:TS } }, t.role)
+            )
+          ),
+          React.createElement("p", { style:{ fontSize:"14px", color:TS, fontFamily:"'DM Sans',sans-serif", lineHeight:1.7 } }, t.text),
+          React.createElement("div", { style:{ display:"flex", gap:"2px", marginTop:"12px" } },
+            [...Array(5)].map((_, j) => React.createElement(Star, { key:j, size:14, color:"#FFB800" }))
+          )
+        ))
+      )
+    ),
+    React.createElement("section", { style:{ ...gCard, padding:"60px", textAlign:"center" } },
+      React.createElement("h2", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"42px", color:TP, letterSpacing:"2px", marginBottom:"24px" } }, "BY THE NUMBERS"),
+      React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"32px", maxWidth:900, margin:"0 auto", marginTop:"40px" } },
+        [
+          { stat:"42K+", label:"Active Users" },
+          { stat:"127K+", label:"Fulfilled Requests" },
+          { stat:"$8.4M", label:"Transacted" },
+          { stat:"98%", label:"Satisfaction Rate" }
+        ].map((x,i) => React.createElement("div", { key:i },
+          React.createElement("div", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"42px", color:ML, fontWeight:700, marginBottom:"8px" } }, x.stat),
+          React.createElement("div", { style:{ fontSize:"13px", color:TS, fontFamily:"'DM Sans',sans-serif" } }, x.label)
+        ))
+      )
+    )
+  );
+}
+
+// Footer
+function Footer({ setPage }) {
+  const toast = useToast();
+  const [email, setEmail] = useState("");
+
+  return React.createElement("footer", { style:{ borderTop:"1px solid rgba(255,255,255,0.05)", padding:"60px 40px 40px", maxWidth:1320, margin:"0 auto" } },
+    React.createElement("div", { style:{ ...glass, padding:"40px", marginBottom:"48px", display:"flex", justifyContent:"space-between", alignItems:"center" } },
+      React.createElement("div", null,
+        React.createElement("h3", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"24px", color:TP, letterSpacing:"2px", marginBottom:"6px" } }, "STAY IN THE LOOP"),
+        React.createElement("p", { style:{ fontSize:"14px", color:TS, fontFamily:"'DM Sans',sans-serif" } }, "Get weekly highlights and trending requests.")
+      ),
+      React.createElement("div", { style:{ display:"flex", gap:"8px" } },
+        React.createElement("input", { type:"email", placeholder:"Your email", value:email, onChange:e=>setEmail(e.target.value), style:{ ...iS, width:280 } }),
+        React.createElement("button", { onClick:()=>{ if(email.includes("@")){ toast("Subscribed! Check your email.", "success"); setEmail(""); } }, style:bP }, "Subscribe")
+      )
+    ),
+    React.createElement("div", { style:{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr 1fr 1fr", gap:"40px", marginBottom:"48px" } },
+      React.createElement("div", null,
+        React.createElement("div", { onClick:()=>setPage("home"), style:{cursor:"pointer", marginBottom:"16px"} }, React.createElement(Logo, {size:"sm"})),
+        React.createElement("p", { style:{ fontSize:"14px", color:TS, fontFamily:"'DM Sans',sans-serif", lineHeight:1.7 } }, "The reverse marketplace where buyers set the terms.")
+      ),
+      React.createElement("div", null,
+        React.createElement("h4", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"14px", color:TP, letterSpacing:"2px", marginBottom:"16px" } }, "MARKETPLACE"),
+        ["Browse Requests","Post a Request","Categories"].map(l => React.createElement("div", { key:l, onClick:()=>setPage("browse"), style:{ fontSize:"14px", color:TM, fontFamily:"'DM Sans',sans-serif", marginBottom:"10px", cursor:"pointer" } }, l))
+      ),
+      React.createElement("div", null,
+        React.createElement("h4", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"14px", color:TP, letterSpacing:"2px", marginBottom:"16px" } }, "COMPANY"),
+        ["About Us","Blog","Press"].map(l => React.createElement("div", { key:l, onClick:()=>toast(l+" coming soon", "info"), style:{ fontSize:"14px", color:TM, fontFamily:"'DM Sans',sans-serif", marginBottom:"10px", cursor:"pointer" } }, l))
+      ),
+      React.createElement("div", null,
+        React.createElement("h4", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"14px", color:TP, letterSpacing:"2px", marginBottom:"16px" } }, "SUPPORT"),
+        ["How It Works","Trust & Safety","Contact"].map(l => React.createElement("div", { key:l, onClick:()=>l==="How It Works"?setPage("how"):toast(l+" coming soon", "info"), style:{ fontSize:"14px", color:TM, fontFamily:"'DM Sans',sans-serif", marginBottom:"10px", cursor:"pointer" } }, l))
+      ),
+      React.createElement("div", null,
+        React.createElement("h4", { style:{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"14px", color:TP, letterSpacing:"2px", marginBottom:"16px" } }, "LEGAL"),
+        ["Privacy Policy","Terms of Service"].map(l => React.createElement("div", { key:l, onClick:()=>toast(l+" coming soon", "info"), style:{ fontSize:"14px", color:TM, fontFamily:"'DM Sans',sans-serif", marginBottom:"10px", cursor:"pointer" } }, l))
+      )
+    ),
+    React.createElement("div", { style:{ borderTop:"1px solid rgba(255,255,255,0.05)", paddingTop:"24px", display:"flex", justifyContent:"space-between", alignItems:"center", fontSize:"13px", color:TM, fontFamily:"'DM Sans',sans-serif" } },
+      React.createElement("span", null, "© 2026 SURCAL. All rights reserved."),
+      React.createElement("div", { style:{ display:"flex", gap:"16px" } },
+        ["Privacy Policy","Terms of Service"].map(l => React.createElement("span", { key:l, onClick:()=>toast(l+" coming soon", "info"), style:{cursor:"pointer"} }, l))
+      )
+    )
+  );
+}
+
+// Main App
+function App() {
+  const [page, setPage] = useState("home");
+  const [showAuth, setShowAuth] = useState(false);
+  const [selectedReq, setSelectedReq] = useState(null);
+  const { user } = useAuth();
+
+  const goToDetail = (req) => { setSelectedReq(req); setPage("detail"); };
+
+  const pages = {
+    home: <HomePage setPage={setPage} goToDetail={goToDetail} />,
+    browse: <BrowsePage setPage={setPage} user={user} onAuthOpen={() => setShowAuth(true)} goToDetail={goToDetail} />,
+    post: <PostPage setPage={setPage} user={user} onAuthOpen={() => setShowAuth(true)} />,
+    detail: <DetailPage setPage={setPage} user={user} onAuthOpen={() => setShowAuth(true)} request={selectedReq} />,
+    dashboard: <DashboardPage setPage={setPage} user={user} onAuthOpen={() => setShowAuth(true)} goToDetail={goToDetail} />,
+    profile: <ProfilePage setPage={setPage} user={user} onAuthOpen={() => setShowAuth(true)} />,
+    how: <HowPage setPage={setPage} />,
+    messages: <MessagesPage setPage={setPage} user={user} onAuthOpen={() => setShowAuth(true)} />,
+    seller: <SellerPage setPage={setPage} user={user} onAuthOpen={() => setShowAuth(true)} goToDetail={goToDetail} />,
+    pricing: <PricingPage setPage={setPage} user={user} onAuthOpen={() => setShowAuth(true)} />,
+    community: <CommunityPage setPage={setPage} />
+  };
+
+  return React.createElement(React.Fragment, null,
+    React.createElement(NavBar, { page, setPage, user, onAuthOpen: () => setShowAuth(true) }),
+    React.createElement("main", { style:{ minHeight:"100vh", paddingTop:72 } }, pages[page] || pages.home),
+    React.createElement(Footer, { setPage }),
+    showAuth && React.createElement(AuthModal, { onClose: () => setShowAuth(false), onAuth: () => { setShowAuth(false); setPage("dashboard"); } })
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  React.createElement(ToastProvider, null,
+    React.createElement(AuthProvider, null,
+      React.createElement(App)
+    )
+  )
+);
+</script>
+</body>
+</html>
