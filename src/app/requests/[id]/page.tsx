@@ -29,6 +29,16 @@ export default function RequestDetailPage() {
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   
+  // NEW STATE: Logistics & Reviews
+  const [trackingCarrier, setTrackingCarrier] = useState('');
+  const [trackingNumber, setTrackingNumber] = useState('');
+  const [submitTrackLoading, setSubmitTrackLoading] = useState(false);
+
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewDone, setReviewDone] = useState(false);
+  
   const supabase = createClient();
 
   useEffect(() => {
@@ -99,7 +109,8 @@ export default function RequestDetailPage() {
       setLoading(false);
     }
     loadRequest();
-  }, [id, supabase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const handleBid = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -269,6 +280,61 @@ export default function RequestDetailPage() {
     }
   };
 
+  const handleUpdateTracking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!transaction) return;
+    setSubmitTrackLoading(true);
+    try {
+      const res = await fetch('/api/shipping/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          transactionId: transaction.id, 
+          carrier: trackingCarrier, 
+          trackingNumber, 
+          buyerId: request.buyer_id, 
+          requestTitle: request.title 
+        })
+      });
+      if (res.ok) {
+        alert('Tracking added successfully!');
+        setTransaction({...transaction, tracking_number: trackingNumber, shipping_carrier: trackingCarrier, status: 'shipped'});
+      } else {
+        alert('Failed to update tracking');
+      }
+    } catch(err) {
+      alert('Error updating tracking');
+    }
+    setSubmitTrackLoading(false);
+  };
+
+  const handleSubmitReview = async (e: React.FormEvent, sellerId: string) => {
+    e.preventDefault();
+    if (!transaction) return;
+    setReviewLoading(true);
+    try {
+      const res = await fetch('/api/reviews/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          transactionId: transaction.id,
+          revieweeId: sellerId,
+          rating,
+          comment
+        })
+      });
+      if (res.ok) {
+        setReviewDone(true);
+        alert('Review submitted! Thank you.');
+      } else {
+        alert('Failed to submit review');
+      }
+    } catch(err) {
+      alert('Error submitting review');
+    }
+    setReviewLoading(false);
+  };
+
   if (loading) return <div style={{ padding: '120px 20px', textAlign: 'center' }}>Loading...</div>;
   if (!request) return <div style={{ padding: '120px 20px', textAlign: 'center' }}>Request not found.</div>;
 
@@ -360,12 +426,43 @@ export default function RequestDetailPage() {
                           ) : (
                              <>
                                <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold' }}>Offer Accepted & Funded (Escrow)</p>
+                               {transaction?.tracking_number && (
+                                 <div style={{ margin: '0.5rem 0', padding: '0.5rem', background: 'var(--bg-color)', border: '1px solid var(--border-light)', borderRadius: '4px', fontSize: '0.85rem' }}>
+                                   <strong>🚚 Tracking:</strong> {transaction.shipping_carrier} - {transaction.tracking_number}
+                                 </div>
+                               )}
                                {transaction?.status === 'escrow' && request.status === 'in_progress' ? (
                                  <button onClick={handleReleaseFunds} className="button-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', width: '100%', justifyContent: 'center' }}>
                                    Confirm Delivery & Release Funds
                                  </button>
-                               ) : transaction?.status === 'released' ? (
-                                 <p style={{ margin: 0, fontSize: '0.85rem' }}>Funds have been released to the seller.</p>
+                               ) : transaction?.status === 'released' || transaction?.status === 'shipped' ? (
+                                 <div style={{ marginTop: '1rem' }}>
+                                   {transaction?.status === 'released' ? (
+                                     <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem' }}>Funds have been released to the seller.</p>
+                                   ) : (
+                                     <button onClick={handleReleaseFunds} className="button-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', width: '100%', justifyContent: 'center', marginBottom: '1rem' }}>
+                                       Confirm Delivery & Release Funds
+                                     </button>
+                                   )}
+                                   
+                                   {transaction?.status === 'released' && !reviewDone && (
+                                     <div style={{ background: 'var(--bg-color)', padding: '1rem', borderRadius: '8px', textAlign: 'left', marginTop: '1rem', border: '1px solid var(--border-light)' }}>
+                                       <h5 style={{ margin: '0 0 0.5rem 0', color: 'var(--primary-navy)' }}>Rate Your Experience</h5>
+                                       <form onSubmit={e => handleSubmitReview(e, bid.seller_id)} style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                                         <select value={rating} onChange={e => setRating(parseInt(e.target.value))} style={{ padding: '0.6rem', borderRadius: '4px', border: '1px solid var(--border-light)' }}>
+                                           <option value={5}>5 Stars - Excellent</option>
+                                           <option value={4}>4 Stars - Good</option>
+                                           <option value={3}>3 Stars - Average</option>
+                                           <option value={2}>2 Stars - Poor</option>
+                                           <option value={1}>1 Star - Terrible</option>
+                                         </select>
+                                         <textarea required placeholder="Write a quick comment..." value={comment} onChange={e => setComment(e.target.value)} style={{ padding: '0.6rem', borderRadius: '4px', border: '1px solid var(--border-light)' }} rows={2}></textarea>
+                                         <button type="submit" disabled={reviewLoading} className="button-primary" style={{ padding: '0.5rem', justifyContent: 'center' }}>Submit Review</button>
+                                       </form>
+                                     </div>
+                                   )}
+                                   {reviewDone && <div style={{ fontSize: '0.9rem', color: 'var(--success-green)', fontWeight: 'bold', marginTop: '0.5rem' }}>Thank you for reviewing!</div>}
+                                 </div>
                                ) : null}
                              </>
                           )}
@@ -387,6 +484,28 @@ export default function RequestDetailPage() {
                       {myBid.status}
                     </span>
                   </div>
+                  
+                  {transaction && transaction.status === 'escrow' && !transaction.tracking_number && (
+                    <div style={{ marginTop: '1.5rem', padding: '1.5rem', background: 'rgba(46, 95, 163, 0.05)', border: '1px solid rgba(46, 95, 163, 0.2)', borderRadius: '8px' }}>
+                      <h4 style={{ margin: '0 0 1rem 0', color: 'var(--primary-navy)' }}>Provide Shipping Details</h4>
+                      <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>The buyer has funded Escrow. Please ship the item and provide tracking.</p>
+                      <form onSubmit={handleUpdateTracking} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <input required type="text" placeholder="Carrier (e.g. UPS, USPS)" value={trackingCarrier} onChange={e => setTrackingCarrier(e.target.value)} style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-light)' }} />
+                        <input required type="text" placeholder="Tracking Number" value={trackingNumber} onChange={e => setTrackingNumber(e.target.value)} style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-light)' }} />
+                        <button type="submit" disabled={submitTrackLoading} className="button-primary" style={{ justifyContent: 'center' }}>{submitTrackLoading ? 'Saving...' : 'Submit Tracking'}</button>
+                      </form>
+                    </div>
+                  )}
+                  {transaction && transaction.tracking_number && (
+                    <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(39, 174, 96, 0.1)', borderRadius: '8px', border: '1px solid rgba(39, 174, 96, 0.3)' }}>
+                      <strong>Tracking Provided:</strong> {transaction.shipping_carrier} - {transaction.tracking_number}
+                    </div>
+                  )}
+                  {transaction && transaction.status === 'released' && (
+                    <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(39, 174, 96, 0.1)', borderRadius: '8px', border: '1px solid rgba(39, 174, 96, 0.3)', color: 'var(--success-green)', fontWeight: 'bold' }}>
+                      Funds Released! Check your earnings.
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', background: 'rgba(0,0,0,0.01)' }}>
@@ -416,6 +535,11 @@ export default function RequestDetailPage() {
                     <button type="submit" disabled={!newMessage.trim()} className="button-primary" style={{ padding: '0.8rem 1.5rem', borderRadius: '20px', opacity: !newMessage.trim() ? 0.6 : 1 }}>Send</button>
                   </form>
                 </div>
+              </div>
+            ) : userRole === 'buyer' ? (
+              <div className="glass-card" style={{ padding: '2rem', textAlign: 'center' }}>
+                <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>Buyer Account</h3>
+                <p style={{ color: 'var(--text-secondary)' }}>You are logged in as a <strong>Buyer</strong>. Only Sellers can make offers on requests.</p>
               </div>
             ) : (
               <div className="glass-card" style={{ padding: '2rem' }}>

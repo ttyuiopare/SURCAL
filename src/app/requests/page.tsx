@@ -30,7 +30,8 @@ export default function RequestsPage() {
       setLoading(false);
     }
     loadRequests();
-  }, [supabase, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>Loading Marketplace...</div>;
 

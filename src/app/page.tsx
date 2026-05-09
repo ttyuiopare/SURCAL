@@ -38,11 +38,6 @@ export default function Home() {
                   Request a Product <ArrowRight size={18} />
                 </button>
               </Link>
-              <Link href="/requests" style={{ textDecoration: 'none' }}>
-                <button className="button-secondary" style={{ fontSize: '1.1rem', padding: '1rem 2.5rem', cursor: 'pointer' }}>
-                  Browse Wanted Items
-                </button>
-              </Link>
             </div>
 
             <div style={{ width: '100%', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', border: '1px solid var(--border-light)' }}>
@@ -59,7 +54,7 @@ export default function Home() {
         <section style={{ width: '100%', maxWidth: '1200px', padding: 'var(--container-padding)', marginBottom: '6rem' }}>
           <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
             <h2 className="heading-lg" style={{ marginBottom: '1rem' }}>Buying has evolved</h2>
-            <p className="text-lead" style={{ margin: '0 auto' }}>Don't search for hours. Let the sellers come to you.</p>
+            <p className="text-lead" style={{ margin: '0 auto' }}>Don&apos;t search for hours. Let the sellers come to you.</p>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem' }}>
@@ -93,7 +88,7 @@ export default function Home() {
                 <Zap size={24} />
               </div>
               <h3 style={{ fontSize: '1.5rem', color: 'var(--primary-navy)', marginBottom: '1rem', fontWeight: 600 }}>Sellers bid to win</h3>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>Don't wait for your items to sell. Browse real requests from ready-to-buy customers and make them an offer they can't refuse.</p>
+              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>Don&apos;t wait for your items to sell. Browse real requests from ready-to-buy customers and make them an offer they can&apos;t refuse.</p>
             </motion.div>
 
             {/* Smart Assistant Focus */}
@@ -281,7 +276,7 @@ export default function Home() {
            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
               <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
                 <h2 className="heading-lg" style={{ marginBottom: '1rem' }}>Trusted by Both Sides</h2>
-                <p className="text-lead" style={{ margin: '0 auto', maxWidth: '600px' }}>Don't just take our word for it. Hear from buyers saving money and sellers scaling their businesses.</p>
+                <p className="text-lead" style={{ margin: '0 auto', maxWidth: '600px' }}>Don&apos;t just take our word for it. Hear from buyers saving money and sellers scaling their businesses.</p>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>

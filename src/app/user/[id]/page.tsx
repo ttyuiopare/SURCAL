@@ -55,7 +55,8 @@ export default function UserProfilePage() {
       setLoading(false);
     }
     fetchUser();
-  }, [id, supabase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   if (loading) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>Loading Profile...</div>;
 
@@ -63,7 +64,7 @@ export default function UserProfilePage() {
     return (
       <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>
         <h1 className="heading-lg" style={{ marginBottom: '1rem' }}>User Not Found</h1>
-        <p style={{ color: 'var(--text-secondary)' }}>We couldn't locate a profile matching "{id}".</p>
+        <p style={{ color: 'var(--text-secondary)' }}>We couldn&apos;t locate a profile matching "{id}".</p>
       </div>
     );
   }
@@ -123,7 +124,7 @@ export default function UserProfilePage() {
         <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Recent Active Bids</h2>
         {recentBids.length === 0 ? (
           <div className="glass-card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-            This user hasn't made any recent public bids.
+            This user hasn&apos;t made any recent public bids.
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>

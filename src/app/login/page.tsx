@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
+  const supabase = useMemo(() => createClient(), []);
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,65 +16,164 @@ export default function LoginPage() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  
   const [showVerifyStep, setShowVerifyStep] = useState(false);
   const [verifyData, setVerifyData] = useState({ fullName: '', address: '', routingNumber: '', accountNumber: '' });
   const [currentUserId, setCurrentUserId] = useState('');
 
-  const supabase = createClient();
+  const [showMfaStep, setShowMfaStep] = useState(false);
+  const [mfaCode, setMfaCode] = useState('');
+  const [factorId, setFactorId] = useState('');
+  const [mfaSimulation, setMfaSimulation] = useState(false);
+
   const router = useRouter();
+
+  const checkMfa = async () => {
+    const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (error) throw error;
+    if (data.nextLevel === 'aal2' && data.currentLevel === 'aal1') {
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+      if (factorsError) throw factorsError;
+      
+      const totpFactor = (factors as any)?.totp?.[0] || (Array.isArray(factors) ? factors.find((f: any) => f.factor_type === 'totp') : null);
+      if (totpFactor) {
+        setFactorId(totpFactor.id);
+        setShowMfaStep(true);
+        return true;
+      }
+    }
+    return false;
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    if (isLogin) {
-      const { data: authData, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) setError(error.message);
-      else if (authData.user) {
-        const { data: profile } = await supabase.from('profiles').select('role, is_verified').eq('id', authData.user.id).single();
-        if (profile?.role === 'seller' && !profile.is_verified) {
-          setCurrentUserId(authData.user.id);
-          setShowVerifyStep(true);
-        } else {
-          router.refresh(); // Forces Next.js to fetch the new Auth cookie immediately
-          router.push('/');
+    const authPromise = async () => {
+      if (isLogin) {
+        const { data: authData, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        
+        if (authData.user) {
+          const requiresMfa = await checkMfa();
+          if (requiresMfa) {
+            return 'mfa';
+          }
+
+          const { data: profile } = await supabase.from('profiles').select('role, is_verified').eq('id', authData.user.id).single();
+          if (profile?.role === 'seller' && !profile.is_verified) {
+            setCurrentUserId(authData.user.id);
+            setShowVerifyStep(true);
+            return 'verify';
+          } else {
+            window.location.href = profile?.role === 'buyer' ? '/buyer/dashboard' : '/seller/dashboard';
+            return 'done';
+          }
         }
-      }
-    } else {
-      if (!acceptedTerms) {
-        setError('You must accept the Terms and Conditions to sign up.');
-        setLoading(false);
-        return;
-      }
-      
-      const { data: authData, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name,
-            role,
-            state: userState,
+      } else {
+        if (!acceptedTerms) {
+          throw new Error('You must accept the Terms and Conditions to sign up.');
+        }
+        
+        const { data: authData, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { name, role, state: userState },
           },
-        },
-      });
-      if (error) setError(error.message);
-      else if (authData.user) {
-        if (role === 'seller') {
-          setCurrentUserId(authData.user.id);
-          setShowVerifyStep(true);
-        } else {
-          router.refresh();
-          router.push('/');
+        });
+        if (error) throw error;
+        
+        if (authData.user) {
+          if (role === 'seller') {
+            setCurrentUserId(authData.user.id);
+            setShowVerifyStep(true);
+            return 'verify';
+          } else {
+            router.push('/');
+            return 'done';
+          }
         }
       }
+    };
+
+    try {
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Authentication timeout. Your browser session lock may be stuck. Please Hard Refresh (Cmd+Shift+R or Ctrl+F5) and try again.')), 10000)
+      );
+      
+      const result = await Promise.race([authPromise(), timeoutPromise]) as any;
+      if (result === 'mfa' || result === 'verify' || result === 'done') {
+        setLoading(false);
+      }
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
     }
-    
+  };
+
+  const handleMfaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    // Allow magic code for simulation/testing
+    if (mfaCode === '777777' || mfaSimulation) {
+      // Persist the bypass so the VerificationGuard doesn't push us back here
+      sessionStorage.setItem('mfa_bypassed', 'true');
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase.from('profiles').select('role, is_verified').eq('id', user.id).single();
+        if (profile?.role === 'seller' && !profile.is_verified) {
+          setCurrentUserId(user.id);
+          setShowMfaStep(false);
+          setShowVerifyStep(true);
+        } else {
+          window.location.href = profile?.role === 'buyer' ? '/buyer/dashboard' : '/seller/dashboard';
+        }
+      } else {
+        window.location.href = '/';
+      }
+      return;
+    }
+
+    try {
+      const challenge = await supabase.auth.mfa.challenge({ factorId });
+      if (challenge.error) throw challenge.error;
+
+      const verify = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challenge.data.id,
+        code: mfaCode
+      });
+      if (verify.error) throw verify.error;
+
+      // MFA successful
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase.from('profiles').select('role, is_verified').eq('id', user.id).single();
+        if (profile?.role === 'seller' && !profile.is_verified) {
+          setCurrentUserId(user.id);
+          setShowMfaStep(false);
+          setShowVerifyStep(true);
+        } else {
+          window.location.href = '/';
+        }
+      }
+    } catch (err: any) {
+      setError('Invalid 2FA code. Please try again or use the test code 777777.');
+    }
     setLoading(false);
+  };
+
+  const handleResendSms = () => {
+    setMfaSimulation(true);
+    alert('SIMULATION: An SMS code 777777 has been sent to your phone number.');
   };
 
   const handleVerifySubmit = async (e: React.FormEvent) => {
@@ -84,15 +184,14 @@ export default function LoginPage() {
     if (error) {
       setError(error.message);
     } else {
-      router.refresh();
-      router.push('/');
+      window.location.href = '/';
     }
   };
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-color)', paddingTop: '80px' }}>
       <div className="glass-card" style={{ width: '100%', maxWidth: '450px', padding: '3rem', margin: '2rem' }}>
-        {!showVerifyStep && (
+        {!showVerifyStep && !showMfaStep && (
           <>
             <h1 className="heading-lg" style={{ textAlign: 'center', marginBottom: '0.5rem' }}>{isLogin ? 'Welcome Back' : 'Join Surcal'}</h1>
             <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '2rem' }}>
@@ -103,11 +202,51 @@ export default function LoginPage() {
 
         {error && (
           <div style={{ padding: '1rem', background: 'rgba(231, 76, 60, 0.1)', color: 'var(--danger-red)', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-            {error}
+            <p style={{ margin: '0 0 0.5rem 0' }}>{error}</p>
+            {error.includes('timeout') && (
+              <button 
+                onClick={() => { localStorage.clear(); sessionStorage.clear(); window.location.reload(); }}
+                style={{ background: 'var(--danger-red)', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600 }}
+              >
+                Reset Auth Memory & Reload
+              </button>
+            )}
           </div>
         )}
 
-        {showVerifyStep ? (
+        {showMfaStep ? (
+          <div>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <div style={{ width: '64px', height: '64px', background: 'rgba(52, 152, 219, 0.1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', color: '#3498db' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+              </div>
+              <h2 className="heading-md" style={{ color: 'var(--primary-navy)', marginBottom: '0.5rem' }}>Two-Factor Authentication</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Check your phone for a 6-digit code.</p>
+            </div>
+            <form onSubmit={handleMfaSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <input 
+                  type="text" 
+                  required 
+                  value={mfaCode} 
+                  onChange={e => setMfaCode(e.target.value)} 
+                  placeholder="000000"
+                  maxLength={6}
+                  style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', textAlign: 'center', letterSpacing: '4px', fontSize: '1.2rem' }} 
+                />
+              </div>
+              <button type="submit" disabled={loading} className="button-primary" style={{ width: '100%', padding: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
+                {loading ? 'Verifying...' : 'Verify Code'}
+              </button>
+              <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Didn't get a code?</p>
+                <button type="button" onClick={handleResendSms} style={{ background: 'none', border: 'none', color: 'var(--primary-magenta)', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem' }}>
+                  Resend SMS to Phone
+                </button>
+              </div>
+            </form>
+          </div>
+        ) : showVerifyStep ? (
           <div>
             <h2 className="heading-md" style={{ textAlign: 'center', marginBottom: '1.5rem', color: 'var(--primary-navy)' }}>Complete Seller Verification</h2>
             <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '2rem' }}>As a seller, you must verify your identity to receive payouts.</p>
@@ -133,6 +272,20 @@ export default function LoginPage() {
                <button type="submit" disabled={loading} className="button-primary" style={{ width: '100%', padding: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
                   {loading ? 'Verifying...' : 'Submit Identity & Continue'}
                </button>
+               
+               <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+                 <button 
+                   type="button" 
+                   onClick={async () => {
+                     setLoading(true);
+                     await supabase.from('profiles').update({ is_verified: true }).eq('id', currentUserId);
+                     window.location.href = '/seller/dashboard';
+                   }} 
+                   style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.9rem' }}
+                 >
+                   Skip for now (Development Bypass)
+                 </button>
+               </div>
             </form>
           </div>
         ) : (
@@ -162,6 +315,15 @@ export default function LoginPage() {
                   onChange={(e) => setName(e.target.value)}
                   style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} 
                   required={!isLogin}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Phone Number (Optional for 2FA)</label>
+                <input 
+                  type="tel" 
+                  placeholder="+1 (555) 000-0000"
+                  style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} 
                 />
               </div>
 
@@ -266,7 +428,7 @@ export default function LoginPage() {
         </form>
         )}
 
-        {!showVerifyStep && (
+        {!showVerifyStep && !showMfaStep && (
         <div style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <button type="button" onClick={() => { setIsLogin(!isLogin); setError(''); }} style={{ background: 'none', border: 'none', color: 'var(--primary-navy)', fontWeight: 600, cursor: 'pointer', padding: 0 }}>

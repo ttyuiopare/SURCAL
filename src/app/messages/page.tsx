@@ -112,7 +112,8 @@ export default function MessagesInboxPage() {
     }
     
     loadInbox();
-  }, [supabase, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
 
   useEffect(() => {
     scrollToBottom();
@@ -135,7 +136,8 @@ export default function MessagesInboxPage() {
       }
     }
     loadBid();
-  }, [selectedConvoId, currentUser, supabase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedConvoId, currentUser]);
 
   const handleInboxAcceptAndPay = async () => {
     if (!relatedBid || !selectedConvo) return;
@@ -357,7 +359,7 @@ export default function MessagesInboxPage() {
             {imagePreview && (
               <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border-light)', background: 'var(--bg-color)' }}>
                  <div style={{ position: 'relative', width: '80px', height: '80px' }}>
-                   <img src={imagePreview} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', border: '2px solid var(--primary-navy)' }} />
+                   <img src={imagePreview} alt="Image Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px', border: '2px solid var(--primary-navy)' }} />
                    <button onClick={() => { setImageFile(null); setImagePreview(''); }} style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'var(--danger-red)', color: 'white', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
                      <X size={14} />
                    </button>

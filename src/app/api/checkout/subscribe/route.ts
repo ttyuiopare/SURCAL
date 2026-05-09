@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       payment_method_types: ['card'],
       line_items: [{ price: price.id, quantity: 1 }],
       mode: 'subscription',
-      success_url: `${req.headers.get('origin')}/dashboard?subscription_success=true&plan=${planName}&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${req.headers.get('origin')}/seller/dashboard?subscription_success=true&plan=${planName}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin')}/pricing?canceled=true`,
       metadata: { userId, planName }
     });
