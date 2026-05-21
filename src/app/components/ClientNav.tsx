@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 
-export default function ClientNav() {
-  const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+export default function ClientNav({ initialProfile }: { initialProfile?: any }) {
+  const [profile, setProfile] = useState<any>(initialProfile || null);
+  const [loading, setLoading] = useState(!initialProfile);
 
   useEffect(() => {
     const supabase = createClient();

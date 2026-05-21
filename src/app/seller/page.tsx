@@ -11,44 +11,32 @@ export default function SellerDashboard() {
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState({ requests: 0, bids: 0, saved: 0, activeBids: 0 });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingState, setLoadingState] = useState('Initializing Supabase client...');
   
   const router = useRouter();
 
   useEffect(() => {
     const supabase = createClient();
     async function loadDashboard() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-
-      // Check for Stripe Subscription Success
-      if (typeof window !== 'undefined') {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('subscription_success') === 'true') {
-          const planName = urlParams.get('plan');
-          const sessionId = urlParams.get('session_id');
-          if (planName && sessionId) {
-            await fetch('/api/checkout/subscribe/record', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ sessionId, planName })
-            });
-            alert(`🎉 Subscription to ${planName} successful!`);
-            window.history.replaceState({}, '', '/seller/dashboard');
-          }
+      try {
+        setLoadingState('Fetching user...');
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setLoadingState('Redirecting to login...');
+          router.push('/login');
+          return;
         }
-      }
 
-      const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-      if (profileData?.role !== 'seller') {
-        router.push('/buyer/dashboard');
-        return;
-      }
-      setProfile(profileData);
+        setLoadingState('Fetching profile...');
+        const { data: profileData, error: profileError } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        if (!profileData || profileData.role !== 'seller') {
+          setLoadingState('Redirecting to buyer dashboard...');
+          router.push('/buyer');
+          return;
+        }
+        setProfile(profileData);
 
+      setLoadingState('Fetching bids...');
       let activityList: any[] = [];
       const { count: sellerBidsCount } = await supabase.from('bids').select('*', { count: 'exact', head: true }).eq('seller_id', user.id);
       const { data: sellerBids } = await supabase.from('bids').select('id, price, created_at, status').eq('seller_id', user.id).order('created_at', { ascending: false }).limit(5);
@@ -64,9 +52,15 @@ export default function SellerDashboard() {
       activityList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       setRecentActivity(activityList.slice(0, 10));
       
-      setStats({ requests: 0, bids: 0, saved: earned, activeBids: sellerBidsCount || 0 });
-        
-      setLoading(false);
+        setStats({ requests: 0, bids: 0, saved: earned, activeBids: sellerBidsCount || 0 });
+      } catch (err: any) {
+        setLoadingState('Error: ' + err.message);
+        console.error("Dashboard load error:", err);
+      } finally {
+        if (loadingState !== 'Error: ' && !loadingState.startsWith('Redirecting')) {
+          setLoadingState('done');
+        }
+      }
     }
     loadDashboard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -78,7 +72,8 @@ export default function SellerDashboard() {
     window.location.href = '/';
   }
 
-  if (loading) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>Loading dashboard...</div>;
+  if (loadingState !== 'done' && !loadingState.startsWith('Error')) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>{loadingState}</div>;
+  if (loadingState.startsWith('Error')) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center', color: 'red' }}>{loadingState}</div>;
 
   return (
     <div style={{ minHeight: '100vh', paddingTop: '80px', display: 'flex', backgroundColor: 'var(--bg-color)' }}>
@@ -94,7 +89,7 @@ export default function SellerDashboard() {
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <Link href="/seller/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', background: 'var(--primary-navy)', borderRadius: 'var(--border-radius-md)', color: 'var(--text-primary)', fontWeight: 500, textDecoration: 'none' }}>
+          <Link href="/seller" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', background: 'var(--primary-navy)', borderRadius: 'var(--border-radius-md)', color: 'var(--text-primary)', fontWeight: 500, textDecoration: 'none' }}>
             <LayoutDashboard size={20} /> Overview
           </Link>
           <Link href="/seller/offers" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: 'var(--border-radius-md)', color: 'var(--text-secondary)', textDecoration: 'none' }}>
@@ -103,9 +98,7 @@ export default function SellerDashboard() {
           <Link href="/seller/manage" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: 'var(--border-radius-md)', color: 'var(--text-secondary)', textDecoration: 'none' }}>
             <Activity size={20} /> Manage Orders
           </Link>
-          <Link href="/seller/pricing" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: 'var(--border-radius-md)', color: 'var(--primary-magenta)', fontWeight: 600, textDecoration: 'none', background: 'rgba(229, 0, 125, 0.05)' }}>
-            <Sparkles size={20} /> Upgrade Plan
-          </Link>
+
           <Link href="/settings" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: 'var(--border-radius-md)', color: 'var(--text-secondary)', textDecoration: 'none' }}>
             <Settings size={20} /> Settings
           </Link>
