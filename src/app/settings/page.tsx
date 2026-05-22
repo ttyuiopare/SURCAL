@@ -9,7 +9,7 @@ import { Save, User as UserIcon, Shield, CreditCard } from 'lucide-react';
 export default function SettingsPage() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [sub, setSub] = useState<any>(null);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -33,8 +33,6 @@ export default function SettingsPage() {
       setProfile(profileData);
       if (profileData) setName(profileData.name || '');
 
-      const { data: subData } = await supabase.from('user_subscriptions').select('*, subscription_plans(name, max_requests, max_bids)').eq('user_id', user.id).eq('status', 'active').single();
-      setSub(subData);
 
       setLoading(false);
     }
@@ -106,33 +104,6 @@ export default function SettingsPage() {
           </form>
         </motion.div>
 
-        {/* Subscription Info */}
-        {profile?.role === 'seller' && (
-          <motion.div className="glass-card" style={{ padding: '2.5rem', marginBottom: '2rem' }} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <h2 style={{ fontSize: '1.2rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--ai-purple)' }}>
-              <Shield size={20} /> Billing & Plan
-            </h2>
-            <div style={{ background: 'var(--bg-surface)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
-               <p style={{ margin: '0 0 0.5rem 0', color: 'var(--text-secondary)' }}>Current Plan</p>
-               <h3 style={{ fontSize: '1.5rem', color: 'var(--text-primary)', margin: '0 0 1rem 0', fontWeight: 700 }}>{sub ? sub.subscription_plans?.name : 'Free Tier'}</h3>
-             
-             <div style={{ display: 'flex', gap: '2rem', marginBottom: '1.5rem', borderTop: '1px solid var(--border-light)', paddingTop: '1rem' }}>
-               <div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Max Monthly Posts</div>
-                  <div style={{ fontWeight: 600 }}>{sub ? sub.subscription_plans?.max_requests : '3'}</div>
-               </div>
-               <div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Max Monthly Bids</div>
-                  <div style={{ fontWeight: 600 }}>{sub ? sub.subscription_plans?.max_bids : '10'}</div>
-               </div>
-             </div>
-
-              <button className="button-secondary" onClick={() => router.push('/seller/pricing')} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', justifyContent: 'center', padding: '0.8rem', cursor: 'pointer' }}>
-                <CreditCard size={18} /> Upgrade Plan
-              </button>
-            </div>
-          </motion.div>
-        )}
 
         {/* Security Settings Info */}
         <motion.div className="glass-card" style={{ padding: '2.5rem', marginBottom: '2rem' }} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>

@@ -148,19 +148,35 @@ export default function RequestDetailPage() {
     } else {
       setBidSuccess(true);
       
+      let newMsg = null;
       // Auto-send a notification message to the buyer
       if (request?.buyer_id) {
-        await supabase.from('messages').insert([{
+        const { data: msgData } = await supabase.from('messages').insert([{
           request_id: id,
           sender_id: userId,
           receiver_id: request.buyer_id,
           content: `Hi! I just placed an offer of $${price} for this item! Check out my offer details directly on the item page.`
-        }]);
+        }]).select().single();
+        if (msgData) newMsg = msgData;
       }
 
       // Trigger AI Scoring asynchronously
       if (bidData) {
         scoreBid(bidData.id, request.description, message, parseFloat(price), request.budget);
+        
+        // Update UI to show the chat interface
+        setMyBid({
+          id: bidData.id,
+          request_id: id,
+          seller_id: userId,
+          price: parseFloat(price),
+          message,
+          timeline,
+          status: 'pending'
+        });
+        if (newMsg) {
+          setChatMessages([newMsg]);
+        }
       }
       setPrice('');
       setMessage('');

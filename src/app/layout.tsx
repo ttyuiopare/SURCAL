@@ -4,6 +4,7 @@ import Link from 'next/link';
 import VerificationGuard from './VerificationGuard';
 import ClientNav from './components/ClientNav';
 import ClientFooterLinks from './components/ClientFooterLinks';
+import { createClient } from '@/utils/supabase/server';
 import "./globals.css";
 
 const bebas = Bebas_Neue({
@@ -23,11 +24,20 @@ export const metadata: Metadata = {
   description: "A premium reverse marketplace where buyers post requests and sellers make offers.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  let profile = null;
+  if (user) {
+    const { data } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
+    profile = data || { role: 'buyer', id: user.id };
+  }
+
   return (
     <html lang="en">
       <body className={`${dmsans.className} ${bebas.variable} ${dmsans.variable}`}>
@@ -35,7 +45,7 @@ export default function RootLayout({
         <nav className="glass-nav">
           <div className="nav-container">
             <Link href="/" className="logo" style={{ textDecoration: 'none' }}>Surcal</Link>
-            <ClientNav />
+            <ClientNav initialProfile={profile} />
           </div>
         </nav>
         <main style={{ flex: '1' }}>{children}</main>

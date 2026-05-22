@@ -10,30 +10,47 @@ import { useRouter } from 'next/navigation';
 export default function RequestsPage() {
   const [requests, setRequests] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loadingState, setLoadingState] = useState('Initializing...');
 
   const supabase = createClient();
   const router = useRouter();
 
   useEffect(() => {
     async function loadRequests() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
+      try {
+        setLoadingState('Fetching user session...');
+        const userPromise = supabase.auth.getUser();
+        const timeoutPromise = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('getUser Timeout!')), 10000));
+        
+        const { data: { user } } = await Promise.race([userPromise, timeoutPromise]);
+        
+        if (!user) {
+          setLoadingState('Redirecting to login...');
+          router.push('/login');
+          return;
+        }
 
-      // Fetch all open requests and related generic data
-      const { data } = await supabase.from('requests').select('*, profiles!requests_buyer_id_fkey(name)').eq('status', 'open').order('created_at', { ascending: false });
-      
-      setRequests(data || []);
-      setLoading(false);
+        setLoadingState('Fetching marketplace items...');
+        const fetchPromise = supabase.from('requests').select('*, profiles!requests_buyer_id_fkey(name)').eq('status', 'open').order('created_at', { ascending: false });
+        const fetchTimeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Database Timeout!')), 10000));
+        const { data, error } = await Promise.race([fetchPromise, fetchTimeout]);
+        
+        if (error) {
+          setLoadingState('Database Error: ' + error.message);
+          return;
+        }
+
+        setRequests(data || []);
+        setLoadingState('done');
+      } catch (err: any) {
+        setLoadingState('Error: ' + err.message);
+      }
     }
     loadRequests();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (loading) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>Loading Marketplace...</div>;
+  if (loadingState !== 'done') return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center', color: loadingState.startsWith('Error') ? 'red' : 'inherit' }}>{loadingState}</div>;
 
   const filtered = requests.filter(r => 
     r.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
