@@ -5,8 +5,16 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles, Zap, DollarSign, Shield, CheckCircle, TrendingUp, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useAuth } from './providers/AuthProvider';
 
 export default function Home() {
+  const { profile } = useAuth();
+  const isSeller = profile?.role === 'seller';
+  // Sellers don't post requests, so they see a "Browse requests" CTA instead.
+  const ctaHref = isSeller ? '/requests' : '/post-request';
+  const ctaPrimary = isSeller ? 'Browse Requests' : 'Request a Product';
+  const ctaFinal = isSeller ? 'Browse Open Requests' : 'Get Started for Free';
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'var(--bg-color)', paddingTop: '120px' }}>
         
@@ -33,9 +41,9 @@ export default function Home() {
             </p>
             
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '3rem' }}>
-              <Link href="/post-request" style={{ textDecoration: 'none' }}>
+              <Link href={ctaHref} style={{ textDecoration: 'none' }}>
                 <button className="button-primary" style={{ gap: '0.5rem', fontSize: '1.1rem', padding: '1rem 2.5rem', boxShadow: '0 4px 14px 0 rgba(30, 58, 95, 0.39)', cursor: 'pointer' }}>
-                  Request a Product <ArrowRight size={18} />
+                  {ctaPrimary} <ArrowRight size={18} />
                 </button>
               </Link>
             </div>
@@ -349,9 +357,9 @@ export default function Home() {
         <section style={{ width: '100%', padding: '6rem var(--container-padding)', background: 'linear-gradient(135deg, var(--primary-magenta) 0%, var(--ai-purple) 100%)', color: 'var(--text-primary)', textAlign: 'center', borderRadius: '24px', maxWidth: '1200px', marginBottom: '4rem' }}>
           <h2 className="heading-xl" style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', fontWeight: 700 }}>Ready to transform your sourcing?</h2>
           <p style={{ fontSize: '1.2rem', marginBottom: '2.5rem', opacity: 0.9, maxWidth: '600px', margin: '0 auto 2.5rem' }}>Join thousands of buyers and sellers already using Surcal to work smarter.</p>
-          <Link href="/post-request" style={{ textDecoration: 'none' }}>
+          <Link href={ctaHref} style={{ textDecoration: 'none' }}>
             <button className="button-primary" style={{ background: 'var(--text-primary)', color: 'var(--primary-navy)', fontSize: '1.1rem', padding: '1rem 2.5rem', border: 'none', cursor: 'pointer', borderRadius: '8px', fontWeight: 600 }}>
-              Get Started for Free
+              {ctaFinal}
             </button>
           </Link>
         </section>

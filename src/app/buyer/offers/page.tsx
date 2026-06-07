@@ -3,29 +3,29 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { MessageSquare, Star, Clock, CheckCircle, XCircle } from 'lucide-react';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import BuyerSidebar from '../BuyerSidebar';
+import { useAuth } from '../../providers/AuthProvider';
 
 export default function ReceivedOffersPage() {
+  const { user, supabase } = useAuth();
   const [offers, setOffers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  
+
   const router = useRouter();
 
   useEffect(() => {
-    loadOffers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function loadOffers() {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       router.push('/login');
       return;
     }
+    loadOffers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  async function loadOffers() {
+    if (!user) return;
 
     // 1. Get all requests by this buyer
     const { data: requests } = await supabase
@@ -60,8 +60,7 @@ export default function ReceivedOffersPage() {
 
   const handleAction = async (bidId: string, action: 'accepted' | 'rejected') => {
     setActionLoading(bidId);
-    const supabase = createClient();
-    
+
     // Update the bid status
     const { error } = await supabase.from('bids').update({ status: action }).eq('id', bidId);
     

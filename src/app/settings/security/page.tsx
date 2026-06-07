@@ -157,9 +157,25 @@ export default function SecuritySettingsPage() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#2ecc71', fontWeight: 600, marginBottom: '2rem' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-              2FA is Active and Required for your account.
+              2FA is active on your account.
             </div>
-            {/* Disable button has been permanently removed! MFA is mandatory. */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              <button
+                onClick={() => window.location.href = '/dashboard'}
+                className="button-primary"
+                style={{ padding: '0.8rem 1.5rem', width: '100%', justifyContent: 'center' }}
+              >
+                Continue to Dashboard
+              </button>
+              <button
+                onClick={disableMfa}
+                disabled={loading}
+                className="button-secondary"
+                style={{ padding: '0.8rem 1.5rem', width: '100%', justifyContent: 'center', color: 'var(--danger-red)', borderColor: 'rgba(231,76,60,0.2)' }}
+              >
+                {loading ? 'Working…' : 'Disable 2FA'}
+              </button>
+            </div>
           </div>
         ) : (
           <div>
@@ -178,17 +194,6 @@ export default function SecuritySettingsPage() {
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.27-2.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
               Option 2: Use your Phone Number (SMS)
             </button>
-            <div style={{ textAlign: 'center', margin: '1rem 0' }}>
-              <button 
-                onClick={() => {
-                  sessionStorage.setItem('mfa_bypassed', 'true');
-                  window.location.href = '/dashboard';
-                }} 
-                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.9rem' }}
-              >
-                Skip for now (Development Bypass)
-              </button>
-            </div>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

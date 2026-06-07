@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { improveRequestDescription } from '@/app/actions/ai';
+import { notifyMatchingSellers } from '@/app/actions/matching';
+import { moderateContent } from '@/app/actions/moderation';
 import { Sparkles } from 'lucide-react';
 import BuyerSidebar from '../BuyerSidebar';
+import { useAuth } from '../../providers/AuthProvider';
 
 export default function PostRequestPage() {
+  const { user, profile, supabase } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [budget, setBudget] = useState('');
@@ -16,35 +19,31 @@ export default function PostRequestPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  
-  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
+
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [categoryId, setCategoryId] = useState('');
-  const [aiPrice, setAiPrice] = useState<{min: number, max: number, reasoning: string} | null>(null);
+  const [aiPrice, setAiPrice] = useState<{ min: number; max: number; reasoning: string } | null>(null);
   const [loadingPrice, setLoadingPrice] = useState(false);
 
   const router = useRouter();
 
   useEffect(() => {
-    const supabase = createClient();
-    async function loadDataAndAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-      
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-      if (profile?.role === 'seller') {
-        router.push('/seller/dashboard');
-        return;
-      }
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (profile?.role === 'seller') {
+      router.push('/seller');
+      return;
+    }
 
+    async function loadCategories() {
       const { data } = await supabase.from('categories').select('*').order('name');
       if (data) setCategories(data);
     }
-    loadDataAndAuth();
+    loadCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
+  }, [user, profile?.role]);
 
   const handleGetEstimate = async () => {
     if (!categoryId || !title || !description) {
@@ -56,9 +55,14 @@ export default function PostRequestPage() {
       const catName = categories.find(c => c.id === categoryId)?.name || '';
       const { suggestPriceRange } = await import('@/app/actions/ai');
       const result = await suggestPriceRange(catName, title, description);
-      if (result) setAiPrice(result);
+      if (result) {
+        setAiPrice(result);
+      } else {
+        alert('The price advisor is temporarily unavailable. Please try again in a moment.');
+      }
     } catch (err) {
       console.error(err);
+      alert('Could not get a price estimate right now. Please try again.');
     }
     setLoadingPrice(false);
   };
@@ -66,12 +70,9 @@ export default function PostRequestPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoryId) { setError('Please select a category.'); return; }
-    
+
     setLoading(true);
     setError('');
-
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
       setError('You must be logged in to post a request.');
@@ -98,16 +99,20 @@ export default function PostRequestPage() {
 
     const ai_description = await improveRequestDescription(description);
 
-    const { error: insertError } = await supabase.from('requests').insert([{
-      buyer_id: user.id,
-      category_id: categoryId,
-      title,
-      description,
-      ai_description,
-      budget: parseFloat(budget),
-      deadline: deadlineDate.toISOString(),
-      image_url: imageUrl,
-    }]);
+    const { data: inserted, error: insertError } = await supabase
+      .from('requests')
+      .insert([{
+        buyer_id: user.id,
+        category_id: categoryId,
+        title,
+        description,
+        ai_description,
+        budget: parseFloat(budget),
+        deadline: deadlineDate.toISOString(),
+        image_url: imageUrl,
+      }])
+      .select('id')
+      .single();
 
     if (insertError) {
       setError(insertError.message);
@@ -120,6 +125,21 @@ export default function PostRequestPage() {
       setDeadlineDays('');
       setImage(null);
       setAiPrice(null);
+
+      // Fire-and-forget seller matching. Don't await — the buyer's confirmation
+      // shouldn't wait on AI re-ranking + notification fan-out.
+      if (inserted?.id) {
+        notifyMatchingSellers(inserted.id).catch((err) =>
+          console.error('[post-request] matching failed:', err)
+        );
+        moderateContent({
+          type: 'request',
+          contentId: inserted.id,
+          userId: user.id,
+          text: `${title}\n\n${description}`,
+          link: `/requests/${inserted.id}`,
+        }).catch((err) => console.error('[post-request] moderation failed:', err));
+      }
     }
 
     setLoading(false);

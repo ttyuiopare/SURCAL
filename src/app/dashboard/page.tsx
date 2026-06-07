@@ -1,33 +1,26 @@
 'use client';
 import { useEffect } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../providers/AuthProvider';
 
 export default function RedirectDashboard() {
+  const { user, profile } = useAuth();
+  const router = useRouter();
+
   useEffect(() => {
-    async function doRedirect() {
-      try {
-        const supabase = createClient();
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
-        if (!user || userError) {
-          window.location.href = '/login';
-          return;
-        }
-        
-        const { data } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
-        
-        if (data?.role === 'seller') {
-          window.location.href = '/seller';
-        } else {
-          window.location.href = '/buyer';
-        }
-      } catch (err) {
-        console.error("Dashboard redirect error:", err);
-        window.location.href = '/buyer';
-      }
+    if (!user) {
+      router.replace('/login');
+      return;
     }
-    doRedirect();
-  }, []);
-  
-  return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>Loading your dashboard...</div>;
+    // Wait until we know the role before bouncing — otherwise a seller
+    // briefly lands on /buyer while the profile loads.
+    if (profile === null) return;
+    router.replace(profile?.role === 'seller' ? '/seller' : '/buyer');
+  }, [user, profile, router]);
+
+  return (
+    <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>
+      Loading your dashboard...
+    </div>
+  );
 }

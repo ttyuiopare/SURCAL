@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Send, MessageSquare, Clock, User, ImagePlus, X } from 'lucide-react';
+import { Send, MessageSquare, ImagePlus, X } from 'lucide-react';
 import Link from 'next/link';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../providers/AuthProvider';
+import { moderateContent } from '../actions/moderation';
+import ShippingAddressForm, { type ShippingAddress } from '../components/ShippingAddressForm';
 
 type Conversation = {
   id: string; // Combined request_id + counterparty_id
@@ -18,23 +19,22 @@ type Conversation = {
 };
 
 export default function MessagesInboxPage() {
+  const { user: currentUser, supabase } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConvoId, setSelectedConvoId] = useState<string | null>(null);
-  const [currentUser, setCurrentUser] = useState<any>(null);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [relatedBid, setRelatedBid] = useState<any>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isBuyer, setIsBuyer] = useState(false);
-  
+
   // Image Upload States
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const supabase = createClient();
   const router = useRouter();
 
   // Scroll to bottom of chat
@@ -43,14 +43,12 @@ export default function MessagesInboxPage() {
   };
 
   useEffect(() => {
-    async function loadInbox() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-      setCurrentUser(user);
+    if (!currentUser) {
+      router.push('/login');
+      return;
+    }
 
+    async function loadInbox() {
       // Fetch all messages involving this user
       const { data: msgs, error: msgsError } = await supabase
         .from('messages')
@@ -58,7 +56,7 @@ export default function MessagesInboxPage() {
           *,
           request:requests!messages_request_id_fkey(title)
         `)
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+        .or(`sender_id.eq.${currentUser!.id},receiver_id.eq.${currentUser!.id}`)
         .order('created_at', { ascending: true });
 
       if (msgs && msgs.length > 0) {
@@ -75,7 +73,7 @@ export default function MessagesInboxPage() {
         const convoMap = new Map<string, Conversation>();
 
         msgs.forEach(m => {
-          const isSender = m.sender_id === user.id;
+          const isSender = m.sender_id === currentUser!.id;
           const counterpartyId = isSender ? m.receiver_id : m.sender_id;
           const counterpartyName = profileMap.get(counterpartyId)?.name || 'Unknown User';
           
@@ -113,7 +111,7 @@ export default function MessagesInboxPage() {
     
     loadInbox();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
+  }, [currentUser?.id]);
 
   useEffect(() => {
     scrollToBottom();
@@ -139,14 +137,15 @@ export default function MessagesInboxPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedConvoId, currentUser]);
 
-  const handleInboxAcceptAndPay = async () => {
+  const handleInboxAcceptAndPay = async (address: ShippingAddress) => {
     if (!relatedBid || !selectedConvo) return;
     try {
       // Accept bid and escalate request
       await supabase.from('bids').update({ status: 'accepted' }).eq('id', relatedBid.id);
       await supabase.from('requests').update({ status: 'in_progress' }).eq('id', relatedBid.request_id);
 
-      // Trigger Stripe Session Checkout
+      // Trigger Stripe Session Checkout — include the buyer's shipping address
+      // so the accepted seller sees it after escrow funds.
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -154,10 +153,11 @@ export default function MessagesInboxPage() {
           bidId: relatedBid.id,
           price: parseFloat(relatedBid.price),
           title: selectedConvo.requestTitle,
-          requestId: selectedConvo.requestId
+          requestId: selectedConvo.requestId,
+          shippingAddress: address,
         })
       });
-      
+
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
@@ -231,13 +231,24 @@ export default function MessagesInboxPage() {
     }));
 
     // Save to DB
-    await supabase.from('messages').insert([{
+    const { data: savedMsg } = await supabase.from('messages').insert([{
       request_id: convo.requestId,
       sender_id: currentUser.id,
       receiver_id: convo.counterpartyId,
       content: msgText,
       image_url: imageUrl
-    }]);
+    }]).select('id').single();
+
+    // Fire-and-forget AI moderation on the message text.
+    if (newMessage.trim()) {
+      moderateContent({
+        type: 'message',
+        contentId: savedMsg?.id ?? convo.requestId,
+        userId: currentUser.id,
+        text: msgText,
+        link: `/requests/${convo.requestId}`,
+      }).catch((err) => console.error('[message] moderation failed:', err));
+    }
   };
 
   if (loading) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>Loading Inbox...</div>;
@@ -328,7 +339,7 @@ export default function MessagesInboxPage() {
             {/* Messages Area */}
             <div style={{ flex: 1, padding: '2rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', background: 'var(--bg-color)' }}>
               {selectedConvo.messages.map((msg: any) => {
-                const isMine = msg.sender_id === currentUser.id;
+                const isMine = msg.sender_id === currentUser?.id;
                 return (
                   <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', alignItems: isMine ? 'flex-end' : 'flex-start' }}>
                     <div style={{ 
@@ -391,20 +402,12 @@ export default function MessagesInboxPage() {
               </form>
             </div>
 
-            {/* Confirmation Modal */}
+            {/* Shipping Address Modal (replaces the old "Are you sure?" confirm) */}
             {showConfirmModal && relatedBid && (
-              <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div className="glass-card" style={{ width: '400px', padding: '2rem', textAlign: 'center' }}>
-                   <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--primary-navy)' }}>Confirm Action</h3>
-                   <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-                     Are you sure you want to officially accept this offer for <strong>${relatedBid.price}</strong>? You will be redirected to securely fund the escrow via Stripe.
-                   </p>
-                   <div style={{ display: 'flex', gap: '1rem' }}>
-                     <button onClick={() => setShowConfirmModal(false)} className="button-secondary" style={{ flex: 1, padding: '0.8rem' }}>Cancel</button>
-                     <button onClick={handleInboxAcceptAndPay} className="button-primary" style={{ flex: 1, padding: '0.8rem', background: 'var(--success-green)', border: 'none' }}>Confirm & Pay</button>
-                   </div>
-                </div>
-              </div>
+              <ShippingAddressForm
+                onClose={() => setShowConfirmModal(false)}
+                onConfirm={handleInboxAcceptAndPay}
+              />
             )}
           </>
         )}

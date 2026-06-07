@@ -1,55 +1,48 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { DollarSign, ArrowUpRight, ArrowDownRight, Activity } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Activity } from 'lucide-react';
+import { useAuth } from '../../providers/AuthProvider';
 
 export default function EarningsPage() {
+  const { user, profile, supabase } = useAuth();
   const [transactions, setTransactions] = useState<any[]>([]);
   const [stats, setStats] = useState({ earned: 0, pending: 0, spent: 0 });
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
-  
+  const userId = user?.id ?? null;
+
   const router = useRouter();
 
   useEffect(() => {
-    const supabase = createClient();
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (profile && profile.role === 'buyer') {
+      router.push('/buyer');
+      return;
+    }
+
     async function loadFinancials() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-      
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-      if (profile?.role === 'buyer') {
-        router.push('/buyer/dashboard');
-        return;
-      }
-
-      setUserId(user.id);
-
       // Fetch all transactions involving this user (either buyer or seller)
       const { data: txs } = await supabase.from('transactions')
         .select('*, requests(title)')
-        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
+        .or(`buyer_id.eq.${user!.id},seller_id.eq.${user!.id}`)
         .order('created_at', { ascending: false });
 
       if (txs) {
         setTransactions(txs);
-        
+
         let earned = 0;
         let pending = 0;
         let spent = 0;
 
         txs.forEach((tx) => {
-          if (tx.buyer_id === user.id) {
-            // Money leaving the user
+          if (tx.buyer_id === user!.id) {
             spent += Number(tx.amount);
-          } else if (tx.seller_id === user.id) {
-            // Money coming to the user
+          } else if (tx.seller_id === user!.id) {
             if (tx.status === 'completed') earned += Number(tx.amount);
             if (tx.status === 'pending') pending += Number(tx.amount);
           }
@@ -61,7 +54,7 @@ export default function EarningsPage() {
     }
     loadFinancials();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
+  }, [user, profile?.role]);
 
   if (loading) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>Loading Financials...</div>;
 

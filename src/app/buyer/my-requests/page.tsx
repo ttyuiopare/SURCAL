@@ -4,39 +4,38 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Plus, ExternalLink, Calendar, DollarSign } from 'lucide-react';
 import Link from 'next/link';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import BuyerSidebar from '../BuyerSidebar'; // We will create this shared component
+import BuyerSidebar from '../BuyerSidebar';
+import { useAuth } from '../../providers/AuthProvider';
 
 export default function MyRequestsPage() {
+  const { user, supabase } = useAuth();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const router = useRouter();
 
   useEffect(() => {
-    const supabase = createClient();
-    async function loadRequests() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
+    if (!user) {
+      router.push('/login');
+      return;
+    }
 
-      // Fetch requests and their bid counts
+    async function loadRequests() {
       const { data } = await supabase
         .from('requests')
         .select('*, bids(count)')
-        .eq('buyer_id', user.id)
+        .eq('buyer_id', user!.id)
         .order('created_at', { ascending: false });
-        
+
       if (data) {
         setRequests(data);
       }
       setLoading(false);
     }
     loadRequests();
-  }, [router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   return (
     <div style={{ minHeight: '100vh', paddingTop: '80px', display: 'flex', backgroundColor: 'var(--bg-color)' }}>

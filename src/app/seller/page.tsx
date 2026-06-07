@@ -2,75 +2,63 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, MessageSquare, Settings, LogOut, TrendingUp, Sparkles, Activity } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Settings, LogOut, TrendingUp, Activity, Boxes } from 'lucide-react';
 import Link from 'next/link';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../providers/AuthProvider';
 
 export default function SellerDashboard() {
-  const [profile, setProfile] = useState<any>(null);
+  const { user, profile, supabase } = useAuth();
   const [stats, setStats] = useState({ requests: 0, bids: 0, saved: 0, activeBids: 0 });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
-  const [loadingState, setLoadingState] = useState('Initializing Supabase client...');
-  
+  const [loadingState, setLoadingState] = useState('Loading dashboard...');
+
   const router = useRouter();
 
   useEffect(() => {
-    const supabase = createClient();
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (profile && profile.role !== 'seller') {
+      router.push('/buyer');
+      return;
+    }
+
     async function loadDashboard() {
       try {
-        setLoadingState('Fetching user...');
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          setLoadingState('Redirecting to login...');
-          router.push('/login');
-          return;
+        setLoadingState('Fetching bids...');
+        let activityList: any[] = [];
+        const { count: sellerBidsCount } = await supabase.from('bids').select('*', { count: 'exact', head: true }).eq('seller_id', user!.id);
+        const { data: sellerBids } = await supabase.from('bids').select('id, price, created_at, status').eq('seller_id', user!.id).order('created_at', { ascending: false }).limit(5);
+      
+        let earned = 0;
+        if (sellerBids && sellerBids.length > 0) {
+          earned = sellerBids.filter(b => b.status === 'accepted').reduce((sum, b) => sum + Number(b.price), 0);
+          sellerBids.forEach(b => {
+            activityList.push({ type: 'bid', text: `Submitted a bid for $${b.price}`, date: b.created_at });
+          });
         }
 
-        setLoadingState('Fetching profile...');
-        const { data: profileData, error: profileError } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-        if (!profileData || profileData.role !== 'seller') {
-          setLoadingState('Redirecting to buyer dashboard...');
-          router.push('/buyer');
-          return;
-        }
-        setProfile(profileData);
+        activityList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setRecentActivity(activityList.slice(0, 10));
 
-      setLoadingState('Fetching bids...');
-      let activityList: any[] = [];
-      const { count: sellerBidsCount } = await supabase.from('bids').select('*', { count: 'exact', head: true }).eq('seller_id', user.id);
-      const { data: sellerBids } = await supabase.from('bids').select('id, price, created_at, status').eq('seller_id', user.id).order('created_at', { ascending: false }).limit(5);
-      
-      let earned = 0;
-      if (sellerBids && sellerBids.length > 0) {
-        earned = sellerBids.filter(b => b.status === 'accepted').reduce((sum, b) => sum + Number(b.price), 0);
-        sellerBids.forEach(b => {
-          activityList.push({ type: 'bid', text: `Submitted a bid for $${b.price}`, date: b.created_at });
-        });
-      }
-      
-      activityList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      setRecentActivity(activityList.slice(0, 10));
-      
         setStats({ requests: 0, bids: 0, saved: earned, activeBids: sellerBidsCount || 0 });
       } catch (err: any) {
         setLoadingState('Error: ' + err.message);
-        console.error("Dashboard load error:", err);
+        console.error('Dashboard load error:', err);
       } finally {
-        if (loadingState !== 'Error: ' && !loadingState.startsWith('Redirecting')) {
-          setLoadingState('done');
-        }
+        setLoadingState(prev => prev.startsWith('Error') || prev.startsWith('Redirecting') ? prev : 'done');
       }
     }
     loadDashboard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
+  }, [user, profile?.role]);
 
   const handleSignout = async () => {
-    const supabase = createClient();
     await supabase.auth.signOut();
     window.location.href = '/';
-  }
+  };
 
   if (loadingState !== 'done' && !loadingState.startsWith('Error')) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>{loadingState}</div>;
   if (loadingState.startsWith('Error')) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center', color: 'red' }}>{loadingState}</div>;
@@ -91,6 +79,9 @@ export default function SellerDashboard() {
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           <Link href="/seller" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', background: 'var(--primary-navy)', borderRadius: 'var(--border-radius-md)', color: 'var(--text-primary)', fontWeight: 500, textDecoration: 'none' }}>
             <LayoutDashboard size={20} /> Overview
+          </Link>
+          <Link href="/seller/inventory" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: 'var(--border-radius-md)', color: 'var(--text-secondary)', textDecoration: 'none' }}>
+            <Boxes size={20} /> Inventory
           </Link>
           <Link href="/seller/offers" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.8rem 1rem', borderRadius: 'var(--border-radius-md)', color: 'var(--text-secondary)', textDecoration: 'none' }}>
             <MessageSquare size={20} /> My Bids

@@ -9,19 +9,26 @@ export async function POST(req: Request) {
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2023-10-16' as any });
     const session = await stripe.checkout.sessions.retrieve(sessionId);
-    
+
     if (session.payment_status !== 'unpaid' && session.payment_status !== 'paid') {
        return NextResponse.json({ error: 'Payment not successful' }, { status: 400 });
     }
 
     const supabase = await createClient();
-    
+
     const { data: bid } = await supabase.from('bids').select('seller_id, price').eq('id', bidId).single();
     const { data: reqData } = await supabase.from('requests').select('buyer_id').eq('id', requestId).single();
 
+    // Pull the shipping address (JSON-stringified) out of Stripe metadata.
+    let shippingAddress: unknown = null;
+    const rawAddr = session.metadata?.shippingAddress;
+    if (rawAddr) {
+      try { shippingAddress = JSON.parse(rawAddr); } catch { /* ignore malformed */ }
+    }
+
     if (bid && reqData) {
       const { data: existing } = await supabase.from('transactions').select('id').eq('stripe_payment_intent_id', session.payment_intent as string).single();
-      
+
       if (!existing) {
         await supabase.from('transactions').insert([{
           request_id: requestId,
@@ -30,7 +37,8 @@ export async function POST(req: Request) {
           seller_id: bid.seller_id,
           amount: bid.price,
           stripe_payment_intent_id: session.payment_intent as string,
-          status: 'escrow'
+          status: 'escrow',
+          shipping_address: shippingAddress,
         }]);
         
         await supabase.from('bids').update({ status: 'accepted' }).eq('id', bidId);

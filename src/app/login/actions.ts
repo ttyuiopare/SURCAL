@@ -25,7 +25,7 @@ export async function logIn(formData: FormData) {
   }
 
   // Navigate to dashboard
-  redirect('/dashboard');
+  return { success: true };
 }
 
 export async function signUp(formData: FormData) {
@@ -66,5 +66,5 @@ export async function verifyMfa(factorId: string, code: string) {
 
   if (verify.error) return { error: 'Invalid 2FA code.' };
 
-  redirect('/dashboard');
+  return { success: true };
 }

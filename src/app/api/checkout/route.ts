@@ -8,7 +8,7 @@ export async function POST(req: Request) {
       apiVersion: '2023-10-16' as any,
     });
 
-    const { bidId, title, price, requestId } = await req.json();
+    const { bidId, title, price, requestId, shippingAddress } = await req.json();
 
     if (!bidId || !price) {
       return NextResponse.json({ error: 'Missing bid details' }, { status: 400 });
@@ -74,6 +74,9 @@ export async function POST(req: Request) {
         bidId: bidId,
         requestId: requestId,
         sellerId: bid.seller_id,
+        // JSON-stringified buyer shipping address. Stripe metadata values
+        // are capped at 500 chars; a typical address fits comfortably.
+        shippingAddress: shippingAddress ? JSON.stringify(shippingAddress).slice(0, 480) : '',
       }
     });
 

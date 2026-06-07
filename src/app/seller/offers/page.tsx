@@ -2,38 +2,35 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { MessageSquare, Link as LinkIcon, ExternalLink, Shield } from 'lucide-react';
+import { MessageSquare, ExternalLink, Shield } from 'lucide-react';
 import Link from 'next/link';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../../providers/AuthProvider';
 
 export default function OffersInteractionsPage() {
+  const { user, profile, supabase } = useAuth();
   const [interactions, setInteractions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const supabase = createClient();
-    async function fetchInteractions() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-      
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-      if (profile?.role === 'buyer') {
-        router.push('/buyer/dashboard');
-        return;
-      }
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (profile && profile.role === 'buyer') {
+      router.push('/buyer');
+      return;
+    }
 
+    async function fetchInteractions() {
       // 1. Fetch requests posted by the user that have bids
-      const { data: userRequests, error: reqErr } = await supabase.from('requests').select('id, title, bids(id, price, seller_id, message, created_at, profiles(name, is_verified))').eq('buyer_id', user.id);
-      if (reqErr) console.error("Requests fetch error:", reqErr);
-      
+      const { data: userRequests, error: reqErr } = await supabase.from('requests').select('id, title, bids(id, price, seller_id, message, created_at, profiles(name, is_verified))').eq('buyer_id', user!.id);
+      if (reqErr) console.error('Requests fetch error:', reqErr);
+
       // 2. Fetch bids placed by the user on other people's requests
-      const { data: userBids, error: bidErr } = await supabase.from('bids').select('id, price, message, created_at, request_id, requests(title, buyer_id, profiles(name, is_verified))').eq('seller_id', user.id);
-      if (bidErr) console.error("Bids fetch error:", bidErr);
+      const { data: userBids, error: bidErr } = await supabase.from('bids').select('id, price, message, created_at, request_id, requests(title, buyer_id, profiles(name, is_verified))').eq('seller_id', user!.id);
+      if (bidErr) console.error('Bids fetch error:', bidErr);
 
       let merged: any[] = [];
 
@@ -77,7 +74,7 @@ export default function OffersInteractionsPage() {
     }
     fetchInteractions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
+  }, [user, profile?.role]);
 
   if (loading) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>Loading Interactions...</div>;
 

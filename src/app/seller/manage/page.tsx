@@ -1,44 +1,40 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Briefcase, CheckCircle, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '../../providers/AuthProvider';
 
 export default function ManageOrdersPage() {
+  const { user, profile, supabase } = useAuth();
   const [activeProjects, setActiveProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const router = useRouter();
 
   useEffect(() => {
-    const supabase = createClient();
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (profile && profile.role === 'buyer') {
+      router.push('/buyer');
+      return;
+    }
+
     async function loadProjects() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-      
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-      if (profile?.role === 'buyer') {
-        router.push('/buyer/dashboard');
-        return;
-      }
-
-
       // Fetch projects where user is Buyer AND bid is accepted
       const { data: buyingData } = await supabase.from('requests')
         .select('id, title, budget, created_at, bids!inner(id, price, status, seller_id, profiles!bids_seller_id_fkey(name))')
-        .eq('buyer_id', user.id)
+        .eq('buyer_id', user!.id)
         .eq('bids.status', 'accepted');
 
       // Fetch projects where user is Seller AND bid is accepted
       const { data: sellingData } = await supabase.from('bids')
         .select('id, price, status, request_id, requests!inner(title, budget, created_at, buyer_id, profiles!requests_buyer_id_fkey(name))')
-        .eq('seller_id', user.id)
+        .eq('seller_id', user!.id)
         .eq('status', 'accepted');
 
       const merged: any[] = [];
@@ -80,7 +76,7 @@ export default function ManageOrdersPage() {
     }
     loadProjects();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
+  }, [user, profile?.role]);
 
   if (loading) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>Loading Orders...</div>;
 

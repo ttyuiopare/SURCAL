@@ -2,44 +2,34 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, ShoppingCart, MessageSquare, Settings, LogOut, DollarSign, Heart, FileText, CheckCircle } from 'lucide-react';
-import Link from 'next/link';
-import { createClient } from '@/utils/supabase/client';
+import { ShoppingCart, MessageSquare, DollarSign, Heart, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import BuyerSidebar from './BuyerSidebar';
+import { useAuth } from '../providers/AuthProvider';
 
 export default function BuyerDashboard() {
-  const [profile, setProfile] = useState<any>(null);
+  const { user, profile, supabase } = useAuth();
   const [stats, setStats] = useState({ requests: 0, bids: 0, moneySaved: 0, savedSellers: 0 });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
-  const [loadingState, setLoadingState] = useState('Initializing Supabase client...');
-  
+  const [loadingState, setLoadingState] = useState('Loading dashboard...');
+
   const router = useRouter();
 
   useEffect(() => {
-    const supabase = createClient();
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    if (profile?.role === 'seller') {
+      router.push('/seller');
+      return;
+    }
+
     async function loadDashboard() {
       try {
-        setLoadingState('Fetching user...');
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          setLoadingState('Redirecting to login...');
-          router.push('/login');
-          return;
-        }
-
-        setLoadingState('Fetching profile...');
-        const { data: profileData, error: profileError } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-        if (profileData && profileData.role === 'seller') {
-          setLoadingState('Redirecting to seller section...');
-          router.push('/seller');
-          return;
-        }
-        setProfile(profileData || { role: 'buyer', name: user.email || 'User' });
-
         setLoadingState('Fetching requests...');
-        const { count: requestsCount } = await supabase.from('requests').select('*', { count: 'exact' }).eq('buyer_id', user.id);
-        const { data: allBuyerRequests } = await supabase.from('requests').select('id, title, created_at, budget').eq('buyer_id', user.id).order('created_at', { ascending: false });
+        const { count: requestsCount } = await supabase.from('requests').select('*', { count: 'exact' }).eq('buyer_id', user!.id);
+        const { data: allBuyerRequests } = await supabase.from('requests').select('id, title, created_at, budget').eq('buyer_id', user!.id).order('created_at', { ascending: false });
         
         let totalBids = 0;
         let totalMoneySaved = 0;
@@ -79,20 +69,12 @@ export default function BuyerDashboard() {
         setLoadingState('Error: ' + err.message);
         console.error("Dashboard load error:", err);
       } finally {
-        if (loadingState !== 'Error: ' && !loadingState.startsWith('Redirecting')) {
-          setLoadingState('done');
-        }
+        setLoadingState(prev => prev.startsWith('Error') || prev.startsWith('Redirecting') ? prev : 'done');
       }
     }
     loadDashboard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
-
-  const handleSignout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push('/');
-  }
+  }, [user, profile?.role]);
 
   if (loadingState !== 'done' && !loadingState.startsWith('Error')) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>{loadingState}</div>;
   if (loadingState.startsWith('Error')) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center', color: 'red' }}>{loadingState}</div>;

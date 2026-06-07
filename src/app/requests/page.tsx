@@ -2,39 +2,33 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter, Clock, ChevronDown, Tag, DollarSign, MapPin } from 'lucide-react';
+import { Search, Filter, Clock, ChevronDown, Tag, MapPin } from 'lucide-react';
 import Link from 'next/link';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../providers/AuthProvider';
 
 export default function RequestsPage() {
+  const { user, profile, supabase } = useAuth();
   const [requests, setRequests] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [loadingState, setLoadingState] = useState('Initializing...');
+  const [loadingState, setLoadingState] = useState('Loading marketplace...');
 
-  const supabase = createClient();
   const router = useRouter();
 
   useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
     async function loadRequests() {
       try {
-        setLoadingState('Fetching user session...');
-        const userPromise = supabase.auth.getUser();
-        const timeoutPromise = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('getUser Timeout!')), 10000));
-        
-        const { data: { user } } = await Promise.race([userPromise, timeoutPromise]);
-        
-        if (!user) {
-          setLoadingState('Redirecting to login...');
-          router.push('/login');
-          return;
-        }
+        const { data, error } = await supabase
+          .from('requests')
+          .select('*, profiles!requests_buyer_id_fkey(name)')
+          .eq('status', 'open')
+          .order('created_at', { ascending: false });
 
-        setLoadingState('Fetching marketplace items...');
-        const fetchPromise = supabase.from('requests').select('*, profiles!requests_buyer_id_fkey(name)').eq('status', 'open').order('created_at', { ascending: false });
-        const fetchTimeout = new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Database Timeout!')), 10000));
-        const { data, error } = await Promise.race([fetchPromise, fetchTimeout]);
-        
         if (error) {
           setLoadingState('Database Error: ' + error.message);
           return;
@@ -48,7 +42,7 @@ export default function RequestsPage() {
     }
     loadRequests();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   if (loadingState !== 'done') return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center', color: loadingState.startsWith('Error') ? 'red' : 'inherit' }}>{loadingState}</div>;
 
@@ -67,9 +61,11 @@ export default function RequestsPage() {
             <h1 className="heading-xl" style={{ margin: '0 0 0.5rem 0' }}>Wanted Items</h1>
             <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '1.1rem' }}>Browse items people want to buy and make your offer.</p>
           </div>
-          <Link href="/post-request" style={{ textDecoration: 'none' }}>
-            <button className="button-primary" style={{ padding: '0.8rem 1.5rem', fontSize: '1rem' }}>Request an Item</button>
-          </Link>
+          {profile?.role !== 'seller' && (
+            <Link href="/post-request" style={{ textDecoration: 'none' }}>
+              <button className="button-primary" style={{ padding: '0.8rem 1.5rem', fontSize: '1rem' }}>Request an Item</button>
+            </Link>
+          )}
         </div>
 
         {/* 2-Column Main Layout */}

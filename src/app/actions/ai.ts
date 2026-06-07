@@ -14,7 +14,7 @@ export async function improveRequestDescription(originalDescription: string) {
 
   try {
     const msg = await anthropic.messages.create({
-      model: "claude-3-haiku-20240307",
+      model: "claude-haiku-4-5",
       max_tokens: 1000,
       system: "You are an expert procurement officer. Rewrite the user's request description to be highly professional, structured, and clear for vendors to bid on. Keep it concise. Return ONLY the improved description text.",
       messages: [
@@ -55,7 +55,7 @@ Respond ONLY in valid JSON format:
 }`;
 
     const msg = await anthropic.messages.create({
-      model: "claude-3-haiku-20240307",
+      model: "claude-haiku-4-5",
       max_tokens: 500,
       messages: [
         { role: "user", content: prompt }
@@ -98,7 +98,7 @@ Respond ONLY in valid JSON format:
 }`;
 
     const msg = await anthropic.messages.create({
-      model: "claude-3-haiku-20240307",
+      model: "claude-haiku-4-5",
       max_tokens: 200,
       messages: [{ role: "user", content: prompt }]
     });
@@ -139,7 +139,7 @@ Respond ONLY in JSON format:
 }`;
 
     const msg = await anthropic.messages.create({
-      model: "claude-3-haiku-20240307",
+      model: "claude-haiku-4-5",
       max_tokens: 200,
       messages: [{ role: "user", content: prompt }]
     });

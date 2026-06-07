@@ -3,28 +3,28 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Package, Truck, CreditCard, ShieldCheck } from 'lucide-react';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import BuyerSidebar from '../BuyerSidebar';
+import { useAuth } from '../../providers/AuthProvider';
 
 export default function OrdersPage() {
+  const { user, supabase } = useAuth();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const router = useRouter();
 
   useEffect(() => {
-    loadOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function loadOrders() {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       router.push('/login');
       return;
     }
+    loadOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  async function loadOrders() {
+    if (!user) return;
 
     // 1. Get all requests by this buyer
     const { data: requests } = await supabase

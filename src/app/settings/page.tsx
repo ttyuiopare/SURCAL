@@ -1,65 +1,61 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Save, User as UserIcon, Shield, CreditCard } from 'lucide-react';
+import { Save, User as UserIcon, Shield } from 'lucide-react';
+import { useAuth } from '../providers/AuthProvider';
+import NotificationPreferences from '../components/NotificationPreferences';
 
 export default function SettingsPage() {
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const { user, profile, supabase } = useAuth();
 
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [showVerifyForm, setShowVerifyForm] = useState(false);
   const [verifyData, setVerifyData] = useState({ fullName: '', address: '', routingNumber: '', accountNumber: '' });
-  const [name, setName] = useState('');
+  const [name, setName] = useState(profile?.name || '');
 
-  const supabase = createClient();
   const router = useRouter();
 
   useEffect(() => {
-    async function loadData() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-      setUser(user);
-
-      const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-      setProfile(profileData);
-      if (profileData) setName(profileData.name || '');
-
-
-      setLoading(false);
+    if (!user) {
+      router.push('/login');
     }
-    loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user, router]);
+
+  useEffect(() => {
+    setName(profile?.name || '');
+  }, [profile?.name]);
+
+  const loading = !user || !profile;
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     setSaving(true);
     const { error } = await supabase.from('profiles').update({ name }).eq('id', user.id);
     setSaving(false);
-    if (error) alert('Error saving profile');
-    else alert('Profile updated effectively!');
+    if (error) {
+      alert('Error saving profile');
+    } else {
+      router.refresh();
+      alert('Profile updated.');
+    }
   };
 
   const handleVerify = async () => {
+    if (!user) return;
     setVerifying(true);
     const { error } = await supabase.from('profiles').update({ is_verified: true }).eq('id', user.id);
-    if (!error) {
-       setProfile({...profile, is_verified: true});
-       setShowVerifyForm(false);
-       alert('Verification documents submitted! You are now a verified seller!');
-    } else {
-       alert('Error verifying account: ' + error.message);
-    }
     setVerifying(false);
+    if (!error) {
+      setShowVerifyForm(false);
+      router.refresh();
+      alert('Verification documents submitted! You are now a verified seller!');
+    } else {
+      alert('Error verifying account: ' + error.message);
+    }
   };
 
   if (loading) return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center' }}>Loading Settings...</div>;
@@ -88,9 +84,9 @@ export default function SettingsPage() {
             
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Email Address</label>
-              <input 
-                type="text" 
-                value={user.email} 
+              <input
+                type="text"
+                value={user?.email || ''}
                 disabled
                 style={{ width: '100%', padding: '0.8rem 1rem', background: 'rgba(0,0,0,0.02)', border: '1px solid var(--border-light)', borderRadius: '8px', color: 'var(--text-secondary)', fontSize: '1rem', cursor: 'not-allowed' }} 
               />
@@ -104,6 +100,8 @@ export default function SettingsPage() {
           </form>
         </motion.div>
 
+
+        <NotificationPreferences />
 
         {/* Security Settings Info */}
         <motion.div className="glass-card" style={{ padding: '2.5rem', marginBottom: '2rem' }} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
@@ -136,16 +134,9 @@ export default function SettingsPage() {
                  Verified sellers are trusted by the community and receive higher visibility. Please provide your legal identity and bank info to receive payouts.
                </p>
                {!profile?.is_verified && !showVerifyForm && (
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                   <button onClick={() => setShowVerifyForm(true)} className="button-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', justifyContent: 'center' }}>
-                      Start Verification Request
-                   </button>
-                   <div style={{ textAlign: 'center' }}>
-                     <button type="button" onClick={handleVerify} disabled={verifying} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.9rem' }}>
-                       Skip for now (Development Bypass)
-                     </button>
-                   </div>
-                 </div>
+                 <button onClick={() => setShowVerifyForm(true)} className="button-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', justifyContent: 'center' }}>
+                    Start Verification Request
+                 </button>
                )}
                {!profile?.is_verified && showVerifyForm && (
                  <form onSubmit={(e) => { e.preventDefault(); handleVerify(); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem', background: 'rgba(0,0,0,0.02)', padding: '1.5rem', borderRadius: '8px', border: '1px solid var(--border-light)' }}>

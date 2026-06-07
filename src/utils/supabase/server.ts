@@ -9,7 +9,7 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookieOptions: {
-        name: 'surcal-app-auth'
+        name: 'surcal-app-auth-v2'
       },
       cookies: {
         getAll() {

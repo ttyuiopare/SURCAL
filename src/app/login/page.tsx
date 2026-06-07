@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { logIn, signUp, verifyMfa } from './actions';
 
@@ -17,7 +16,7 @@ export default function LoginPage() {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const [showVerifyStep, setShowVerifyStep] = useState(false);
   const [verifyData, setVerifyData] = useState({ fullName: '', address: '', routingNumber: '', accountNumber: '' });
   const [currentUserId, setCurrentUserId] = useState('');
@@ -25,9 +24,6 @@ export default function LoginPage() {
   const [showMfaStep, setShowMfaStep] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
   const [factorId, setFactorId] = useState('');
-  const [mfaSimulation, setMfaSimulation] = useState(false);
-
-  const router = useRouter();
 
   const checkMfa = async () => {
     const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -73,6 +69,11 @@ export default function LoginPage() {
             return;
           }
         }
+        
+        if (result?.success) {
+          window.location.href = '/dashboard';
+          return;
+        }
       } else {
         if (!acceptedTerms) {
           throw new Error('You must accept the Terms and Conditions to sign up.');
@@ -97,7 +98,9 @@ export default function LoginPage() {
             setLoading(false);
             return;
           } else {
-            window.location.href = '/settings/security';
+            // 2FA is optional — go straight to the dashboard. Users can enable
+            // 2FA later from Settings.
+            window.location.href = '/dashboard';
             return;
           }
         }
@@ -113,31 +116,13 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
-    // Allow magic code for simulation/testing
-    if (mfaCode === '777777') {
-      sessionStorage.setItem('mfa_bypassed', 'true');
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase.from('profiles').select('role, is_verified').eq('id', user.id).single();
-        if (profile?.role === 'seller' && !profile.is_verified) {
-          setCurrentUserId(user.id);
-          setShowMfaStep(false);
-          setShowVerifyStep(true);
-          setLoading(false);
-        } else {
-          window.location.href = profile?.role === 'buyer' ? '/buyer' : '/seller';
-        }
-      } else {
-        window.location.href = '/';
-      }
-      return;
-    }
-
     try {
       const result = await verifyMfa(factorId, mfaCode);
       if (result?.error) {
         setError(result.error);
         setLoading(false);
+      } else if (result?.success) {
+        window.location.href = '/dashboard';
       }
     } catch (err: any) {
       setError('An unexpected error occurred.');
@@ -155,7 +140,7 @@ export default function LoginPage() {
     if (error) {
       setError(error.message);
     } else {
-      window.location.href = '/settings/security';
+      window.location.href = '/dashboard';
     }
   };
 
@@ -199,7 +184,9 @@ export default function LoginPage() {
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
               </div>
               <h2 className="heading-md" style={{ color: 'var(--primary-navy)', marginBottom: '0.5rem' }}>Two-Factor Authentication</h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Check your phone for a 6-digit code.</p>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                Open your authenticator app (Google Authenticator, Authy, etc.) and enter the current 6-digit code for Surcal.
+              </p>
             </div>
             <form id="mfa-form" onSubmit={handleMfaSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
@@ -217,8 +204,14 @@ export default function LoginPage() {
                 {loading ? 'Verifying...' : 'Verify Code'}
               </button>
               <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>Didn't get a code?</p>
-
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                  The code refreshes every 30 seconds in your authenticator app. It is not sent by text or email.
+                  Lost access to your authenticator? Contact{' '}
+                  <a href="mailto:support@surcal.com" style={{ color: 'var(--primary-magenta)', textDecoration: 'none', fontWeight: 600 }}>
+                    support@surcal.com
+                  </a>{' '}
+                  to reset 2FA.
+                </p>
               </div>
             </form>
           </div>
@@ -248,20 +241,6 @@ export default function LoginPage() {
                <button type="submit" disabled={loading} className="button-primary" style={{ width: '100%', padding: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
                   {loading ? 'Verifying...' : 'Submit Identity & Continue'}
                </button>
-               
-               <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-                 <button 
-                   type="button" 
-                   onClick={async () => {
-                     setLoading(true);
-                     await supabase.from('profiles').update({ is_verified: true }).eq('id', currentUserId);
-                     window.location.href = '/settings/security';
-                   }} 
-                   style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.9rem' }}
-                 >
-                   Skip for now (Development Bypass)
-                 </button>
-               </div>
             </form>
           </div>
         ) : (

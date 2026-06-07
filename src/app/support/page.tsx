@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
 import { motion } from 'framer-motion';
 import { MessageSquare, Mail, Phone, ChevronDown, CheckCircle } from 'lucide-react';
+import { useAuth } from '../providers/AuthProvider';
 
 const faqs = [
   {
@@ -35,15 +35,14 @@ export default function SupportPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  const supabase = createClient();
+  const { user, supabase } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       const payload = {
         ...ticket,
         ...(user ? { user_id: user.id } : {})

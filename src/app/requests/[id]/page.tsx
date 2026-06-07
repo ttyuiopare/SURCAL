@@ -1,18 +1,21 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
 import { useParams, useRouter } from 'next/navigation';
 import { scoreBid, getSellerTrustScore } from '@/app/actions/ai';
-import { Shield } from 'lucide-react';
+import { moderateContent } from '@/app/actions/moderation';
+import { Shield, MapPin } from 'lucide-react';
+import { useAuth } from '@/app/providers/AuthProvider';
+import ShippingAddressForm, { type ShippingAddress } from '@/app/components/ShippingAddressForm';
 
 export default function RequestDetailPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { user, profile, supabase } = useAuth();
+  const userId = user?.id ?? '';
+  const userRole = profile?.role ?? '';
   const [request, setRequest] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState('');
-  const [userId, setUserId] = useState('');
   const [bids, setBids] = useState<any[]>([]);
   const [transaction, setTransaction] = useState<any>(null);
 
@@ -38,18 +41,14 @@ export default function RequestDetailPage() {
   const [comment, setComment] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewDone, setReviewDone] = useState(false);
-  
-  const supabase = createClient();
+
+  // Shipping address modal state for the buyer's "Pay Now" flow
+  const [shippingModalForBidId, setShippingModalForBidId] = useState<string | null>(null);
+  const [shippingModalLoading, setShippingModalLoading] = useState(false);
+  const pendingPayBid = bids.find((b) => b.id === shippingModalForBidId);
 
   useEffect(() => {
     async function loadRequest() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserId(user.id);
-        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-        if (profile) setUserRole(profile.role);
-      }
-
       const { data } = await supabase.from('requests').select('*').eq('id', id).single();
       
       // Check for Stripe Success Redirect
@@ -110,7 +109,7 @@ export default function RequestDetailPage() {
     }
     loadRequest();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, user?.id]);
 
   const handleBid = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,7 +162,14 @@ export default function RequestDetailPage() {
       // Trigger AI Scoring asynchronously
       if (bidData) {
         scoreBid(bidData.id, request.description, message, parseFloat(price), request.budget);
-        
+        moderateContent({
+          type: 'bid',
+          contentId: bidData.id,
+          userId,
+          text: `${timeline}\n\n${message}`,
+          link: `/requests/${id}`,
+        }).catch((err) => console.error('[bid] moderation failed:', err));
+
         // Update UI to show the chat interface
         setMyBid({
           id: bidData.id,
@@ -251,27 +257,37 @@ export default function RequestDetailPage() {
     }
   };
 
-  const handlePayFund = async (bidId: string, bidPrice: string) => {
+  const handlePayFund = async (bidId: string, _bidPrice: string) => {
+    // Open the shipping address modal first. The actual checkout fires from
+    // the modal's onConfirm callback below (proceedToCheckout).
+    setShippingModalForBidId(bidId);
+  };
+
+  const proceedToCheckout = async (address: ShippingAddress) => {
+    if (!pendingPayBid) return;
+    setShippingModalLoading(true);
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          bidId,
-          price: parseFloat(bidPrice),
+          bidId: pendingPayBid.id,
+          price: parseFloat(pendingPayBid.price),
           title: request.title,
-          requestId: id
-        })
+          requestId: id,
+          shippingAddress: address,
+        }),
       });
-      
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
         alert('Checkout error: ' + data.error);
+        setShippingModalLoading(false);
       }
     } catch (err) {
       alert('Failed to initiate checkout.');
+      setShippingModalLoading(false);
     }
   };
 
@@ -501,6 +517,26 @@ export default function RequestDetailPage() {
                     </span>
                   </div>
                   
+                  {transaction?.shipping_address && (
+                    <div style={{ marginTop: '1.5rem', padding: '1.2rem', background: 'rgba(30, 58, 95, 0.04)', border: '1px solid rgba(30, 58, 95, 0.15)', borderRadius: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-navy)', fontWeight: 600, marginBottom: '0.6rem' }}>
+                        <MapPin size={16} /> Ship to
+                      </div>
+                      <div style={{ fontSize: '0.92rem', color: 'var(--text-primary)', lineHeight: 1.55 }}>
+                        <div style={{ fontWeight: 600 }}>{transaction.shipping_address.name}</div>
+                        <div>{transaction.shipping_address.line1}</div>
+                        {transaction.shipping_address.line2 && <div>{transaction.shipping_address.line2}</div>}
+                        <div>
+                          {transaction.shipping_address.city}, {transaction.shipping_address.state} {transaction.shipping_address.postal_code}
+                        </div>
+                        {transaction.shipping_address.phone && (
+                          <div style={{ marginTop: '0.4rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                            ☎ {transaction.shipping_address.phone}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                   {transaction && transaction.status === 'escrow' && !transaction.tracking_number && (
                     <div style={{ marginTop: '1.5rem', padding: '1.5rem', background: 'rgba(46, 95, 163, 0.05)', border: '1px solid rgba(46, 95, 163, 0.2)', borderRadius: '8px' }}>
                       <h4 style={{ margin: '0 0 1rem 0', color: 'var(--primary-navy)' }}>Provide Shipping Details</h4>
@@ -601,6 +637,16 @@ export default function RequestDetailPage() {
           )}
         </div>
       </div>
+
+      {shippingModalForBidId && (
+        <ShippingAddressForm
+          loading={shippingModalLoading}
+          onClose={() => {
+            if (!shippingModalLoading) setShippingModalForBidId(null);
+          }}
+          onConfirm={proceedToCheckout}
+        />
+      )}
     </div>
   );
 }
