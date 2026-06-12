@@ -55,7 +55,7 @@ export default function MyRequestsPage() {
           <div className="glass-card" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
             <FileText size={48} color="var(--primary-navy)" style={{ opacity: 0.2, marginBottom: '1rem' }} />
             <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>No requests yet</h3>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>You haven't posted any requests to the marketplace yet.</p>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>You haven&apos;t posted any requests to the marketplace yet.</p>
             <Link href="/buyer/post-request" className="button-primary" style={{ display: 'inline-flex', textDecoration: 'none' }}>Create Your First Request</Link>
           </div>
         ) : (

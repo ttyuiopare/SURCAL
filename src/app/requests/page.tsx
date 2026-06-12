@@ -61,11 +61,9 @@ export default function RequestsPage() {
             <h1 className="heading-xl" style={{ margin: '0 0 0.5rem 0' }}>Wanted Items</h1>
             <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '1.1rem' }}>Browse items people want to buy and make your offer.</p>
           </div>
-          {profile?.role !== 'seller' && (
-            <Link href="/post-request" style={{ textDecoration: 'none' }}>
-              <button className="button-primary" style={{ padding: '0.8rem 1.5rem', fontSize: '1rem' }}>Request an Item</button>
-            </Link>
-          )}
+          <Link href="/post-request" style={{ textDecoration: 'none' }}>
+            <button className="button-primary" style={{ padding: '0.8rem 1.5rem', fontSize: '1rem' }}>Request an Item</button>
+          </Link>
         </div>
 
         {/* 2-Column Main Layout */}

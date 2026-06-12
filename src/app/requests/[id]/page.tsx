@@ -4,9 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { scoreBid, getSellerTrustScore } from '@/app/actions/ai';
 import { moderateContent } from '@/app/actions/moderation';
-import { Shield, MapPin } from 'lucide-react';
+import { Shield, MapPin, ExternalLink } from 'lucide-react';
 import { useAuth } from '@/app/providers/AuthProvider';
 import ShippingAddressForm, { type ShippingAddress } from '@/app/components/ShippingAddressForm';
+import { CARRIERS, trackingUrl, carrierLabel } from '@/utils/trackingLinks';
 
 export default function RequestDetailPage() {
   const { id } = useParams();
@@ -42,6 +43,18 @@ export default function RequestDetailPage() {
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewDone, setReviewDone] = useState(false);
 
+  // Seller competition state (reverse auction)
+  const [competingBids, setCompetingBids] = useState<{ id: string; price: number; seller_id: string }[]>([]);
+
+  // Counter-offer state
+  const [counteringBidId, setCounteringBidId] = useState<string | null>(null);
+  const [counterPriceInput, setCounterPriceInput] = useState('');
+  const [counterMessageInput, setCounterMessageInput] = useState('');
+  const [counterLoading, setCounterLoading] = useState(false);
+  const [sellerCountering, setSellerCountering] = useState(false);
+  const [sellerCounterPrice, setSellerCounterPrice] = useState('');
+  const [sellerCounterMessage, setSellerCounterMessage] = useState('');
+
   // Shipping address modal state for the buyer's "Pay Now" flow
   const [shippingModalForBidId, setShippingModalForBidId] = useState<string | null>(null);
   const [shippingModalLoading, setShippingModalLoading] = useState(false);
@@ -58,14 +71,21 @@ export default function RequestDetailPage() {
           const acceptedBidId = urlParams.get('bid');
           const sessionId = urlParams.get('session_id');
           if (acceptedBidId && sessionId) {
-            await fetch('/api/escrow/record', {
+            const recRes = await fetch('/api/escrow/record', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ sessionId, bidId: acceptedBidId, requestId: id })
             });
-            alert('🎉 Payment Authorized! The funds have been placed in Escrow via Stripe.');
+            const recData = await recRes.json().catch(() => ({}));
+            if (!recRes.ok) {
+              alert('Payment recorded with Stripe but Surcal had a problem saving it: ' + (recData.error ?? recRes.status) + ' — refresh the page in a moment; the webhook may still resolve it.');
+            } else {
+              alert('🎉 Payment Authorized! The funds have been placed in Escrow via Stripe.');
+            }
             window.history.replaceState({}, '', `/requests/${id}`);
             if (data) data.status = 'in_progress';
+            // Mark accepted bid in local data so the rendered status flips.
+            // The transaction will be fetched fresh below.
           }
         }
       }
@@ -102,6 +122,15 @@ export default function RequestDetailPage() {
            // Fetch chat messages
            const { data: msgs } = await supabase.from('messages').select('*').eq('request_id', id).order('created_at', { ascending: true });
            if (msgs) setChatMessages(msgs);
+         }
+
+         // Load competing bids (reverse-auction visibility)
+         const { data: allBids } = await supabase
+           .from('bids')
+           .select('id, price, seller_id, status')
+           .eq('request_id', id);
+         if (allBids) {
+           setCompetingBids(allBids.filter(b => b.status === 'pending').map(b => ({ id: b.id, price: Number(b.price), seller_id: b.seller_id })));
          }
       }
       
@@ -240,20 +269,109 @@ export default function RequestDetailPage() {
         alert('Failed to accept offer: ' + bidErr.message);
         return;
       }
-      
+
       const { error: reqErr } = await supabase.from('requests').update({ status: 'in_progress' }).eq('id', id);
       if (reqErr) {
         alert('Failed to update request: ' + reqErr.message);
         return;
       }
 
+      const acceptedBid = bids.find(b => b.id === bidId);
+      if (acceptedBid && userId) {
+        await supabase.from('messages').insert([{
+          request_id: id,
+          sender_id: userId,
+          receiver_id: acceptedBid.seller_id,
+          content: `🤝 Buyer accepted your $${acceptedBid.price} offer. Awaiting escrow funding to begin fulfillment.`,
+        }]);
+      }
+
       alert('Offer accepted! You can now pay to fund the Escrow.');
-      
+
       const updatedBids = bids.map(b => b.id === bidId ? { ...b, status: 'accepted' } : b);
       setBids(updatedBids);
       setRequest({ ...request, status: 'in_progress' });
     } catch (err) {
       alert('Error accepting offer.');
+    }
+  };
+
+  const submitCounter = async (bidId: string, price: number, message: string) => {
+    setCounterLoading(true);
+    try {
+      const res = await fetch('/api/bids/counter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bidId, counterPrice: price, message: message || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert('Counter failed: ' + (data.error || res.status));
+        return false;
+      }
+      const counterBy = data.counterBy;
+      const updated = {
+        counter_price: price,
+        counter_message: message || null,
+        counter_by: counterBy,
+        counter_at: new Date().toISOString(),
+      };
+      setBids(prev => prev.map(b => b.id === bidId ? { ...b, ...updated } : b));
+      if (myBid?.id === bidId) setMyBid({ ...myBid, ...updated });
+      return true;
+    } catch (err: any) {
+      alert('Counter failed: ' + err.message);
+      return false;
+    } finally {
+      setCounterLoading(false);
+    }
+  };
+
+  const handleBuyerCounter = async (e: React.FormEvent, bidId: string) => {
+    e.preventDefault();
+    const price = parseFloat(counterPriceInput);
+    if (!(price > 0)) { alert('Enter a valid price'); return; }
+    const ok = await submitCounter(bidId, price, counterMessageInput);
+    if (ok) {
+      setCounteringBidId(null);
+      setCounterPriceInput('');
+      setCounterMessageInput('');
+    }
+  };
+
+  const handleSellerCounter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!myBid) return;
+    const price = parseFloat(sellerCounterPrice);
+    if (!(price > 0)) { alert('Enter a valid price'); return; }
+    const ok = await submitCounter(myBid.id, price, sellerCounterMessage);
+    if (ok) {
+      setSellerCountering(false);
+      setSellerCounterPrice('');
+      setSellerCounterMessage('');
+    }
+  };
+
+  const handleAcceptCounter = async (bidId: string) => {
+    setCounterLoading(true);
+    try {
+      const res = await fetch('/api/bids/accept-counter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bidId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert('Accept counter failed: ' + (data.error || res.status));
+        return;
+      }
+      const cleared = { price: data.newPrice, counter_price: null, counter_message: null, counter_by: null, counter_at: null };
+      setBids(prev => prev.map(b => b.id === bidId ? { ...b, ...cleared } : b));
+      if (myBid?.id === bidId) setMyBid({ ...myBid, ...cleared });
+    } catch (err: any) {
+      alert('Accept counter failed: ' + err.message);
+    } finally {
+      setCounterLoading(false);
     }
   };
 
@@ -370,6 +488,29 @@ export default function RequestDetailPage() {
   if (loading) return <div style={{ padding: '120px 20px', textAlign: 'center' }}>Loading...</div>;
   if (!request) return <div style={{ padding: '120px 20px', textAlign: 'center' }}>Request not found.</div>;
 
+  // Reverse-auction stats (seller-facing)
+  const sortedCompeting = [...competingBids].sort((a, b) => a.price - b.price);
+  const lowestCompetingOverall = sortedCompeting[0]?.price ?? null;
+  const lowestCompetingByOthers = sortedCompeting.find(b => b.seller_id !== userId)?.price ?? null;
+  const myRank = myBid && myBid.status === 'pending'
+    ? sortedCompeting.findIndex(b => b.id === myBid.id) + 1
+    : null;
+  const sellersCompetingCount = competingBids.length;
+  const isWinning = myRank === 1 && sellersCompetingCount > 0;
+
+  const shipLinkStyle: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: '0.3rem 0.7rem',
+    background: 'rgba(46, 95, 163, 0.08)',
+    color: 'var(--primary-navy)',
+    borderRadius: '999px',
+    textDecoration: 'none',
+    fontSize: '0.78rem',
+    fontWeight: 600,
+    border: '1px solid rgba(46, 95, 163, 0.18)',
+  };
+
   return (
     <div style={{ minHeight: '100vh', padding: '120px var(--container-padding)', backgroundColor: 'var(--bg-color)' }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', gap: '3rem', flexWrap: 'wrap' }}>
@@ -407,7 +548,7 @@ export default function RequestDetailPage() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {bids.map((bid, index) => (
-                    <div key={bid.id} style={{ padding: '1.5rem', border: '1px solid var(--border-light)', borderRadius: '12px', background: bid.ai_score >= 8 ? 'rgba(39, 174, 96, 0.05)' : 'var(--text-primary)', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                    <div key={bid.id} style={{ padding: '1.5rem', border: '1px solid var(--border-light)', borderRadius: '12px', background: bid.ai_score >= 8 ? 'rgba(39, 174, 96, 0.05)' : 'var(--bg-surface)', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
                           <p style={{ margin: 0, fontWeight: 700, color: 'var(--primary-navy)', display: 'flex', alignItems: 'center' }}>
@@ -437,14 +578,51 @@ export default function RequestDetailPage() {
                         </div>
                       )}
                       {bid.status === 'pending' && request.status === 'open' && (
-                        <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
-                          <button className="button-secondary" style={{ flex: 1, padding: '0.6rem', fontSize: '0.9rem', justifyContent: 'center' }} onClick={() => handleMessageSeller(bid.seller_id)}>
-                            Message Seller
-                          </button>
-                          <button className="button-primary" style={{ flex: 1, padding: '0.6rem', fontSize: '0.9rem', justifyContent: 'center' }} onClick={() => handleAcceptBid(bid.id)}>
-                            Accept Offer
-                          </button>
-                        </div>
+                        <>
+                          {bid.counter_price && bid.counter_by === 'seller' && (
+                            <div style={{ marginTop: '0.5rem', padding: '0.8rem 1rem', background: 'rgba(155, 89, 182, 0.08)', border: '1px solid rgba(155, 89, 182, 0.3)', borderRadius: '8px' }}>
+                              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.2rem' }}>Seller countered at</div>
+                              <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--ai-purple, #9b59b6)' }}>${bid.counter_price}</div>
+                              {bid.counter_message && <p style={{ margin: '0.3rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>&ldquo;{bid.counter_message}&rdquo;</p>}
+                              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.6rem' }}>
+                                <button disabled={counterLoading} className="button-primary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', justifyContent: 'center' }} onClick={() => handleAcceptCounter(bid.id)}>
+                                  Accept ${bid.counter_price}
+                                </button>
+                                <button disabled={counterLoading} className="button-secondary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', justifyContent: 'center' }} onClick={() => { setCounteringBidId(bid.id); setCounterPriceInput(String(bid.counter_price)); }}>
+                                  Counter Back
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                          {bid.counter_price && bid.counter_by === 'buyer' && (
+                            <div style={{ marginTop: '0.5rem', padding: '0.7rem 1rem', background: 'rgba(230, 126, 34, 0.08)', border: '1px solid rgba(230, 126, 34, 0.25)', borderRadius: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                              You countered at <strong style={{ color: 'var(--warning-orange, #e67e22)' }}>${bid.counter_price}</strong> — waiting on seller.
+                            </div>
+                          )}
+                          {counteringBidId === bid.id ? (
+                            <form onSubmit={(e) => handleBuyerCounter(e, bid.id)} style={{ marginTop: '0.5rem', padding: '1rem', background: 'rgba(155, 89, 182, 0.05)', border: '1px solid rgba(155, 89, 182, 0.2)', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                              <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Your counter price ($)</label>
+                              <input type="number" step="0.01" min="1" required autoFocus value={counterPriceInput} onChange={e => setCounterPriceInput(e.target.value)} style={{ padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-light)' }} />
+                              <textarea rows={2} placeholder="Optional note to seller..." value={counterMessageInput} onChange={e => setCounterMessageInput(e.target.value)} style={{ padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-light)', fontFamily: 'inherit', fontSize: '0.9rem' }} />
+                              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <button type="button" className="button-secondary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', justifyContent: 'center' }} onClick={() => { setCounteringBidId(null); setCounterPriceInput(''); setCounterMessageInput(''); }}>Cancel</button>
+                                <button type="submit" disabled={counterLoading} className="button-primary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', justifyContent: 'center' }}>{counterLoading ? 'Sending...' : 'Send Counter'}</button>
+                              </div>
+                            </form>
+                          ) : (
+                            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                              <button className="button-secondary" style={{ flex: 1, minWidth: '100px', padding: '0.6rem', fontSize: '0.85rem', justifyContent: 'center' }} onClick={() => handleMessageSeller(bid.seller_id)}>
+                                Message
+                              </button>
+                              <button className="button-secondary" style={{ flex: 1, minWidth: '100px', padding: '0.6rem', fontSize: '0.85rem', justifyContent: 'center' }} onClick={() => { setCounteringBidId(bid.id); setCounterPriceInput(''); setCounterMessageInput(''); }}>
+                                Counter
+                              </button>
+                              <button className="button-primary" style={{ flex: 1, minWidth: '100px', padding: '0.6rem', fontSize: '0.85rem', justifyContent: 'center' }} onClick={() => handleAcceptBid(bid.id)}>
+                                Accept ${bid.price}
+                              </button>
+                            </div>
+                          )}
+                        </>
                       )}
                       {bid.status === 'accepted' && (
                         <div style={{ marginTop: '0.5rem', padding: '1rem', background: !transaction ? 'rgba(230, 126, 34, 0.1)' : 'rgba(39, 174, 96, 0.1)', color: !transaction ? 'var(--warning-orange)' : 'var(--success-green)', borderRadius: '8px', textAlign: 'center', border: !transaction ? '1px solid rgba(230, 126, 34, 0.2)' : '1px solid rgba(39, 174, 96, 0.2)' }}>
@@ -458,11 +636,22 @@ export default function RequestDetailPage() {
                           ) : (
                              <>
                                <p style={{ margin: '0 0 0.5rem 0', fontWeight: 'bold' }}>Offer Accepted & Funded (Escrow)</p>
-                               {transaction?.tracking_number && (
-                                 <div style={{ margin: '0.5rem 0', padding: '0.5rem', background: 'var(--bg-color)', border: '1px solid var(--border-light)', borderRadius: '4px', fontSize: '0.85rem' }}>
-                                   <strong>🚚 Tracking:</strong> {transaction.shipping_carrier} - {transaction.tracking_number}
-                                 </div>
-                               )}
+                               {transaction?.tracking_number && (() => {
+                                 const url = trackingUrl(transaction.shipping_carrier, transaction.tracking_number);
+                                 return (
+                                   <div style={{ margin: '0.5rem 0', padding: '0.6rem 0.8rem', background: 'var(--bg-color)', border: '1px solid var(--border-light)', borderRadius: '4px', fontSize: '0.85rem', textAlign: 'left' }}>
+                                     <div style={{ marginBottom: '0.4rem' }}>
+                                       <strong>🚚 {carrierLabel(transaction.shipping_carrier)} Tracking:</strong>{' '}
+                                       <span style={{ fontFamily: 'monospace' }}>{transaction.tracking_number}</span>
+                                     </div>
+                                     {url && (
+                                       <a href={url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--primary-navy)', fontWeight: 600, textDecoration: 'none', fontSize: '0.85rem' }}>
+                                         Track on {carrierLabel(transaction.shipping_carrier)} <ExternalLink size={12} />
+                                       </a>
+                                     )}
+                                   </div>
+                                 );
+                               })()}
                                {transaction?.status === 'escrow' && request.status === 'in_progress' ? (
                                  <button onClick={handleReleaseFunds} className="button-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', width: '100%', justifyContent: 'center' }}>
                                    Confirm Delivery & Release Funds
@@ -516,7 +705,83 @@ export default function RequestDetailPage() {
                       {myBid.status}
                     </span>
                   </div>
-                  
+
+                  {myBid.status === 'pending' && sellersCompetingCount > 1 && (
+                    <div style={{ marginTop: '1rem', padding: '0.9rem 1rem', background: isWinning ? 'rgba(39, 174, 96, 0.08)' : 'rgba(230, 126, 34, 0.08)', border: `1px solid ${isWinning ? 'rgba(39, 174, 96, 0.3)' : 'rgba(230, 126, 34, 0.3)'}`, borderRadius: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Competition</div>
+                          <div style={{ fontWeight: 700, color: isWinning ? 'var(--success-green)' : 'var(--warning-orange, #e67e22)', fontSize: '0.95rem' }}>
+                            {isWinning ? '🏆 You’re winning' : `Rank #${myRank} of ${sellersCompetingCount}`}
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Lowest offer</div>
+                          <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>${lowestCompetingOverall}</div>
+                        </div>
+                      </div>
+                      {!isWinning && lowestCompetingByOthers !== null && (
+                        <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                          Lower your price below <strong>${lowestCompetingByOthers}</strong> to take the lead.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {myBid.status === 'pending' && myBid.counter_price && myBid.counter_by === 'buyer' && (
+                    <div style={{ marginTop: '1.2rem', padding: '1rem 1.2rem', background: 'rgba(155, 89, 182, 0.1)', border: '1px solid rgba(155, 89, 182, 0.3)', borderRadius: '8px' }}>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Buyer countered at</div>
+                      <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--ai-purple, #9b59b6)' }}>${myBid.counter_price}</div>
+                      {myBid.counter_message && (
+                        <p style={{ margin: '0.4rem 0 0 0', fontSize: '0.9rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>&ldquo;{myBid.counter_message}&rdquo;</p>
+                      )}
+                      {sellerCountering ? (
+                        <form onSubmit={handleSellerCounter} style={{ marginTop: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                          <input required type="number" step="0.01" min="1" autoFocus placeholder="Your new price ($)" value={sellerCounterPrice} onChange={e => setSellerCounterPrice(e.target.value)} style={{ padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-light)' }} />
+                          <textarea rows={2} placeholder="Optional note to buyer..." value={sellerCounterMessage} onChange={e => setSellerCounterMessage(e.target.value)} style={{ padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-light)', fontFamily: 'inherit', fontSize: '0.9rem' }} />
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button type="button" className="button-secondary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', justifyContent: 'center' }} onClick={() => { setSellerCountering(false); setSellerCounterPrice(''); setSellerCounterMessage(''); }}>Cancel</button>
+                            <button type="submit" disabled={counterLoading} className="button-primary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', justifyContent: 'center' }}>{counterLoading ? 'Sending...' : 'Send Counter'}</button>
+                          </div>
+                        </form>
+                      ) : (
+                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.8rem' }}>
+                          <button disabled={counterLoading} className="button-primary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', justifyContent: 'center' }} onClick={() => handleAcceptCounter(myBid.id)}>
+                            Accept ${myBid.counter_price}
+                          </button>
+                          <button disabled={counterLoading} className="button-secondary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', justifyContent: 'center' }} onClick={() => { setSellerCountering(true); setSellerCounterPrice(String(myBid.counter_price)); }}>
+                            Counter Back
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {myBid.status === 'pending' && myBid.counter_price && myBid.counter_by === 'seller' && (
+                    <div style={{ marginTop: '1.2rem', padding: '0.7rem 1rem', background: 'rgba(230, 126, 34, 0.08)', border: '1px solid rgba(230, 126, 34, 0.25)', borderRadius: '8px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                      You countered at <strong style={{ color: 'var(--warning-orange, #e67e22)' }}>${myBid.counter_price}</strong> — waiting on buyer.
+                    </div>
+                  )}
+
+                  {myBid.status === 'pending' && !myBid.counter_price && !sellerCountering && (
+                    <button type="button" className="button-secondary" style={{ marginTop: '1rem', width: '100%', padding: '0.6rem', fontSize: '0.85rem', justifyContent: 'center' }} onClick={() => { setSellerCountering(true); setSellerCounterPrice(String(myBid.price)); }}>
+                      Adjust My Price
+                    </button>
+                  )}
+
+                  {myBid.status === 'pending' && !myBid.counter_price && sellerCountering && (
+                    <form onSubmit={handleSellerCounter} style={{ marginTop: '1rem', padding: '0.8rem', background: 'rgba(155, 89, 182, 0.05)', border: '1px solid rgba(155, 89, 182, 0.2)', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                      <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>New offer price ($)</label>
+                      <input required type="number" step="0.01" min="1" autoFocus value={sellerCounterPrice} onChange={e => setSellerCounterPrice(e.target.value)} style={{ padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-light)' }} />
+                      <textarea rows={2} placeholder="Optional note to buyer..." value={sellerCounterMessage} onChange={e => setSellerCounterMessage(e.target.value)} style={{ padding: '0.6rem', borderRadius: '6px', border: '1px solid var(--border-light)', fontFamily: 'inherit', fontSize: '0.9rem' }} />
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button type="button" className="button-secondary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', justifyContent: 'center' }} onClick={() => { setSellerCountering(false); setSellerCounterPrice(''); setSellerCounterMessage(''); }}>Cancel</button>
+                        <button type="submit" disabled={counterLoading} className="button-primary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.85rem', justifyContent: 'center' }}>{counterLoading ? 'Sending...' : 'Send New Price'}</button>
+                      </div>
+                    </form>
+                  )}
+
+
                   {transaction?.shipping_address && (
                     <div style={{ marginTop: '1.5rem', padding: '1.2rem', background: 'rgba(30, 58, 95, 0.04)', border: '1px solid rgba(30, 58, 95, 0.15)', borderRadius: '8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-navy)', fontWeight: 600, marginBottom: '0.6rem' }}>
@@ -542,17 +807,42 @@ export default function RequestDetailPage() {
                       <h4 style={{ margin: '0 0 1rem 0', color: 'var(--primary-navy)' }}>Provide Shipping Details</h4>
                       <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>The buyer has funded Escrow. Please ship the item and provide tracking.</p>
                       <form onSubmit={handleUpdateTracking} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <input required type="text" placeholder="Carrier (e.g. UPS, USPS)" value={trackingCarrier} onChange={e => setTrackingCarrier(e.target.value)} style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-light)' }} />
+                        <select required value={trackingCarrier} onChange={e => setTrackingCarrier(e.target.value)} style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-light)', background: 'var(--bg-color)', color: 'var(--text-primary)' }}>
+                          <option value="">Select carrier...</option>
+                          {CARRIERS.map(c => (
+                            <option key={c.key} value={c.key}>{c.label}</option>
+                          ))}
+                        </select>
                         <input required type="text" placeholder="Tracking Number" value={trackingNumber} onChange={e => setTrackingNumber(e.target.value)} style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-light)' }} />
                         <button type="submit" disabled={submitTrackLoading} className="button-primary" style={{ justifyContent: 'center' }}>{submitTrackLoading ? 'Saving...' : 'Submit Tracking'}</button>
                       </form>
+                      <div style={{ marginTop: '1.2rem', paddingTop: '1.2rem', borderTop: '1px dashed rgba(46, 95, 163, 0.25)', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                        <strong style={{ color: 'var(--primary-navy)' }}>Need a label?</strong> Get discounted commercial rates from any of these — print, ship, then paste the tracking number above.
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.6rem' }}>
+                          <a href="https://pirateship.com" target="_blank" rel="noopener noreferrer" style={shipLinkStyle}>Pirate Ship</a>
+                          <a href="https://www.usps.com/ship/online-shipping.htm" target="_blank" rel="noopener noreferrer" style={shipLinkStyle}>USPS Click-N-Ship</a>
+                          <a href="https://www.ups.com/ship/guided" target="_blank" rel="noopener noreferrer" style={shipLinkStyle}>UPS</a>
+                          <a href="https://www.fedex.com/en-us/shipping/online.html" target="_blank" rel="noopener noreferrer" style={shipLinkStyle}>FedEx</a>
+                        </div>
+                      </div>
                     </div>
                   )}
-                  {transaction && transaction.tracking_number && (
-                    <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(39, 174, 96, 0.1)', borderRadius: '8px', border: '1px solid rgba(39, 174, 96, 0.3)' }}>
-                      <strong>Tracking Provided:</strong> {transaction.shipping_carrier} - {transaction.tracking_number}
-                    </div>
-                  )}
+                  {transaction && transaction.tracking_number && (() => {
+                    const url = trackingUrl(transaction.shipping_carrier, transaction.tracking_number);
+                    return (
+                      <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(39, 174, 96, 0.1)', borderRadius: '8px', border: '1px solid rgba(39, 174, 96, 0.3)' }}>
+                        <div style={{ marginBottom: '0.5rem' }}>
+                          <strong>Tracking Provided:</strong> {carrierLabel(transaction.shipping_carrier)} —{' '}
+                          <span style={{ fontFamily: 'monospace' }}>{transaction.tracking_number}</span>
+                        </div>
+                        {url && (
+                          <a href={url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--primary-navy)', fontWeight: 600, textDecoration: 'none', fontSize: '0.9rem' }}>
+                            Track on {carrierLabel(transaction.shipping_carrier)} <ExternalLink size={14} />
+                          </a>
+                        )}
+                      </div>
+                    );
+                  })()}
                   {transaction && transaction.status === 'released' && (
                     <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(39, 174, 96, 0.1)', borderRadius: '8px', border: '1px solid rgba(39, 174, 96, 0.3)', color: 'var(--success-green)', fontWeight: 'bold' }}>
                       Funds Released! Check your earnings.
@@ -596,7 +886,28 @@ export default function RequestDetailPage() {
             ) : (
               <div className="glass-card" style={{ padding: '2rem' }}>
                 <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: 'var(--primary-magenta)' }}>Make an Offer</h3>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.9rem' }}>Offer to sell your item for this request.</p>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>Offer to sell your item for this request.</p>
+
+                {sellersCompetingCount > 0 && (
+                  <div style={{ marginBottom: '1.5rem', padding: '1rem 1.2rem', background: 'rgba(46, 95, 163, 0.06)', border: '1px solid rgba(46, 95, 163, 0.2)', borderRadius: '8px' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>Live Auction</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: '0.3rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--primary-navy)' }}>
+                        {sellersCompetingCount} seller{sellersCompetingCount === 1 ? '' : 's'} competing
+                      </div>
+                      {lowestCompetingOverall !== null && (
+                        <div style={{ color: 'var(--text-primary)' }}>
+                          Lowest offer: <strong style={{ color: 'var(--success-green)' }}>${lowestCompetingOverall}</strong>
+                        </div>
+                      )}
+                    </div>
+                    {lowestCompetingOverall !== null && (
+                      <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                        Beat ${lowestCompetingOverall} to lead the auction.
+                      </p>
+                    )}
+                  </div>
+                )}
 
               {bidSuccess && (
                 <div style={{ padding: '1rem', background: 'rgba(39, 174, 96, 0.1)', color: 'var(--success-green)', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid rgba(39, 174, 96, 0.2)' }}>

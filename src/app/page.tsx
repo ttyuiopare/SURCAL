@@ -9,11 +9,10 @@ import { useAuth } from './providers/AuthProvider';
 
 export default function Home() {
   const { profile } = useAuth();
-  const isSeller = profile?.role === 'seller';
-  // Sellers don't post requests, so they see a "Browse requests" CTA instead.
-  const ctaHref = isSeller ? '/requests' : '/post-request';
-  const ctaPrimary = isSeller ? 'Browse Requests' : 'Request a Product';
-  const ctaFinal = isSeller ? 'Browse Open Requests' : 'Get Started for Free';
+  void profile;
+  const ctaHref = '/post-request';
+  const ctaPrimary = 'Request a Product';
+  const ctaFinal = 'Get Started for Free';
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'var(--bg-color)', paddingTop: '120px' }}>
@@ -180,7 +179,7 @@ export default function Home() {
                  <div style={{ position: 'absolute', top: '15%', left: '-10%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(29,158,117,0.15) 0%, rgba(255,255,255,0) 70%)', borderRadius: '50%' }}></div>
                  <div style={{ position: 'relative', zIndex: 1 }}>
                    <p style={{ fontFamily: 'monospace', fontSize: '0.9rem', color: 'var(--ai-teal)', marginBottom: '1rem' }}>&gt; Analysing request draft...</p>
-                   <div style={{ background: 'var(--text-primary)', borderRadius: '8px', padding: '1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1px solid var(--border-light)' }}>
+                   <div style={{ background: '#FFFFFF', borderRadius: '8px', padding: '1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1px solid var(--border-light)' }}>
                       <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem', color: 'var(--primary-navy)', marginBottom: '0.5rem' }}>Improved Request:</p>
                       <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>"Looking for a Sony A7III Mirrorless Camera (Body Only). Must be in excellent condition with a shutter count under 20k, original box and charger included..."</p>
                    </div>
@@ -200,7 +199,7 @@ export default function Home() {
                  <div style={{ position: 'absolute', top: '50%', right: '-20%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(46,95,163,0.15) 0%, rgba(255,255,255,0) 70%)', borderRadius: '50%', transform: 'translateY(-50%)' }}></div>
                  <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     
-                    <div style={{ background: 'var(--text-primary)', borderRadius: '8px', padding: '1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', borderLeft: '4px solid var(--success-green)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ background: '#FFFFFF', borderRadius: '8px', padding: '1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', borderLeft: '4px solid var(--success-green)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                        <div>
                          <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem', color: 'var(--primary-navy)' }}>Modern Spaces</p>
                          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.3rem', alignItems: 'center' }}>
@@ -210,7 +209,7 @@ export default function Home() {
                        <span style={{ fontWeight: 700, color: 'var(--app-purple)' }}>$11,800</span>
                     </div>
 
-                    <div style={{ background: 'var(--text-primary)', borderRadius: '8px', padding: '1rem', border: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.7 }}>
+                    <div style={{ background: '#FFFFFF', borderRadius: '8px', padding: '1rem', border: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.7 }}>
                        <div>
                          <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem', color: 'var(--primary-navy)' }}>Budget Office Co.</p>
                          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.3rem', alignItems: 'center' }}>
@@ -263,7 +262,7 @@ export default function Home() {
               >
                  <div style={{ position: 'absolute', top: '15%', left: '-10%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(83,58,183,0.15) 0%, rgba(255,255,255,0) 70%)', borderRadius: '50%' }}></div>
                  <div style={{ position: 'relative', zIndex: 1, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ background: 'var(--text-primary)', borderRadius: '16px', padding: '2rem', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid var(--border-light)', textAlign: 'center' }}>
+                    <div style={{ background: '#FFFFFF', borderRadius: '16px', padding: '2rem', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid var(--border-light)', textAlign: 'center' }}>
                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--success-green)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
                          <CheckCircle size={24} />
                        </div>
@@ -335,17 +334,17 @@ export default function Home() {
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             
-            <div style={{ padding: '1.5rem', background: 'var(--text-primary)', border: '1px solid var(--border-light)', borderRadius: '12px' }}>
+            <div style={{ padding: '1.5rem', background: '#FFFFFF', border: '1px solid var(--border-light)', borderRadius: '12px' }}>
                <h4 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--primary-navy)', margin: '0 0 0.8rem 0' }}>How does the Smart Assistant scoring work?</h4>
                <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.6 }}>Surcal Smart Assistant analyzes the original buyer request against the seller's bid. It evaluates relevance, pricing realisticness, and seller communication. It filters out spam and gives each valid bid a score from 1-10 so buyers can quickly spot the highest quality offers.</p>
             </div>
 
-            <div style={{ padding: '1.5rem', background: 'var(--text-primary)', border: '1px solid var(--border-light)', borderRadius: '12px' }}>
+            <div style={{ padding: '1.5rem', background: '#FFFFFF', border: '1px solid var(--border-light)', borderRadius: '12px' }}>
                <h4 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--primary-navy)', margin: '0 0 0.8rem 0' }}>What are the platform fees?</h4>
                <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.6 }}>Posting requests is 100% free for buyers. For sellers, Surcal takes a flat 5% platform fee on all successfully completed and paid transactions. We do not charge per-bid, monthly subscription fees, or hidden payment surcharges.</p>
             </div>
 
-            <div style={{ padding: '1.5rem', background: 'var(--text-primary)', border: '1px solid var(--border-light)', borderRadius: '12px' }}>
+            <div style={{ padding: '1.5rem', background: '#FFFFFF', border: '1px solid var(--border-light)', borderRadius: '12px' }}>
                <h4 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--primary-navy)', margin: '0 0 0.8rem 0' }}>Can I use Surcal for physical products?</h4>
                <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.6 }}>Yes! While many users source digital services, bulk orders, custom hardware, or localized services are very common. Buyers can attach photos directly to their request to show exactly what physical product they need sourced or manufactured.</p>
             </div>
@@ -358,7 +357,7 @@ export default function Home() {
           <h2 className="heading-xl" style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', fontWeight: 700 }}>Ready to transform your sourcing?</h2>
           <p style={{ fontSize: '1.2rem', marginBottom: '2.5rem', opacity: 0.9, maxWidth: '600px', margin: '0 auto 2.5rem' }}>Join thousands of buyers and sellers already using Surcal to work smarter.</p>
           <Link href={ctaHref} style={{ textDecoration: 'none' }}>
-            <button className="button-primary" style={{ background: 'var(--text-primary)', color: 'var(--primary-navy)', fontSize: '1.1rem', padding: '1rem 2.5rem', border: 'none', cursor: 'pointer', borderRadius: '8px', fontWeight: 600 }}>
+            <button className="button-primary" style={{ background: '#FFFFFF', color: 'var(--primary-navy)', fontSize: '1.1rem', padding: '1rem 2.5rem', border: 'none', cursor: 'pointer', borderRadius: '8px', fontWeight: 600 }}>
               {ctaFinal}
             </button>
           </Link>

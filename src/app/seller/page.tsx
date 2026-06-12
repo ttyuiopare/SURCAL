@@ -31,10 +31,18 @@ export default function SellerDashboard() {
         let activityList: any[] = [];
         const { count: sellerBidsCount } = await supabase.from('bids').select('*', { count: 'exact', head: true }).eq('seller_id', user!.id);
         const { data: sellerBids } = await supabase.from('bids').select('id, price, created_at, status').eq('seller_id', user!.id).order('created_at', { ascending: false }).limit(5);
-      
-        let earned = 0;
+
+        // Real earnings = released transactions (paid out from escrow)
+        const { data: sellerTxs } = await supabase
+          .from('transactions')
+          .select('amount, status')
+          .eq('seller_id', user!.id);
+
+        const earned = (sellerTxs ?? [])
+          .filter(t => t.status === 'released')
+          .reduce((sum, t) => sum + Number(t.amount), 0);
+
         if (sellerBids && sellerBids.length > 0) {
-          earned = sellerBids.filter(b => b.status === 'accepted').reduce((sum, b) => sum + Number(b.price), 0);
           sellerBids.forEach(b => {
             activityList.push({ type: 'bid', text: `Submitted a bid for $${b.price}`, date: b.created_at });
           });

@@ -10,7 +10,7 @@ import BuyerSidebar from '../BuyerSidebar';
 import { useAuth } from '../../providers/AuthProvider';
 
 export default function PostRequestPage() {
-  const { user, profile, supabase } = useAuth();
+  const { user, supabase } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [budget, setBudget] = useState('');
@@ -32,10 +32,6 @@ export default function PostRequestPage() {
       router.push('/login');
       return;
     }
-    if (profile?.role === 'seller') {
-      router.push('/seller');
-      return;
-    }
 
     async function loadCategories() {
       const { data } = await supabase.from('categories').select('*').order('name');
@@ -43,7 +39,7 @@ export default function PostRequestPage() {
     }
     loadCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, profile?.role]);
+  }, [user]);
 
   const handleGetEstimate = async () => {
     if (!categoryId || !title || !description) {
@@ -216,7 +212,7 @@ export default function PostRequestPage() {
                 type="file" 
                 accept="image/*"
                 onChange={(e) => setImage(e.target.files?.[0] || null)}
-                style={{ width: '100%', padding: '0.9rem', borderRadius: '8px', border: '1px solid var(--border-light)', background: 'var(--text-primary)' }} 
+                style={{ width: '100%', padding: '0.9rem', borderRadius: '8px', border: '1px solid var(--border-light)', background: 'var(--bg-surface)' }} 
               />
             </div>
 

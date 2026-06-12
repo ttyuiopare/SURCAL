@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { sendEmailNotification } from '@/utils/notifications';
+import { postSystemMessage } from '@/utils/systemMessage';
+import { carrierLabel, trackingUrl } from '@/utils/trackingLinks';
 
 export async function POST(req: Request) {
   try {
@@ -11,8 +14,8 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { error } = await supabase.from('transactions')
-      .update({ 
-        shipping_carrier: carrier, 
+      .update({
+        shipping_carrier: carrier,
         tracking_number: trackingNumber,
         status: 'shipped' // Optional state change
       })
@@ -28,6 +31,24 @@ export async function POST(req: Request) {
         'Your Item Has Shipped!',
         `Your order "${requestTitle}" has been shipped via ${carrier}. Tracking: ${trackingNumber}`
       );
+    }
+
+    // Post a system message into the conversation
+    const admin = createAdminClient();
+    const { data: tx } = await admin
+      .from('transactions')
+      .select('request_id, buyer_id, seller_id')
+      .eq('id', transactionId)
+      .single();
+    if (tx) {
+      const url = trackingUrl(carrier, trackingNumber);
+      const linkLine = url ? `\nTrack: ${url}` : '';
+      await postSystemMessage({
+        requestId: tx.request_id,
+        senderId: tx.seller_id,
+        receiverId: tx.buyer_id,
+        content: `📦 Shipped via ${carrierLabel(carrier)}. Tracking: ${trackingNumber}${linkLine}`,
+      });
     }
 
     return NextResponse.json({ success: true });

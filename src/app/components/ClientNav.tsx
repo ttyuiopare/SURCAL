@@ -35,6 +35,12 @@ export default function ClientNav() {
       <Link href="/requests" style={{ textDecoration: 'none' }}>
         Requests
       </Link>
+      <Link
+        href={isSeller ? '/post-request' : '/buyer/post-request'}
+        style={{ textDecoration: 'none' }}
+      >
+        Post Request
+      </Link>
 
       {isSeller && (
         <>

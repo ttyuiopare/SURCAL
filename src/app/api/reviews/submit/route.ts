@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
 import { sendEmailNotification } from '@/utils/notifications';
+import { postSystemMessage } from '@/utils/systemMessage';
 
 export async function POST(req: Request) {
   try {
@@ -26,6 +28,24 @@ export async function POST(req: Request) {
       'You Received a New Review!',
       `A buyer just rated you ${rating}/5 stars on your recent transaction. Keep up the great work!`
     );
+
+    // Post a system message into the conversation
+    const admin = createAdminClient();
+    const { data: tx } = await admin
+      .from('transactions')
+      .select('request_id')
+      .eq('id', transactionId)
+      .single();
+    if (tx) {
+      const stars = '⭐'.repeat(rating);
+      const note = comment ? `\n"${comment}"` : '';
+      await postSystemMessage({
+        requestId: tx.request_id,
+        senderId: user.id,
+        receiverId: revieweeId,
+        content: `${stars} Buyer left a ${rating}/5 review.${note}`,
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

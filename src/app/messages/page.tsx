@@ -25,6 +25,7 @@ export default function MessagesInboxPage() {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [relatedBid, setRelatedBid] = useState<any>(null);
+  const [hasTransaction, setHasTransaction] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isBuyer, setIsBuyer] = useState(false);
 
@@ -128,9 +129,19 @@ export default function MessagesInboxPage() {
         setIsBuyer(true);
         const { data: bid } = await supabase.from('bids').select('*').eq('request_id', reqId).eq('seller_id', sellerId).single();
         setRelatedBid(bid || null);
+
+        // Check if escrow has already been funded for this request — if so,
+        // suppress the "Accept & Pay" button.
+        const { data: tx } = await supabase
+          .from('transactions')
+          .select('id')
+          .eq('request_id', reqId)
+          .maybeSingle();
+        setHasTransaction(!!tx);
       } else {
         setIsBuyer(false);
         setRelatedBid(null);
+        setHasTransaction(false);
       }
     }
     loadBid();
@@ -318,7 +329,7 @@ export default function MessagesInboxPage() {
                 <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Regarding: <strong>{selectedConvo.requestTitle}</strong></span>
               </div>
               <div style={{ display: 'flex', gap: '1rem' }}>
-                {isBuyer && relatedBid && (relatedBid.status === 'pending' || relatedBid.status === 'accepted') && (
+                {isBuyer && relatedBid && !hasTransaction && (relatedBid.status === 'pending' || relatedBid.status === 'accepted') && (
                   <button 
                     onClick={() => setShowConfirmModal(true)}
                     className="button-primary" 

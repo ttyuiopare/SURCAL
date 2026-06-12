@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@/utils/supabase/server';
 import { createAdminClient } from '@/utils/supabase/admin';
+import { postSystemMessage } from '@/utils/systemMessage';
 
 export async function POST(req: Request) {
   try {
@@ -40,7 +41,14 @@ export async function POST(req: Request) {
     // Update DB securely bypassing RLS
     await adminClient.from('transactions').update({ status: 'released' }).eq('id', transactionId);
     await adminClient.from('requests').update({ status: 'closed' }).eq('id', transaction.request_id);
-    
+
+    await postSystemMessage({
+      requestId: transaction.request_id,
+      senderId: transaction.buyer_id,
+      receiverId: transaction.seller_id,
+      content: `🎉 Buyer confirmed delivery — $${transaction.amount} released from escrow to the seller. Order complete.`,
+    });
+
     return NextResponse.json({ success: true, status: 'released' });
   } catch (err: any) {
     console.error('Escrow Release Error:', err);

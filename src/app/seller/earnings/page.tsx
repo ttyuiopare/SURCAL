@@ -43,8 +43,8 @@ export default function EarningsPage() {
           if (tx.buyer_id === user!.id) {
             spent += Number(tx.amount);
           } else if (tx.seller_id === user!.id) {
-            if (tx.status === 'completed') earned += Number(tx.amount);
-            if (tx.status === 'pending') pending += Number(tx.amount);
+            if (tx.status === 'released') earned += Number(tx.amount);
+            else if (tx.status === 'escrow' || tx.status === 'shipped') pending += Number(tx.amount);
           }
         });
 
@@ -129,8 +129,8 @@ export default function EarningsPage() {
                         </span>
                       </td>
                       <td style={{ padding: '1.2rem 1.5rem' }}>
-                        <span style={{ fontSize: '0.8rem', color: tx.status === 'completed' ? 'var(--text-secondary)' : 'var(--warning-orange)', fontWeight: 600, textTransform: 'uppercase' }}>
-                          {tx.status === 'pending' ? 'In Escrow' : 'Cleared'}
+                        <span style={{ fontSize: '0.8rem', color: tx.status === 'released' ? 'var(--success-green)' : tx.status === 'refunded' ? 'var(--danger-red)' : 'var(--warning-orange)', fontWeight: 600, textTransform: 'uppercase' }}>
+                          {tx.status === 'released' ? 'Released' : tx.status === 'shipped' ? 'Shipped' : tx.status === 'refunded' ? 'Refunded' : 'In Escrow'}
                         </span>
                       </td>
                       <td style={{ padding: '1.2rem 1.5rem', fontSize: '1rem', fontWeight: 600, textAlign: 'right', color: isIncoming ? 'var(--success-green)' : 'var(--text-primary)' }}>
