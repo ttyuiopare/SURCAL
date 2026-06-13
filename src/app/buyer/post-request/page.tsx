@@ -10,7 +10,8 @@ import BuyerSidebar from '../BuyerSidebar';
 import { useAuth } from '../../providers/AuthProvider';
 
 export default function PostRequestPage() {
-  const { user, supabase } = useAuth();
+  const { user, profile, supabase } = useAuth();
+  const isBuyer = profile?.role === 'buyer';
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [budget, setBudget] = useState('');
@@ -143,8 +144,8 @@ export default function PostRequestPage() {
 
   return (
     <div style={{ minHeight: '100vh', paddingTop: '80px', display: 'flex', backgroundColor: 'var(--bg-color)' }}>
-      <BuyerSidebar active="post-request" />
-      
+      {isBuyer && <BuyerSidebar active="post-request" />}
+
       <main style={{ flex: 1, padding: '3rem var(--container-padding)' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <h1 className="heading-xl" style={{ marginBottom: '1rem', textAlign: 'center' }}>What do you want to buy?</h1>
