@@ -168,7 +168,7 @@ export default function SmartAssistantChat() {
               </div>
               <div>
                 <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Smart Assistant</div>
-                <div style={{ fontSize: '0.72rem', opacity: 0.8 }}>Powered by Claude</div>
+                <div style={{ fontSize: '0.72rem', opacity: 0.8 }}>Surcal AI</div>
               </div>
             </div>
             <button

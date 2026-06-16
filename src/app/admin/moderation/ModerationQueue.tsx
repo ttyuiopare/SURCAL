@@ -21,6 +21,8 @@ export type FlagRow = {
   user_name: string | null;
   user_email: string | null;
   user_banned: boolean;
+  user_role?: string | null;
+  user_created_at?: string | null;
 };
 
 const SEVERITY_COLOR: Record<string, string> = {
@@ -96,15 +98,37 @@ export default function ModerationQueue({ flags }: { flags: FlagRow[] }) {
               )}
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem' }}>
-                <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-                  By{' '}
-                  <strong style={{ color: 'var(--primary-navy)' }}>
-                    {f.user_name || f.user_email || 'unknown user'}
-                  </strong>
-                  {f.user_banned && (
-                    <span style={{ marginLeft: '0.5rem', color: 'var(--danger-red)', fontWeight: 600, fontSize: '0.78rem' }}>
-                      (already banned)
-                    </span>
+                <div style={{ padding: '0.6rem 0.8rem', background: 'rgba(0,0,0,0.03)', borderRadius: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', minWidth: '250px' }}>
+                  <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '0.2rem' }}>
+                    Submitted by
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    <strong style={{ color: 'var(--primary-navy)', fontSize: '0.95rem' }}>
+                      {f.user_name || 'No display name'}
+                    </strong>
+                    {f.user_role && (
+                      <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.45rem', borderRadius: '999px', background: 'rgba(0,0,0,0.06)', color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {f.user_role}
+                      </span>
+                    )}
+                    {f.user_banned && (
+                      <span style={{ color: 'var(--danger-red)', fontWeight: 600, fontSize: '0.72rem', padding: '0.1rem 0.45rem', borderRadius: '999px', background: 'rgba(231,76,60,0.1)' }}>
+                        BANNED
+                      </span>
+                    )}
+                  </div>
+                  {f.user_email && (
+                    <div style={{ fontSize: '0.82rem', fontFamily: 'monospace', color: 'var(--text-primary)', marginTop: '0.15rem' }}>
+                      {f.user_email}
+                    </div>
+                  )}
+                  {f.flagged_user_id && (
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.25rem', fontFamily: 'monospace' }}>
+                      ID: {f.flagged_user_id.slice(0, 8)}…{' '}
+                      <Link href={`/admin?user=${f.flagged_user_id}`} style={{ color: 'var(--primary-navy)', textDecoration: 'underline' }}>
+                        view in admin
+                      </Link>
+                    </div>
                   )}
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>

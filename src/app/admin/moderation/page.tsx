@@ -27,15 +27,21 @@ export default async function ModerationPage() {
     .order('created_at', { ascending: false })
     .limit(200);
 
-  // Join the flagged users' names/emails for display.
+  // Join the flagged users' profile info for display.
   const userIds = Array.from(new Set((flags ?? []).map((f) => f.flagged_user_id).filter(Boolean)));
-  const userMap = new Map<string, { name: string | null; email: string | null; banned_at: string | null }>();
+  const userMap = new Map<string, { name: string | null; email: string | null; banned_at: string | null; role: string | null; created_at: string | null }>();
   if (userIds.length > 0) {
     const { data: users } = await admin
       .from('profiles')
-      .select('id, name, email, banned_at')
+      .select('id, name, email, banned_at, role, created_at')
       .in('id', userIds);
-    (users ?? []).forEach((u) => userMap.set(u.id, { name: u.name, email: u.email, banned_at: u.banned_at }));
+    (users ?? []).forEach((u) => userMap.set(u.id, {
+      name: u.name,
+      email: u.email,
+      banned_at: u.banned_at,
+      role: u.role,
+      created_at: u.created_at,
+    }));
   }
 
   const rows: FlagRow[] = (flags ?? []).map((f) => ({
@@ -43,6 +49,8 @@ export default async function ModerationPage() {
     user_name: f.flagged_user_id ? userMap.get(f.flagged_user_id)?.name ?? null : null,
     user_email: f.flagged_user_id ? userMap.get(f.flagged_user_id)?.email ?? null : null,
     user_banned: f.flagged_user_id ? !!userMap.get(f.flagged_user_id)?.banned_at : false,
+    user_role: f.flagged_user_id ? userMap.get(f.flagged_user_id)?.role ?? null : null,
+    user_created_at: f.flagged_user_id ? userMap.get(f.flagged_user_id)?.created_at ?? null : null,
   }));
 
   return (

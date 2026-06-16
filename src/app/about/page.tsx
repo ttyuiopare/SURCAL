@@ -9,7 +9,7 @@ export default function AboutPage() {
           Surcal is a premium reverse marketplace. We flip the traditional sourcing model on its head by allowing buyers to post their specific needs, while sellers compete to offer the best simply and transparently.
         </p>
         <p className="text-lead" style={{ color: 'var(--text-secondary)' }}>
-          Powered by Claude AI, we ensure every bid is quality-scored so you only see the most relevant and competitive offers.
+          Our Smart Assistant scores every bid so you only see the most relevant and competitive offers.
         </p>
       </div>
     </div>

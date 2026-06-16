@@ -201,22 +201,22 @@ export default function Home() {
                     
                     <div style={{ background: '#FFFFFF', borderRadius: '8px', padding: '1rem', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', borderLeft: '4px solid var(--success-green)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                        <div>
-                         <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem', color: 'var(--primary-navy)' }}>Modern Spaces</p>
+                         <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem', color: 'var(--primary-navy)' }}>Verified Reseller</p>
                          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.3rem', alignItems: 'center' }}>
                            <span style={{ fontSize: '0.75rem', background: 'var(--ai-teal)', color: 'var(--text-primary)', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>Assistant Match: 9.5</span>
                          </div>
                        </div>
-                       <span style={{ fontWeight: 700, color: 'var(--app-purple)' }}>$11,800</span>
+                       <span style={{ fontWeight: 700, color: 'var(--app-purple)' }}>$820</span>
                     </div>
 
                     <div style={{ background: '#FFFFFF', borderRadius: '8px', padding: '1rem', border: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.7 }}>
                        <div>
-                         <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem', color: 'var(--primary-navy)' }}>Budget Office Co.</p>
+                         <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem', color: 'var(--primary-navy)' }}>Marketplace Seller</p>
                          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.3rem', alignItems: 'center' }}>
                            <span style={{ fontSize: '0.75rem', background: 'var(--text-secondary)', color: 'var(--text-primary)', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>Assistant Match: 6.2</span>
                          </div>
                        </div>
-                       <span style={{ fontWeight: 700, color: 'var(--text-secondary)' }}>$14,000</span>
+                       <span style={{ fontWeight: 700, color: 'var(--text-secondary)' }}>$960</span>
                     </div>
 
                  </div>
@@ -225,14 +225,14 @@ export default function Home() {
                 <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(46, 95, 163, 0.1)', color: 'var(--secondary-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
                   <TrendingUp size={30} />
                 </div>
-                <h3 className="heading-md" style={{ marginBottom: '1rem', color: 'var(--primary-navy)' }}>Instant Market Pricing</h3>
+                <h3 className="heading-md" style={{ marginBottom: '1rem', color: 'var(--primary-navy)' }}>Real-Time Market Pricing</h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-                  Stop guessing what things should cost. By letting multiple sellers bid on your exact specifications, you discover the true market rate within hours. No more endless haggling or hidden fees.
+                  Stop guessing what an item should cost. By letting multiple sellers compete on your exact request, you see the true market price within hours — no resale markup, no scalper tax, no surprise fees at checkout.
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem', color: 'var(--text-secondary)' }}>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--secondary-blue)" /> Transparent bidding environment</li>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--secondary-blue)" /> Avoid overpriced enterprise agency rates</li>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--secondary-blue)" /> Access to hidden-gem independent talent</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--secondary-blue)" /> Transparent, side-by-side seller offers</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--secondary-blue)" /> Beat resale, eBay, and StockX markup</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--secondary-blue)" /> Verified sellers with authentic stock</li>
                 </ul>
               </div>
             </div>
@@ -243,14 +243,14 @@ export default function Home() {
                 <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(83, 58, 183, 0.1)', color: 'var(--app-purple)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
                   <Shield size={30} />
                 </div>
-                <h3 className="heading-md" style={{ marginBottom: '1rem', color: 'var(--primary-navy)' }}>Secure Payments & Privacy</h3>
+                <h3 className="heading-md" style={{ marginBottom: '1rem', color: 'var(--primary-navy)' }}>Stripe Escrow on Every Order</h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-                  Powered by Stripe Connect, all payments are securely held until milestones are met. Your contact details remain private until you explicitly accept a seller's bid.
+                  Powered by Stripe Connect, your payment is held safely in escrow until your item arrives. The seller only gets paid once you confirm delivery — so you never have to wire money to a stranger and hope.
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem', color: 'var(--text-secondary)' }}>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--app-purple)" /> Stripe encrypted transactions</li>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--app-purple)" /> No spam or unsolicited emails</li>
-                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--app-purple)" /> Automated split payouts</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--app-purple)" /> Funds held until delivery confirmed</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--app-purple)" /> Live USPS/UPS/FedEx tracking on every order</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--app-purple)" /> Shipping address never shared with losing bidders</li>
                 </ul>
               </div>
               <motion.div 
@@ -294,13 +294,13 @@ export default function Home() {
                       <Star size={16} fill="currentColor" /> <Star size={16} fill="currentColor" /> <Star size={16} fill="currentColor" /> <Star size={16} fill="currentColor" /> <Star size={16} fill="currentColor" />
                     </div>
                     <p style={{ color: 'var(--primary-navy)', fontSize: '1.05rem', lineHeight: 1.6, marginBottom: '2rem', fontStyle: 'italic' }}>
-                      "I needed a complete rebranding for my logistics company. Posting on Surcal got me 8 highly qualified bids within 24 hours. Surcal Smart Assistant's score pointed exactly to the agency I ended up hiring. It saved me weeks of vendor searching."
+                      "I&apos;d been hunting for a clean pair of Jordan 1 Chicagos in my size for months. Posted the exact pair I wanted on Surcal and had 6 verified sellers competing within a day. Got them $80 below resale and the escrow made me feel safe sending real money."
                     </p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                       <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary-magenta) 0%, var(--ai-purple) 100%)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>S</div>
+                       <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary-magenta) 0%, var(--ai-purple) 100%)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>J</div>
                        <div>
-                         <p style={{ margin: 0, fontWeight: 600, color: 'var(--primary-navy)' }}>Sarah Jenkins</p>
-                         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Operations Director, buyer</p>
+                         <p style={{ margin: 0, fontWeight: 600, color: 'var(--primary-navy)' }}>Jordan Reyes</p>
+                         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Sneaker collector, buyer</p>
                        </div>
                     </div>
                  </div>
@@ -311,13 +311,13 @@ export default function Home() {
                       <Star size={16} fill="currentColor" /> <Star size={16} fill="currentColor" /> <Star size={16} fill="currentColor" /> <Star size={16} fill="currentColor" /> <Star size={16} fill="currentColor" />
                     </div>
                     <p style={{ color: 'var(--primary-navy)', fontSize: '1.05rem', lineHeight: 1.6, marginBottom: '2rem', fontStyle: 'italic' }}>
-                      "As a freelance developer, I used to hate doing outreach and paying upwork fees. Surcal feels like a cheat code. I log on, scan the requests, drop a competitive bid, and win work. The 5% flat fee is unbelievably fair."
+                      "I&apos;ve been flipping electronics for years and eBay fees were eating my margins. On Surcal buyers tell me exactly what they want, I quote, ship, and get paid out of escrow. The 5% flat fee is nothing compared to what I was losing before."
                     </p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                       <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--ai-purple) 0%, #6d28d9 100%)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>M</div>
+                       <div style={{ width: '45px', height: '45px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--ai-purple) 0%, #6d28d9 100%)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>D</div>
                        <div>
-                         <p style={{ margin: 0, fontWeight: 600, color: 'var(--primary-navy)' }}>Marcus Lin</p>
-                         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Software Engineer, seller</p>
+                         <p style={{ margin: 0, fontWeight: 600, color: 'var(--primary-navy)' }}>Devin Park</p>
+                         <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Electronics reseller, seller</p>
                        </div>
                     </div>
                  </div>
@@ -345,8 +345,8 @@ export default function Home() {
             </div>
 
             <div style={{ padding: '1.5rem', background: '#FFFFFF', border: '1px solid var(--border-light)', borderRadius: '12px' }}>
-               <h4 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--primary-navy)', margin: '0 0 0.8rem 0' }}>Can I use Surcal for physical products?</h4>
-               <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.6 }}>Yes! While many users source digital services, bulk orders, custom hardware, or localized services are very common. Buyers can attach photos directly to their request to show exactly what physical product they need sourced or manufactured.</p>
+               <h4 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--primary-navy)', margin: '0 0 0.8rem 0' }}>What kind of items can I buy on Surcal?</h4>
+               <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.6 }}>Surcal is a marketplace for physical products. Buyers post requests for things like electronics, sneakers and streetwear, trading cards and collectibles, jewelry and watches, automotive parts, and home goods. Attach a reference photo to your request so sellers know the exact model, condition, and authenticity you&apos;re looking for.</p>
             </div>
 
           </div>
@@ -354,8 +354,8 @@ export default function Home() {
 
         {/* Call to Action */}
         <section style={{ width: '100%', padding: '6rem var(--container-padding)', background: 'linear-gradient(135deg, var(--primary-magenta) 0%, var(--ai-purple) 100%)', color: 'var(--text-primary)', textAlign: 'center', borderRadius: '24px', maxWidth: '1200px', marginBottom: '4rem' }}>
-          <h2 className="heading-xl" style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', fontWeight: 700 }}>Ready to transform your sourcing?</h2>
-          <p style={{ fontSize: '1.2rem', marginBottom: '2.5rem', opacity: 0.9, maxWidth: '600px', margin: '0 auto 2.5rem' }}>Join thousands of buyers and sellers already using Surcal to work smarter.</p>
+          <h2 className="heading-xl" style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', fontWeight: 700 }}>Ready to get the item you want at your price?</h2>
+          <p style={{ fontSize: '1.2rem', marginBottom: '2.5rem', opacity: 0.9, maxWidth: '600px', margin: '0 auto 2.5rem' }}>Skip the search. Post what you want, let sellers compete, and pay only when it shows up at your door.</p>
           <Link href={ctaHref} style={{ textDecoration: 'none' }}>
             <button className="button-primary" style={{ background: '#FFFFFF', color: 'var(--primary-navy)', fontSize: '1.1rem', padding: '1rem 2.5rem', border: 'none', cursor: 'pointer', borderRadius: '8px', fontWeight: 600 }}>
               {ctaFinal}
