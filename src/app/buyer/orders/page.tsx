@@ -172,6 +172,7 @@ export default function OrdersPage() {
                       return (
                         <div
                           key={label}
+                          className="order-tracker-stage"
                           style={{
                             position: 'relative',
                             zIndex: 1,
@@ -184,10 +185,10 @@ export default function OrdersPage() {
                             opacity: done ? 1 : 0.6,
                           }}
                         >
-                          <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: dotBg, color: dotColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <div className="order-tracker-icon" style={{ width: '48px', height: '48px', borderRadius: '50%', background: dotBg, color: dotColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <Icon size={24} />
                           </div>
-                          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: textColor }}>{label}</span>
+                          <span className="order-tracker-label" style={{ fontSize: '0.85rem', fontWeight: 600, color: textColor }}>{label}</span>
                         </div>
                       );
                     })}

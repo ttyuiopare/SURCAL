@@ -75,7 +75,7 @@ export default function SellerDashboard() {
     <div style={{ minHeight: '100vh', paddingTop: '80px', display: 'flex', backgroundColor: 'var(--bg-color)' }}>
       
       {/* Sidebar */}
-      <aside style={{ width: '280px', background: 'var(--bg-surface)', borderRight: '1px solid var(--border-light)', padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem', height: 'calc(100vh - 80px)', position: 'sticky', top: '80px' }}>
+      <aside className="mobile-hide" style={{ width: '280px', background: 'var(--bg-surface)', borderRight: '1px solid var(--border-light)', padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem', height: 'calc(100vh - 80px)', position: 'sticky', top: '80px' }}>
         <div style={{ paddingBottom: '2rem', borderBottom: '1px solid var(--border-light)' }}>
           <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'rgba(30, 58, 95, 0.1)', color: 'var(--primary-navy)', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.2rem', textTransform: 'uppercase' }}>
             {profile?.name?.substring(0,2) || 'US'}

@@ -39,6 +39,7 @@ export default function BuyerSidebar({ active }: { active: string }) {
 
   return (
     <aside
+      className="mobile-hide"
       style={{
         width: '280px',
         background: 'var(--bg-surface)',

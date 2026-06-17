@@ -70,7 +70,7 @@ export default function RequestsPage() {
         <div style={{ display: 'flex', gap: '3rem', alignItems: 'flex-start' }}>
           
           {/* Left Sidebar Filters */}
-          <aside style={{ width: '280px', flexShrink: 0, position: 'sticky', top: '100px' }}>
+          <aside className="mobile-hide" style={{ width: '280px', flexShrink: 0, position: 'sticky', top: '100px' }}>
             <div className="glass-card" style={{ padding: '1.5rem' }}>
                <h3 style={{ fontSize: '1.2rem', marginBottom: '1.5rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                  Filters <Filter size={18} color="var(--primary-magenta)" />

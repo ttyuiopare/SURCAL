@@ -199,7 +199,7 @@ a:hover {
     --container-padding: 1rem;
     --section-spacing: 3rem;
   }
-  
+
   body {
     padding-bottom: 5rem; /* Make room for bottom nav */
   }
@@ -208,29 +208,56 @@ a:hover {
     padding: 0.5rem var(--container-padding);
   }
 
-  /* Transform top nav links to bottom bar */
+  /* Transform top nav links to bottom bar — show only the most important entries */
   .nav-links {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100vw;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     justify-content: space-around;
-    padding: 0.8rem 0.5rem;
+    padding: 0.6rem 0.5rem;
     border-top: 1px solid var(--border-light);
     gap: 0;
     z-index: 50;
+    overflow-x: auto;
+    flex-wrap: nowrap;
   }
-  
-  .nav-links a {
-    font-size: 0.8rem;
+
+  .nav-links a, .nav-links button {
+    font-size: 0.72rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.2rem;
+    gap: 0.15rem;
+    padding: 0.25rem 0.4rem !important;
+    white-space: nowrap;
   }
+
+  /* Hide dashboard sidebars; content fills the screen via flex:1 */
+  .mobile-hide { display: none !important; }
+
+  /* Tables that won't fit get horizontal scroll */
+  .mobile-scroll-x { overflow-x: auto !important; }
+
+  /* Tighten heading and lead text on small screens */
+  .heading-xl { font-size: clamp(2rem, 9vw, 3rem) !important; }
+  .heading-lg { font-size: clamp(1.5rem, 7vw, 2.25rem) !important; }
+  .text-lead { font-size: 1.05rem !important; }
+
+  /* Reduce glass-card padding on mobile */
+  .glass-card { padding: 1.25rem !important; }
+
+  /* The 4-stage order tracker — shrink circles + labels so it fits */
+  .order-tracker-stage { padding: 0 0.15rem !important; }
+  .order-tracker-icon { width: 34px !important; height: 34px !important; }
+  .order-tracker-icon svg { width: 16px !important; height: 16px !important; }
+  .order-tracker-label { font-size: 0.62rem !important; text-align: center; line-height: 1.15; }
+
+  /* Stop horizontal overflow from absolutely-positioned hero images */
+  section img { max-width: 100% !important; height: auto !important; }
 
   /* Make footer items wrap neatly on mobile */
   .glass-footer [style*="display: flex"] {

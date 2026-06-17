@@ -143,11 +143,11 @@ export default function TrackOrderPage() {
               const dotColor = done ? 'white' : 'var(--text-secondary)';
               const textColor = done ? (current ? 'var(--primary-navy)' : '#2ecc71') : 'var(--text-secondary)';
               return (
-                <div key={label} style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-surface)', padding: '0 0.5rem', opacity: done ? 1 : 0.6 }}>
-                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: dotBg, color: dotColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div key={label} className="order-tracker-stage" style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-surface)', padding: '0 0.5rem', opacity: done ? 1 : 0.6 }}>
+                  <div className="order-tracker-icon" style={{ width: '48px', height: '48px', borderRadius: '50%', background: dotBg, color: dotColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Icon size={24} />
                   </div>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: textColor, textAlign: 'center' }}>{label}</span>
+                  <span className="order-tracker-label" style={{ fontSize: '0.8rem', fontWeight: 600, color: textColor, textAlign: 'center' }}>{label}</span>
                 </div>
               );
             })}
