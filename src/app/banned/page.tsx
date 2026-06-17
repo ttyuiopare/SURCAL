@@ -41,12 +41,11 @@ export default function BannedPage() {
         </div>
         <h1 className="heading-lg" style={{ marginBottom: '1rem' }}>Your account is suspended</h1>
         <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '2rem' }}>
-          Access to Surcal has been suspended for this account. If you believe this is a mistake, reply to your
-          original signup confirmation email or contact{' '}
-          <a href="mailto:support@surcal.xyz" style={{ color: 'var(--primary-magenta, #e2117e)' }}>
-            support@surcal.xyz
+          Access to Surcal has been suspended for this account. If you believe this is a mistake,{' '}
+          <a href="/support" style={{ color: 'var(--primary-magenta, #e2117e)' }}>
+            contact support
           </a>
-          .
+          {' '}or email <strong>support@surcal.xyz</strong>.
         </p>
         <button onClick={handleSignOut} className="button-secondary">
           Sign out

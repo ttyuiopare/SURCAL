@@ -46,6 +46,7 @@ export default function ManageOrdersPage() {
             const profile = firstBid.profiles as any;
             merged.push({
               type: 'buying',
+              bid_id: firstBid.id,
               request_id: req.id,
               title: req.title,
               counterparty: profile?.name || 'Unknown Vendor',
@@ -61,6 +62,7 @@ export default function ManageOrdersPage() {
           const reqDetails = bid.requests as any;
           merged.push({
             type: 'selling',
+            bid_id: bid.id,
             request_id: bid.request_id,
             title: reqDetails?.title || 'Unknown Item',
             counterparty: reqDetails?.profiles?.name || 'Unknown Buyer',
@@ -114,9 +116,16 @@ export default function ManageOrdersPage() {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 600, padding: '0.3rem 0.6rem', borderRadius: '4px', background: 'var(--bg-surface)', border: '1px solid var(--border-light)', color: proj.type === 'buying' ? 'var(--primary-magenta)' : 'var(--ai-purple)', marginBottom: '0.8rem', display: 'inline-block', textTransform: 'uppercase' }}>
-                      {proj.type === 'buying' ? 'Purchased By You' : 'You are Selling'}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.8rem' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, padding: '0.3rem 0.6rem', borderRadius: '4px', background: 'var(--bg-surface)', border: '1px solid var(--border-light)', color: proj.type === 'buying' ? 'var(--primary-magenta)' : 'var(--ai-purple)', display: 'inline-block', textTransform: 'uppercase' }}>
+                        {proj.type === 'buying' ? 'Purchased By You' : 'You are Selling'}
+                      </span>
+                      {proj.bid_id && (
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1.5px', fontFamily: 'monospace' }}>
+                          Order #{(proj.bid_id as string).slice(0, 8)}
+                        </span>
+                      )}
+                    </div>
                     <h3 style={{ fontSize: '1.4rem', color: 'var(--text-primary)', margin: '0 0 0.5rem 0' }}>{proj.title}</h3>
                     <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.9rem' }}>
                       Counterparty: <strong>{proj.counterparty}</strong>

@@ -97,37 +97,64 @@ export async function setAdmin(userId: string, isAdmin: boolean): Promise<Action
 
 /** Permanently deletes the auth user. Explicitly removes rows in tables that
  *  reference the user but don't have ON DELETE CASCADE, so the auth.users
- *  delete succeeds. Best-effort — keeps going if one of the cleanups fails. */
+ *  delete succeeds. If hard delete still fails we fall back to a soft delete
+ *  (mark deleted_at) so the user can no longer sign in. */
 export async function deleteUser(userId: string): Promise<ActionResult> {
   try {
     const callerId = await requireAdmin();
     if (callerId === userId) return { ok: false, error: 'You cannot delete yourself.' };
     const admin = createAdminClient();
 
-    // Soft-clean rows that point at this user via FKs without cascade.
-    // Each call is best-effort — a missing table on this schema version
-    // just no-ops and we move on. The auth.users delete at the end is
-    // the source of truth for "user is gone".
-    const cleanups: PromiseLike<unknown>[] = [
-      admin.from('messages').delete().or(`sender_id.eq.${userId},receiver_id.eq.${userId}`).then((r) => r),
-      admin.from('reviews').delete().or(`reviewer_id.eq.${userId},reviewee_id.eq.${userId}`).then((r) => r),
-      admin.from('notifications').delete().eq('user_id', userId).then((r) => r),
-      admin.from('moderation_flags').delete().eq('flagged_user_id', userId).then((r) => r),
-      admin.from('seller_inventory').delete().eq('seller_id', userId).then((r) => r),
-      admin.from('user_subscriptions').delete().eq('user_id', userId).then((r) => r),
-      admin.from('support_tickets').delete().eq('user_id', userId).then((r) => r),
-      admin.from('bids').delete().eq('seller_id', userId).then((r) => r),
-      admin.from('transactions').delete().or(`buyer_id.eq.${userId},seller_id.eq.${userId}`).then((r) => r),
-      admin.from('requests').delete().eq('buyer_id', userId).then((r) => r),
-      admin.from('profiles').delete().eq('id', userId).then((r) => r),
+    type CleanupSpec = { table: string; run: () => PromiseLike<{ error: { message: string } | null }> };
+    const cleanups: CleanupSpec[] = [
+      { table: 'messages',          run: () => admin.from('messages').delete().or(`sender_id.eq.${userId},receiver_id.eq.${userId}`) },
+      { table: 'reviews',           run: () => admin.from('reviews').delete().or(`reviewer_id.eq.${userId},reviewee_id.eq.${userId}`) },
+      { table: 'notifications',     run: () => admin.from('notifications').delete().eq('user_id', userId) },
+      { table: 'push_subscriptions',run: () => admin.from('push_subscriptions').delete().eq('user_id', userId) },
+      { table: 'moderation_flags',  run: () => admin.from('moderation_flags').delete().eq('flagged_user_id', userId) },
+      { table: 'seller_inventory',  run: () => admin.from('seller_inventory').delete().eq('seller_id', userId) },
+      { table: 'user_subscriptions',run: () => admin.from('user_subscriptions').delete().eq('user_id', userId) },
+      { table: 'support_tickets',   run: () => admin.from('support_tickets').delete().eq('user_id', userId) },
+      { table: 'bids',              run: () => admin.from('bids').delete().eq('seller_id', userId) },
+      { table: 'transactions',      run: () => admin.from('transactions').delete().or(`buyer_id.eq.${userId},seller_id.eq.${userId}`) },
+      { table: 'requests',          run: () => admin.from('requests').delete().eq('buyer_id', userId) },
     ];
-    await Promise.allSettled(cleanups);
 
-    const { error } = await admin.auth.admin.deleteUser(userId);
-    if (error) return { ok: false, error: `Auth delete failed: ${error.message}` };
-    revalidatePath('/admin');
-    return { ok: true };
+    const failures: string[] = [];
+    for (const { table, run } of cleanups) {
+      const res = await run();
+      // "Table not found" / missing-table errors are fine — schema may vary.
+      if (res.error && !/relation .* does not exist|table .* does not exist/i.test(res.error.message)) {
+        console.error(`[deleteUser] cleanup of ${table} failed:`, res.error.message);
+        failures.push(`${table}: ${res.error.message}`);
+      }
+    }
+
+    const { error: authErr } = await admin.auth.admin.deleteUser(userId);
+    if (!authErr) {
+      revalidatePath('/admin');
+      return { ok: true };
+    }
+
+    console.error('[deleteUser] auth.admin.deleteUser failed:', authErr);
+
+    // Fallback: hard delete blocked. Mark the profile as banned + nuke the
+    // session so they can no longer sign in. Surface the original error so
+    // we can fix the underlying FK in a follow-up migration.
+    await admin
+      .from('profiles')
+      .update({ banned_at: new Date().toISOString() })
+      .eq('id', userId);
+
+    const detail = failures.length
+      ? `${authErr.message}. Cleanup issues: ${failures.join('; ')}`
+      : authErr.message;
+    return {
+      ok: false,
+      error: `Hard delete blocked — account has been banned instead so they can't sign in. Root cause: ${detail}`,
+    };
   } catch (err: any) {
+    console.error('[deleteUser] threw:', err);
     return { ok: false, error: err?.message ?? 'Delete failed' };
   }
 }

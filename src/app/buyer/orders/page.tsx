@@ -121,6 +121,9 @@ export default function OrdersPage() {
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-light)', paddingBottom: '1.5rem', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
                     <div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '0.3rem', fontFamily: 'monospace' }}>
+                        Order #{(order.id as string).slice(0, 8)}
+                      </div>
                       <h3 style={{ fontSize: '1.2rem', fontWeight: 600, color: 'var(--primary-navy)', marginBottom: '0.3rem' }}>
                         {order.request?.title}
                       </h3>

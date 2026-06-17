@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MessageSquare, Mail, Phone, ChevronDown, CheckCircle } from 'lucide-react';
-import { useAuth } from '../providers/AuthProvider';
+import { MessageSquare, Mail, ChevronDown, CheckCircle } from 'lucide-react';
 
 const faqs = [
   {
@@ -35,29 +34,26 @@ export default function SupportPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  const { user, supabase } = useAuth();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
-      const payload = {
-        ...ticket,
-        ...(user ? { user_id: user.id } : {})
-      };
+      const res = await fetch('/api/support/ticket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(ticket),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to submit ticket.');
 
-      const { error: submitError } = await supabase.from('support_tickets').insert(payload);
-      
-      if (submitError) throw submitError;
-      
       setSuccess(true);
       setTicket({ name: '', email: '', subject: '', message: '' });
     } catch (err: any) {
       setError(err.message || 'An error occurred while submitting your ticket.');
     }
-    
+
     setLoading(false);
   };
 
@@ -102,14 +98,9 @@ export default function SupportPage() {
             
             <div className="glass-card" style={{ marginTop: '3rem', padding: '2rem', background: 'linear-gradient(135deg, rgba(83, 58, 183, 0.05) 0%, rgba(226, 37, 120, 0.05) 100%)' }}>
               <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', fontWeight: 600, color: 'var(--primary-navy)' }}>Still need help?</h3>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Send us a message using the secure inbox on this page, or reach out to our team directly via email or phone.</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <a href="mailto:support@surcal.xyz" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--primary-navy)', textDecoration: 'none', fontWeight: 500 }}>
-                  <Mail size={18} color="var(--primary-magenta)" /> support@surcal.xyz
-                </a>
-                <a href="tel:+18005551234" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--primary-navy)', textDecoration: 'none', fontWeight: 500 }}>
-                  <Phone size={18} color="var(--primary-magenta)" /> 1-800-SURCAL-Help
-                </a>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Use the form on the right to send our team a message. We reply by email within 24 hours.</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--primary-navy)', fontWeight: 500 }}>
+                <Mail size={18} color="var(--primary-magenta)" /> support@surcal.xyz
               </div>
             </div>
           </section>
