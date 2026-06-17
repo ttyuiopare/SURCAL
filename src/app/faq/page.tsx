@@ -9,23 +9,51 @@ export default function FAQPage() {
   const faqs = [
     {
       question: "What is Surcal?",
-      answer: "Surcal is a premium reverse marketplace where buyers can post their specific needs, and sellers compete to offer the best solution. Instead of searching through products, products find you."
+      answer: "Surcal is a reverse marketplace for physical products. Instead of searching through listings, you post what you want to buy — sneakers, electronics, collectibles, watches, automotive parts, home goods — and verified sellers compete to send you offers."
     },
     {
       question: "How do I make a request?",
-      answer: "Once logged in, simply click on 'Post a Request'. Fill out the form with your requirements, budget, and timeframe, and our AI-powered system will begin matching you with top-rated sellers."
+      answer: "Once logged in, click 'Post Request' in the top nav. Describe what you want, attach a reference photo, set a target price and deadline, and our Smart Assistant will start matching you with sellers who have similar items."
     },
     {
       question: "Are there fees for buyers?",
-      answer: "No, posting a request is completely free. We just ask that you have a genuine intent to buy the product or service you're requesting."
+      answer: "No. Posting a request is 100% free, and you only pay when you accept a seller's offer — at the price you agreed on. There are no buyer-side service fees, hidden surcharges, or membership tiers."
     },
     {
       question: "How do I become a seller?",
-      answer: "Click on 'Become a Seller' from your dashboard or upgrade your account. Sellers must verify their identity to maintain our premium marketplace standards before they can send offers."
+      answer: "Sign up and choose 'Seller' as your role. To start sending offers, you'll need to complete identity and bank verification through Stripe Connect (our payments partner). This usually takes a few minutes and keeps the marketplace safe for buyers."
     },
     {
-      question: "How is payment handled?",
-      answer: "We use a secure escrow system. The buyer's payment is held securely until the order is fulfilled and accepted, ensuring both parties are protected throughout the transaction."
+      question: "How does payment work, step by step?",
+      answer: "1) You accept a seller's offer. 2) You pay through Stripe checkout (credit, debit, or Apple/Google Pay). 3) The money goes into escrow — held safely, not sent to the seller yet. 4) The seller ships the item and adds a tracking number. 5) When it arrives, you click 'Confirm Delivery & Release Funds'. 6) Stripe releases the money to the seller, minus the 5% platform fee."
+    },
+    {
+      question: "Why is my payment held in escrow?",
+      answer: "So you don't have to trust a stranger with your money. Until you confirm the item arrived and matches the description, the seller doesn't see a cent. If something goes wrong, the funds are still under your control. Stripe Connect powers this — the same escrow technology used by major marketplaces."
+    },
+    {
+      question: "When does the seller actually get paid?",
+      answer: "The seller's Stripe balance updates the moment you confirm delivery. Stripe then pays out to their connected bank account on a rolling schedule — usually within 2-7 business days for U.S. accounts, depending on Stripe's payout schedule. Sellers can check their balance anytime from their Stripe Express dashboard."
+    },
+    {
+      question: "What if the item never arrives or isn't what was promised?",
+      answer: "Don't confirm delivery. As long as escrow isn't released, the seller hasn't been paid. You can dispute the order from your Orders page, and our support team will investigate. If the dispute is upheld, we'll refund you in full through Stripe — no chargebacks needed."
+    },
+    {
+      question: "What payment methods can I use?",
+      answer: "All major credit and debit cards (Visa, Mastercard, American Express, Discover), plus Apple Pay and Google Pay where supported. Everything is processed by Stripe — Surcal never sees or stores your card number."
+    },
+    {
+      question: "What's the platform fee?",
+      answer: "A flat 5% deducted from the seller's payout when escrow is released. Buyers pay exactly the price they agreed to with the seller — the fee comes out of the seller's side. No subscriptions, no per-bid fees, no payment processing surcharges."
+    },
+    {
+      question: "Is my payment information safe?",
+      answer: "Yes. Surcal uses Stripe for all payment processing — the same company trusted by Amazon, Shopify, Lyft, and millions of other businesses. Your card details go directly to Stripe and are never stored on Surcal's servers. We're PCI-DSS compliant by design."
+    },
+    {
+      question: "Will my address be shared with all sellers?",
+      answer: "No. Your shipping address is only shared with the one seller whose offer you accept and pay for. Losing bidders never see your address, name, or contact info."
     }
   ];
 
