@@ -43,8 +43,8 @@ export default function BannedPage() {
         <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '2rem' }}>
           Access to Surcal has been suspended for this account. If you believe this is a mistake, reply to your
           original signup confirmation email or contact{' '}
-          <a href="mailto:support@surcal.com" style={{ color: 'var(--primary-magenta, #e2117e)' }}>
-            support@surcal.com
+          <a href="mailto:support@surcal.xyz" style={{ color: 'var(--primary-magenta, #e2117e)' }}>
+            support@surcal.xyz
           </a>
           .
         </p>

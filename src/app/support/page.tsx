@@ -104,8 +104,8 @@ export default function SupportPage() {
               <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', fontWeight: 600, color: 'var(--primary-navy)' }}>Still need help?</h3>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Send us a message using the secure inbox on this page, or reach out to our team directly via email or phone.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <a href="mailto:support@surcal.com" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--primary-navy)', textDecoration: 'none', fontWeight: 500 }}>
-                  <Mail size={18} color="var(--primary-magenta)" /> support@surcal.com
+                <a href="mailto:support@surcal.xyz" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--primary-navy)', textDecoration: 'none', fontWeight: 500 }}>
+                  <Mail size={18} color="var(--primary-magenta)" /> support@surcal.xyz
                 </a>
                 <a href="tel:+18005551234" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--primary-navy)', textDecoration: 'none', fontWeight: 500 }}>
                   <Phone size={18} color="var(--primary-magenta)" /> 1-800-SURCAL-Help

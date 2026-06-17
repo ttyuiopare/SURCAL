@@ -95,14 +95,36 @@ export async function setAdmin(userId: string, isAdmin: boolean): Promise<Action
   }
 }
 
-/** Permanently deletes the auth user + cascades the profile row. */
+/** Permanently deletes the auth user. Explicitly removes rows in tables that
+ *  reference the user but don't have ON DELETE CASCADE, so the auth.users
+ *  delete succeeds. Best-effort — keeps going if one of the cleanups fails. */
 export async function deleteUser(userId: string): Promise<ActionResult> {
   try {
     const callerId = await requireAdmin();
     if (callerId === userId) return { ok: false, error: 'You cannot delete yourself.' };
     const admin = createAdminClient();
+
+    // Soft-clean rows that point at this user via FKs without cascade.
+    // Each call is best-effort — a missing table on this schema version
+    // just no-ops and we move on. The auth.users delete at the end is
+    // the source of truth for "user is gone".
+    const cleanups: PromiseLike<unknown>[] = [
+      admin.from('messages').delete().or(`sender_id.eq.${userId},receiver_id.eq.${userId}`).then((r) => r),
+      admin.from('reviews').delete().or(`reviewer_id.eq.${userId},reviewee_id.eq.${userId}`).then((r) => r),
+      admin.from('notifications').delete().eq('user_id', userId).then((r) => r),
+      admin.from('moderation_flags').delete().eq('flagged_user_id', userId).then((r) => r),
+      admin.from('seller_inventory').delete().eq('seller_id', userId).then((r) => r),
+      admin.from('user_subscriptions').delete().eq('user_id', userId).then((r) => r),
+      admin.from('support_tickets').delete().eq('user_id', userId).then((r) => r),
+      admin.from('bids').delete().eq('seller_id', userId).then((r) => r),
+      admin.from('transactions').delete().or(`buyer_id.eq.${userId},seller_id.eq.${userId}`).then((r) => r),
+      admin.from('requests').delete().eq('buyer_id', userId).then((r) => r),
+      admin.from('profiles').delete().eq('id', userId).then((r) => r),
+    ];
+    await Promise.allSettled(cleanups);
+
     const { error } = await admin.auth.admin.deleteUser(userId);
-    if (error) return { ok: false, error: error.message };
+    if (error) return { ok: false, error: `Auth delete failed: ${error.message}` };
     revalidatePath('/admin');
     return { ok: true };
   } catch (err: any) {

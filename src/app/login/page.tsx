@@ -207,8 +207,8 @@ export default function LoginPage() {
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                   The code refreshes every 30 seconds in your authenticator app. It is not sent by text or email.
                   Lost access to your authenticator? Contact{' '}
-                  <a href="mailto:support@surcal.com" style={{ color: 'var(--primary-magenta)', textDecoration: 'none', fontWeight: 600 }}>
-                    support@surcal.com
+                  <a href="mailto:support@surcal.xyz" style={{ color: 'var(--primary-magenta)', textDecoration: 'none', fontWeight: 600 }}>
+                    support@surcal.xyz
                   </a>{' '}
                   to reset 2FA.
                 </p>
