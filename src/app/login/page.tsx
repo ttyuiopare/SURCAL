@@ -36,7 +36,6 @@ export default function LoginPage() {
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [waitlistJoined, setWaitlistJoined] = useState(false);
   const [waitlistLoading, setWaitlistLoading] = useState(false);
-  const [showWaitlist, setShowWaitlist] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -239,91 +238,79 @@ export default function LoginPage() {
   if (!accessGranted) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-color)', paddingTop: '80px' }}>
-        <div className="glass-card" style={{ width: '100%', maxWidth: '450px', padding: '3rem', margin: '2rem' }}>
+        <div className="glass-card" style={{ width: '100%', maxWidth: '480px', padding: '3rem 2.5rem', margin: '2rem' }}>
           <h1 className="heading-lg" style={{ textAlign: 'center', marginBottom: '0.5rem' }}>Surcal is in private beta</h1>
-          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-            Enter your access code to continue, or join the waitlist.
-          </p>
+
           {waitlistCount !== null && (
-            <p style={{ textAlign: 'center', color: 'var(--primary-magenta)', fontWeight: 600, marginBottom: '2rem', fontSize: '0.95rem' }}>
-              {waitlistCount.toLocaleString()} {waitlistCount === 1 ? 'person' : 'people'} on the waitlist
-            </p>
+            <div style={{ textAlign: 'center', margin: '1.5rem 0 2rem' }}>
+              <div style={{ fontSize: '3.5rem', fontWeight: 800, color: 'var(--primary-magenta)', lineHeight: 1, fontFamily: 'var(--font-bebas), Bebas Neue, sans-serif', letterSpacing: '0.02em' }}>
+                {waitlistCount.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginTop: '0.4rem' }}>
+                {waitlistCount === 1 ? 'person has' : 'people have'} joined the waitlist
+              </div>
+            </div>
           )}
 
-          {showWaitlist ? (
-            waitlistJoined ? (
-              <div style={{ textAlign: 'center', padding: '1.5rem', background: 'rgba(39, 174, 96, 0.08)', border: '1px solid rgba(39, 174, 96, 0.25)', borderRadius: '12px' }}>
-                <h3 style={{ margin: '0 0 0.5rem', color: 'var(--success-green)' }}>You&apos;re on the list!</h3>
-                <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                  We&apos;ll email you the moment Surcal opens to the public. You&apos;re #{waitlistCount?.toLocaleString()}.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setShowWaitlist(false)}
-                  style={{ marginTop: '1rem', background: 'transparent', border: 'none', color: 'var(--primary-magenta)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
-                >
-                  Back
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={submitWaitlist} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary-navy)' }}>Email</label>
-                <input
-                  type="email"
-                  required
-                  value={waitlistEmail}
-                  onChange={(e) => setWaitlistEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-light)' }}
-                />
-                <button type="submit" disabled={waitlistLoading} className="button-primary" style={{ padding: '0.9rem', justifyContent: 'center' }}>
-                  {waitlistLoading ? 'Saving…' : 'Join the waitlist'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowWaitlist(false)}
-                  style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.85rem', textAlign: 'center' }}
-                >
-                  Back to access code
-                </button>
-              </form>
-            )
+          {waitlistJoined ? (
+            <div style={{ textAlign: 'center', padding: '1.5rem', background: 'rgba(39, 174, 96, 0.08)', border: '1px solid rgba(39, 174, 96, 0.25)', borderRadius: '12px' }}>
+              <h3 style={{ margin: '0 0 0.5rem', color: 'var(--success-green)' }}>You&apos;re on the list!</h3>
+              <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                We&apos;ll email you the moment Surcal opens.
+              </p>
+            </div>
           ) : (
-            <>
-              {accessError && (
-                <div style={{ padding: '0.8rem 1rem', background: 'rgba(231,76,60,0.1)', color: 'var(--danger-red)', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.9rem' }}>
-                  {accessError}
-                </div>
-              )}
-              <form onSubmit={submitAccessCode} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary-navy)' }}>Access code</label>
-                <input
-                  type="text"
-                  required
-                  inputMode="numeric"
-                  autoFocus
-                  value={accessCode}
-                  onChange={(e) => setAccessCode(e.target.value)}
-                  placeholder="Enter your code"
-                  style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-light)', fontFamily: 'monospace', fontSize: '1.1rem', letterSpacing: '0.15em', textAlign: 'center' }}
-                />
-                <button type="submit" disabled={accessLoading} className="button-primary" style={{ padding: '0.9rem', justifyContent: 'center' }}>
-                  {accessLoading ? 'Checking…' : 'Continue'}
-                </button>
-              </form>
-              <div style={{ marginTop: '1.5rem', textAlign: 'center', borderTop: '1px solid var(--border-light)', paddingTop: '1.5rem' }}>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.6rem' }}>Don&apos;t have a code?</p>
-                <button
-                  type="button"
-                  onClick={() => { setShowWaitlist(true); setAccessError(''); }}
-                  className="button-secondary"
-                  style={{ padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}
-                >
-                  Join the waitlist
-                </button>
-              </div>
-            </>
+            <form onSubmit={submitWaitlist} style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              <input
+                type="email"
+                required
+                value={waitlistEmail}
+                onChange={(e) => setWaitlistEmail(e.target.value)}
+                placeholder="your@email.com"
+                style={{ padding: '1rem', borderRadius: '10px', border: '1px solid var(--border-light)', fontSize: '1rem' }}
+              />
+              <button
+                type="submit"
+                disabled={waitlistLoading}
+                className="button-primary"
+                style={{ padding: '1.1rem', justifyContent: 'center', fontSize: '1.05rem', fontWeight: 700 }}
+              >
+                {waitlistLoading ? 'Joining…' : 'Join the waitlist'}
+              </button>
+            </form>
           )}
+
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', margin: '2rem 0 1.25rem' }}>
+            <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }} />
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Have a code?</span>
+            <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }} />
+          </div>
+
+          {accessError && (
+            <div style={{ padding: '0.7rem 1rem', background: 'rgba(231,76,60,0.1)', color: 'var(--danger-red)', borderRadius: '8px', marginBottom: '0.8rem', fontSize: '0.85rem', textAlign: 'center' }}>
+              {accessError}
+            </div>
+          )}
+          <form onSubmit={submitAccessCode} style={{ display: 'flex', gap: '0.5rem' }}>
+            <input
+              type="text"
+              required
+              inputMode="numeric"
+              value={accessCode}
+              onChange={(e) => setAccessCode(e.target.value)}
+              placeholder="Enter beta code"
+              style={{ flex: 1, padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-light)', fontFamily: 'monospace', fontSize: '1rem', letterSpacing: '0.15em', textAlign: 'center' }}
+            />
+            <button
+              type="submit"
+              disabled={accessLoading}
+              className="button-secondary"
+              style={{ padding: '0.8rem 1.2rem', fontSize: '0.9rem' }}
+            >
+              {accessLoading ? '…' : 'Enter'}
+            </button>
+          </form>
         </div>
       </div>
     );
