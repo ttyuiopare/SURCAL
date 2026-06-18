@@ -98,9 +98,19 @@ export default function SupportPage() {
             
             <div className="glass-card" style={{ marginTop: '3rem', padding: '2rem', background: 'linear-gradient(135deg, rgba(83, 58, 183, 0.05) 0%, rgba(226, 37, 120, 0.05) 100%)' }}>
               <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', fontWeight: 600, color: 'var(--primary-navy)' }}>Still need help?</h3>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Use the form on the right to send our team a message. We reply by email within 24 hours.</p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--primary-navy)', fontWeight: 500 }}>
-                <Mail size={18} color="var(--primary-magenta)" /> support@surcal.xyz
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Use the form on the right, or email us directly. We reply by email within 24 hours.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                <a href="mailto:support@surcal.xyz" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--primary-navy)', textDecoration: 'none', fontWeight: 500 }}>
+                  <Mail size={18} color="var(--primary-magenta)" /> support@surcal.xyz
+                </a>
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=support@surcal.xyz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textDecoration: 'underline', marginLeft: '1.8rem' }}
+                >
+                  Open in Gmail instead
+                </a>
               </div>
             </div>
           </section>

@@ -139,8 +139,21 @@ export default function SellerVerifyPage() {
             Verify your seller account
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.6 }}>
-            Surcal uses <strong>Stripe</strong> to verify your identity and connect your bank account for secure payouts.
-            You must complete this once before you can bid or sell. It takes about 2 minutes.
+            Surcal uses <strong>Stripe</strong> — the same payment service used by Amazon, Shopify, and Lyft — to verify your identity and send your payouts. You only do this once. Most people finish in 2-3 minutes.
+          </p>
+        </div>
+
+        <div style={{ background: 'rgba(46, 95, 163, 0.05)', border: '1px solid rgba(46, 95, 163, 0.15)', borderRadius: '10px', padding: '1.25rem', marginBottom: '1.5rem' }}>
+          <p style={{ margin: '0 0 0.6rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--primary-navy)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            What you&apos;ll need
+          </p>
+          <ul style={{ margin: 0, paddingLeft: '1.1rem', color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.7 }}>
+            <li>A photo of your driver&apos;s license or state ID (use your phone&apos;s camera)</li>
+            <li>Last 4 digits of your SSN</li>
+            <li>Your bank account — <strong>tip:</strong> the easiest option is &quot;Log in to your bank&quot; on the bank-info step (works for Chase, BofA, Wells Fargo, Capital One, and most others)</li>
+          </ul>
+          <p style={{ margin: '0.8rem 0 0', fontSize: '0.78rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+            Don&apos;t want to log in? You can also type your routing + account number manually. They&apos;re printed at the bottom of any check, or shown in your bank&apos;s app under &quot;Direct Deposit&quot; / &quot;Account Details&quot;.
           </p>
         </div>
 
