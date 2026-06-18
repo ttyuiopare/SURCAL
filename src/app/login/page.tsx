@@ -36,6 +36,7 @@ export default function LoginPage() {
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [waitlistJoined, setWaitlistJoined] = useState(false);
   const [waitlistLoading, setWaitlistLoading] = useState(false);
+  const [waitlistError, setWaitlistError] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -90,19 +91,28 @@ export default function LoginPage() {
   const submitWaitlist = async (e: React.FormEvent) => {
     e.preventDefault();
     setWaitlistLoading(true);
+    setWaitlistError('');
     try {
       const res = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: waitlistEmail }),
       });
-      const data = await res.json();
-      if (res.ok) {
-        setWaitlistJoined(true);
-        if (typeof data.count === 'number') setWaitlistCount(data.count);
+      const raw = await res.text();
+      let data: { count?: number; error?: string } = {};
+      try { data = JSON.parse(raw); } catch { /* server returned non-JSON (probably an error page) */ }
+
+      if (!res.ok) {
+        setWaitlistError(
+          data.error
+            || `Could not save your email (HTTP ${res.status}). The waitlist table may not be set up yet — see Supabase.`
+        );
+        return;
       }
-    } catch {
-      // ignore
+      setWaitlistJoined(true);
+      if (typeof data.count === 'number') setWaitlistCount(data.count);
+    } catch (err: any) {
+      setWaitlistError(err?.message || 'Network error. Try again in a moment.');
     } finally {
       setWaitlistLoading(false);
     }
@@ -277,6 +287,11 @@ export default function LoginPage() {
               >
                 {waitlistLoading ? 'Joining…' : 'Join the waitlist'}
               </button>
+              {waitlistError && (
+                <div style={{ padding: '0.7rem 1rem', background: 'rgba(231,76,60,0.1)', color: 'var(--danger-red)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                  {waitlistError}
+                </div>
+              )}
             </form>
           )}
 
