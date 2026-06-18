@@ -23,6 +23,11 @@ function isPublicPath(pathname: string): boolean {
   if (pathname.startsWith('/signup')) return true;
   if (pathname.startsWith('/api/webhooks')) return true;
   if (pathname.startsWith('/api/health')) return true;
+  // Pre-launch gate endpoints must be reachable without a session: visitors
+  // who hit /login haven't signed in yet but still need to submit the
+  // waitlist form / validate their beta code.
+  if (pathname.startsWith('/api/waitlist')) return true;
+  if (pathname.startsWith('/api/access/')) return true;
   return false;
 }
 
