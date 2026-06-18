@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Link from 'next/link';
 import { logIn, signUp, verifyMfa } from './actions';
@@ -24,6 +24,90 @@ export default function LoginPage() {
   const [showMfaStep, setShowMfaStep] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
   const [factorId, setFactorId] = useState('');
+
+  // Pre-launch access gate
+  const [accessChecking, setAccessChecking] = useState(true);
+  const [accessGranted, setAccessGranted] = useState(false);
+  const [accessIsAdmin, setAccessIsAdmin] = useState(false);
+  const [accessCode, setAccessCode] = useState('');
+  const [accessError, setAccessError] = useState('');
+  const [accessLoading, setAccessLoading] = useState(false);
+  const [waitlistCount, setWaitlistCount] = useState<number | null>(null);
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistJoined, setWaitlistJoined] = useState(false);
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
+  const [showWaitlist, setShowWaitlist] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [accessRes, waitlistRes] = await Promise.all([
+          fetch('/api/access/status', { cache: 'no-store' }),
+          fetch('/api/waitlist', { cache: 'no-store' }),
+        ]);
+        const access = await accessRes.json();
+        const wait = await waitlistRes.json();
+        if (cancelled) return;
+        setAccessGranted(!!access.granted);
+        setAccessIsAdmin(!!access.isAdmin);
+        setWaitlistCount(typeof wait.count === 'number' ? wait.count : 0);
+      } catch {
+        // Fall through — they'll see the gate UI by default
+      } finally {
+        if (!cancelled) setAccessChecking(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const submitAccessCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAccessLoading(true);
+    setAccessError('');
+    try {
+      const res = await fetch('/api/access/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: accessCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAccessError(data.error || 'Invalid code');
+      } else {
+        setAccessGranted(true);
+        setAccessIsAdmin(data.mode === 'admin');
+        setAccessCode('');
+      }
+    } catch (err: any) {
+      setAccessError(err.message || 'Failed to validate code');
+    } finally {
+      setAccessLoading(false);
+    }
+  };
+
+  const submitWaitlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setWaitlistLoading(true);
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: waitlistEmail }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setWaitlistJoined(true);
+        if (typeof data.count === 'number') setWaitlistCount(data.count);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setWaitlistLoading(false);
+    }
+  };
 
   const checkMfa = async () => {
     const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -144,9 +228,115 @@ export default function LoginPage() {
     }
   };
 
+  if (accessChecking) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-color)' }}>
+        <p style={{ color: 'var(--text-secondary)' }}>Loading…</p>
+      </div>
+    );
+  }
+
+  if (!accessGranted) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-color)', paddingTop: '80px' }}>
+        <div className="glass-card" style={{ width: '100%', maxWidth: '450px', padding: '3rem', margin: '2rem' }}>
+          <h1 className="heading-lg" style={{ textAlign: 'center', marginBottom: '0.5rem' }}>Surcal is in private beta</h1>
+          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+            Enter your access code to continue, or join the waitlist.
+          </p>
+          {waitlistCount !== null && (
+            <p style={{ textAlign: 'center', color: 'var(--primary-magenta)', fontWeight: 600, marginBottom: '2rem', fontSize: '0.95rem' }}>
+              {waitlistCount.toLocaleString()} {waitlistCount === 1 ? 'person' : 'people'} on the waitlist
+            </p>
+          )}
+
+          {showWaitlist ? (
+            waitlistJoined ? (
+              <div style={{ textAlign: 'center', padding: '1.5rem', background: 'rgba(39, 174, 96, 0.08)', border: '1px solid rgba(39, 174, 96, 0.25)', borderRadius: '12px' }}>
+                <h3 style={{ margin: '0 0 0.5rem', color: 'var(--success-green)' }}>You&apos;re on the list!</h3>
+                <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                  We&apos;ll email you the moment Surcal opens to the public. You&apos;re #{waitlistCount?.toLocaleString()}.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowWaitlist(false)}
+                  style={{ marginTop: '1rem', background: 'transparent', border: 'none', color: 'var(--primary-magenta)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
+                >
+                  Back
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={submitWaitlist} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <label style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary-navy)' }}>Email</label>
+                <input
+                  type="email"
+                  required
+                  value={waitlistEmail}
+                  onChange={(e) => setWaitlistEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-light)' }}
+                />
+                <button type="submit" disabled={waitlistLoading} className="button-primary" style={{ padding: '0.9rem', justifyContent: 'center' }}>
+                  {waitlistLoading ? 'Saving…' : 'Join the waitlist'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowWaitlist(false)}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.85rem', textAlign: 'center' }}
+                >
+                  Back to access code
+                </button>
+              </form>
+            )
+          ) : (
+            <>
+              {accessError && (
+                <div style={{ padding: '0.8rem 1rem', background: 'rgba(231,76,60,0.1)', color: 'var(--danger-red)', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.9rem' }}>
+                  {accessError}
+                </div>
+              )}
+              <form onSubmit={submitAccessCode} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <label style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--primary-navy)' }}>Access code</label>
+                <input
+                  type="text"
+                  required
+                  inputMode="numeric"
+                  autoFocus
+                  value={accessCode}
+                  onChange={(e) => setAccessCode(e.target.value)}
+                  placeholder="Enter your code"
+                  style={{ padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-light)', fontFamily: 'monospace', fontSize: '1.1rem', letterSpacing: '0.15em', textAlign: 'center' }}
+                />
+                <button type="submit" disabled={accessLoading} className="button-primary" style={{ padding: '0.9rem', justifyContent: 'center' }}>
+                  {accessLoading ? 'Checking…' : 'Continue'}
+                </button>
+              </form>
+              <div style={{ marginTop: '1.5rem', textAlign: 'center', borderTop: '1px solid var(--border-light)', paddingTop: '1.5rem' }}>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.6rem' }}>Don&apos;t have a code?</p>
+                <button
+                  type="button"
+                  onClick={() => { setShowWaitlist(true); setAccessError(''); }}
+                  className="button-secondary"
+                  style={{ padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}
+                >
+                  Join the waitlist
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-color)', paddingTop: '80px' }}>
       <div className="glass-card" style={{ width: '100%', maxWidth: '450px', padding: '3rem', margin: '2rem' }}>
+        {accessIsAdmin && !isLogin && !showVerifyStep && !showMfaStep && (
+          <div style={{ marginBottom: '1rem', padding: '0.6rem 0.9rem', background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.3)', borderRadius: '8px', fontSize: '0.8rem', color: 'var(--ai-purple, #8b5cf6)', textAlign: 'center', fontWeight: 600 }}>
+            ADMIN ACCESS CODE — new account will be created as admin
+          </div>
+        )}
         {!showVerifyStep && !showMfaStep && (
           <>
             <h1 className="heading-lg" style={{ textAlign: 'center', marginBottom: '0.5rem' }}>{isLogin ? 'Welcome Back' : 'Join Surcal'}</h1>

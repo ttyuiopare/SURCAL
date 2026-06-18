@@ -1,6 +1,8 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
+import { createAdminClient } from '@/utils/supabase/admin';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export async function logIn(formData: FormData) {
@@ -47,6 +49,20 @@ export async function signUp(formData: FormData) {
 
   if (error) {
     return { error: error.message };
+  }
+
+  // If this signup came in behind the admin access code, auto-promote.
+  // The cookie is httpOnly and set by /api/access/validate, so users can't
+  // forge it from the client.
+  if (data.user) {
+    const accessCookie = (await cookies()).get('surcal_access');
+    if (accessCookie?.value === 'admin') {
+      const admin = createAdminClient();
+      await admin
+        .from('profiles')
+        .update({ is_admin: true })
+        .eq('id', data.user.id);
+    }
   }
 
   return { success: true, user: data.user };
