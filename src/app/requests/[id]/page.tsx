@@ -243,17 +243,26 @@ export default function RequestDetailPage() {
     e.preventDefault();
     if (!newMessage.trim() || !myBid) return;
 
+    const msgText = newMessage;
     try {
       const { data, error: msgError } = await supabase.from('messages').insert([{
         request_id: id,
         sender_id: userId,
         receiver_id: request.buyer_id,
-        content: newMessage
+        content: msgText
       }]).select().single();
 
       if (!msgError && data) {
         setChatMessages([...chatMessages, data]);
         setNewMessage('');
+
+        moderateContent({
+          type: 'message',
+          contentId: data.id ?? String(id),
+          userId,
+          text: msgText,
+          link: `/requests/${id}`,
+        }).catch((err) => console.error('[message] moderation failed:', err));
       } else {
         alert('Could not send message. Please ensure the migration is applied.');
       }
