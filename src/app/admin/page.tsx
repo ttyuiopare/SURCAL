@@ -42,11 +42,14 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     admin.from('profiles').select('id', { count: 'exact', head: true }),
     admin.from('profiles').select('id', { count: 'exact', head: true }).eq('is_admin', true),
     admin.from('profiles').select('id', { count: 'exact', head: true }).not('banned_at', 'is', null),
+    admin.from('waitlist').select('id', { count: 'exact', head: true }),
   ]);
 
   const totalUsers = stats[0].count ?? 0;
   const adminCount = stats[1].count ?? 0;
   const bannedCount = stats[2].count ?? 0;
+  // Waitlist may error if the migration hasn't been applied yet — treat as 0.
+  const waitlistCount = stats[3].count ?? 0;
 
   return (
     <div style={{ minHeight: '100vh', padding: '120px var(--container-padding) 60px', background: 'var(--bg-color)' }}>
@@ -59,10 +62,11 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
               View moderation queue &rarr;
             </a>
           </div>
-          <div style={{ display: 'flex', gap: '2rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+          <div style={{ display: 'flex', gap: '2rem', fontSize: '0.9rem', color: 'var(--text-secondary)', flexWrap: 'wrap' }}>
             <Stat label="Total users" value={totalUsers} />
             <Stat label="Admins" value={adminCount} />
             <Stat label="Banned" value={bannedCount} color="var(--danger-red, #e74c3c)" />
+            <Stat label="Waitlist" value={waitlistCount} color="var(--primary-magenta, #e5007d)" />
           </div>
         </div>
 
