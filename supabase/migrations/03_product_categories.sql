@@ -9,4 +9,5 @@ INSERT INTO public.categories (name) VALUES
   ('Collectibles & Trading Cards'),
   ('Automotive Parts'),
   ('Home & Garden'),
-  ('Jewelry & Watches');
+  ('Jewelry & Watches'),
+  ('Perfume & Bath');
