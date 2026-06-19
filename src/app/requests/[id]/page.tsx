@@ -662,9 +662,20 @@ export default function RequestDetailPage() {
                                  );
                                })()}
                                {transaction?.status === 'escrow' && request.status === 'in_progress' ? (
-                                 <button onClick={handleReleaseFunds} className="button-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', width: '100%', justifyContent: 'center' }}>
-                                   Confirm Delivery & Release Funds
-                                 </button>
+                                 <div>
+                                   <button
+                                     onClick={handleReleaseFunds}
+                                     disabled
+                                     className="button-primary"
+                                     style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', width: '100%', justifyContent: 'center', opacity: 0.5, cursor: 'not-allowed' }}
+                                     title="Waiting for the seller to ship and provide a tracking number"
+                                   >
+                                     Confirm Delivery & Release Funds
+                                   </button>
+                                   <p style={{ margin: '0.6rem 0 0', fontSize: '0.78rem', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.4 }}>
+                                     🔒 Funds locked until the seller ships and adds tracking.
+                                   </p>
+                                 </div>
                                ) : transaction?.status === 'released' || transaction?.status === 'shipped' ? (
                                  <div style={{ marginTop: '1rem' }}>
                                    {transaction?.status === 'released' ? (

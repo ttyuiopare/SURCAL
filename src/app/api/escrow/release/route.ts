@@ -27,8 +27,19 @@ export async function POST(req: Request) {
        return NextResponse.json({ error: 'Invalid transaction' }, { status: 403 });
     }
 
-    if (transaction.status !== 'escrow') {
+    if (transaction.status !== 'escrow' && transaction.status !== 'shipped') {
       return NextResponse.json({ error: 'Transaction is not in escrow' }, { status: 400 });
+    }
+
+    // Hard requirement: funds cannot release until the seller has provided a
+    // tracking number. Without this, a buyer could click "Confirm Delivery"
+    // immediately after paying and the seller would receive money for an
+    // item they never shipped.
+    if (!transaction.tracking_number) {
+      return NextResponse.json(
+        { error: 'Seller has not shipped yet. Funds can only be released once tracking has been provided.' },
+        { status: 400 }
+      );
     }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2023-10-16' as any });
