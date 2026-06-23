@@ -58,9 +58,14 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           <div>
             <h1 className="heading-lg" style={{ margin: 0 }}>Admin</h1>
             <p style={{ margin: '0.5rem 0 0', color: 'var(--text-secondary)' }}>Moderate users, promote admins, kick or ban accounts.</p>
-            <a href="/admin/moderation" style={{ display: 'inline-block', marginTop: '0.6rem', color: 'var(--ai-purple, #8b5cf6)', fontWeight: 600, textDecoration: 'none' }}>
-              View moderation queue &rarr;
-            </a>
+            <div style={{ display: 'flex', gap: '1.2rem', marginTop: '0.6rem', flexWrap: 'wrap' }}>
+              <a href="/admin/moderation" style={{ color: 'var(--ai-purple, #8b5cf6)', fontWeight: 600, textDecoration: 'none' }}>
+                Moderation queue &rarr;
+              </a>
+              <a href="/admin/support" style={{ color: 'var(--primary-magenta)', fontWeight: 600, textDecoration: 'none' }}>
+                Support tickets &rarr;
+              </a>
+            </div>
           </div>
           <div style={{ display: 'flex', gap: '2rem', fontSize: '0.9rem', color: 'var(--text-secondary)', flexWrap: 'wrap' }}>
             <Stat label="Total users" value={totalUsers} />
