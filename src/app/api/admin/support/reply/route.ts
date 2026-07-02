@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { createAdminClient } from '@/utils/supabase/admin';
-import { sendEmail } from '@/utils/email';
+import { sendEmail, SUPPORT_FROM, SUPPORT_REPLY_TO } from '@/utils/email';
 
 export async function POST(req: Request) {
   try {
@@ -47,6 +47,8 @@ export async function POST(req: Request) {
       to: ticket.email,
       subject: replySubject,
       text: emailBody,
+      from: SUPPORT_FROM,
+      replyTo: SUPPORT_REPLY_TO,
     });
 
     const { error: insertErr } = await admin

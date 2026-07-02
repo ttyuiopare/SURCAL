@@ -59,9 +59,14 @@ export default async function AdminSupportPage({ searchParams }: { searchParams:
               Reply from <code style={{ background: 'rgba(0,0,0,0.05)', padding: '0.1rem 0.3rem', borderRadius: '4px' }}>support@surcal.xyz</code> via Resend. Replies are logged below the original.
             </p>
           </div>
-          <a href="/admin" style={{ textDecoration: 'none', color: 'var(--primary-navy)', fontWeight: 600 }}>
-            &larr; Back to users
-          </a>
+          <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
+            <a href="/admin/compose" style={{ textDecoration: 'none', color: 'var(--primary-navy)', fontWeight: 600 }}>
+              Compose email
+            </a>
+            <a href="/admin" style={{ textDecoration: 'none', color: 'var(--primary-navy)', fontWeight: 600 }}>
+              &larr; Back to users
+            </a>
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>

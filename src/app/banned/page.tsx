@@ -45,7 +45,7 @@ export default function BannedPage() {
           <a href="/support" style={{ color: 'var(--primary-magenta, #e2117e)' }}>
             contact support
           </a>
-          {' '}or email <strong>support@surcal.xyz</strong>.
+          {' '}or call <strong>314-764-1341</strong>.
         </p>
         <button onClick={handleSignOut} className="button-secondary">
           Sign out

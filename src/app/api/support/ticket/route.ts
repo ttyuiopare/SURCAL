@@ -35,12 +35,28 @@ export async function POST(req: Request) {
       `Subject: ${subject}\n\n` +
       `Message:\n${message}`;
 
-    // Fire-and-forget notification — the ticket is already saved either way.
+    // Fire-and-forget — the ticket is already saved either way.
+    // 1. Notify the support inbox.
     sendEmail({
       to: INBOX,
       subject: `[Surcal Support] ${subject}`,
       text: body,
     }).catch((err) => console.error('[support/ticket] notify failed:', err));
+
+    // 2. Auto-reply confirmation to the person who submitted the ticket.
+    sendEmail({
+      to: email,
+      subject: `We received your message — ticket #${idShort}`,
+      text:
+        `Hi ${name},\n\n` +
+        `Thanks for reaching out to Surcal. We've received your message and our team ` +
+        `will get back to you by email within 24 hours.\n\n` +
+        `Your ticket reference is #${idShort}.\n\n` +
+        `For your records, here's a copy of what you sent:\n\n` +
+        `Subject: ${subject}\n\n${message}\n\n` +
+        `— The Surcal Team\n` +
+        `Please don't reply to this email; it's an automated confirmation.`,
+    }).catch((err) => console.error('[support/ticket] auto-reply failed:', err));
 
     return NextResponse.json({ success: true, ticketId: ticket?.id });
   } catch (err: any) {

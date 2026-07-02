@@ -3,6 +3,11 @@ import { Resend } from 'resend';
 
 const FROM = process.env.RESEND_FROM_EMAIL || 'Surcal <onboarding@resend.dev>';
 
+/** Address support / admin-composed mail is sent from (and replies routed to). */
+export const SUPPORT_FROM =
+  process.env.SUPPORT_FROM_EMAIL || 'Surcal Support <support@surcal.xyz>';
+export const SUPPORT_REPLY_TO = process.env.SUPPORT_INBOX_EMAIL || 'support@surcal.xyz';
+
 let _resend: Resend | null = null;
 function getResend(): Resend | null {
   if (!process.env.RESEND_API_KEY) return null;
@@ -17,6 +22,10 @@ export type EmailPayload = {
   text: string;
   /** optional fully-formed html. If omitted we wrap `text` in a simple branded template. */
   html?: string;
+  /** override the From address for this send. Defaults to RESEND_FROM_EMAIL. */
+  from?: string;
+  /** set a Reply-To so recipient replies land in a real inbox. */
+  replyTo?: string;
 };
 
 function defaultHtml(subject: string, text: string): string {
@@ -40,11 +49,12 @@ export async function sendEmail(payload: EmailPayload): Promise<{ sent: boolean;
 
   try {
     const { error } = await resend.emails.send({
-      from: FROM,
+      from: payload.from ?? FROM,
       to: payload.to,
       subject: payload.subject,
       html: payload.html ?? defaultHtml(payload.subject, payload.text),
       text: payload.text,
+      ...(payload.replyTo ? { replyTo: payload.replyTo } : {}),
     });
     if (error) {
       console.error('[email] send error:', error);

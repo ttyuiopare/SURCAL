@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Bebas_Neue, DM_Sans } from 'next/font/google';
 import Link from 'next/link';
 import ClientNav from './components/ClientNav';
+import Logo from './components/Logo';
 import ClientFooterLinks from './components/ClientFooterLinks';
 import SmartAssistantChat from './components/SmartAssistantChat';
 import { AuthProvider, type Profile } from './providers/AuthProvider';
@@ -67,8 +68,8 @@ export default async function RootLayout({
         <AuthProvider initialUser={user} initialProfile={profile}>
           <nav className="glass-nav">
             <div className="nav-container">
-              <Link href="/" className="logo" style={{ textDecoration: 'none' }}>
-                Surcal
+              <Link href="/" className="logo" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+                <Logo height={30} />
               </Link>
               <ClientNav />
             </div>
@@ -95,16 +96,14 @@ export default async function RootLayout({
                 alignItems: 'center',
               }}
             >
-              <p
-                style={{
+              <Logo
+                height={40}
+                textStyle={{
                   fontWeight: 600,
                   fontSize: '1.5rem',
                   color: 'var(--primary-navy)',
-                  margin: 0,
                 }}
-              >
-                Surcal
-              </p>
+              />
               <ClientFooterLinks />
 
               <div
