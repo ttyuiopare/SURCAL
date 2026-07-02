@@ -65,6 +65,9 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
               <a href="/admin/support" style={{ color: 'var(--primary-magenta)', fontWeight: 600, textDecoration: 'none' }}>
                 Support tickets &rarr;
               </a>
+              <a href="/admin/content" style={{ color: 'var(--secondary-blue, #2e5fa3)', fontWeight: 600, textDecoration: 'none' }}>
+                Requests &amp; bids &rarr;
+              </a>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '2rem', fontSize: '0.9rem', color: 'var(--text-secondary)', flexWrap: 'wrap' }}>

@@ -2,18 +2,32 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Plus, ExternalLink, Calendar, DollarSign } from 'lucide-react';
+import { FileText, Plus, ExternalLink, Calendar, DollarSign, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import BuyerSidebar from '../BuyerSidebar';
 import { useAuth } from '../../providers/AuthProvider';
+import { deleteRequest } from '../../actions/requests';
 
 export default function MyRequestsPage() {
   const { user, supabase } = useAuth();
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const router = useRouter();
+
+  const handleDelete = async (requestId: string) => {
+    if (!window.confirm('Delete this request? This removes it and all offers on it. This cannot be undone.')) return;
+    setDeletingId(requestId);
+    const res = await deleteRequest(requestId);
+    setDeletingId(null);
+    if (res.ok) {
+      setRequests(prev => prev.filter(r => r.id !== requestId));
+    } else {
+      alert(res.error);
+    }
+  };
 
   useEffect(() => {
     if (!user) {
@@ -102,6 +116,15 @@ export default function MyRequestsPage() {
                   <Link href={`/requests/${req.id}`} className="button-secondary" style={{ textDecoration: 'none', background: 'transparent', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <ExternalLink size={16} /> Open
                   </Link>
+                  <button
+                    onClick={() => handleDelete(req.id)}
+                    disabled={deletingId === req.id}
+                    className="button-secondary"
+                    title="Delete this request"
+                    style={{ background: 'transparent', border: '1px solid rgba(231,76,60,0.4)', color: 'var(--danger-red)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                  >
+                    <Trash2 size={16} /> {deletingId === req.id ? 'Deleting…' : 'Delete'}
+                  </button>
                 </div>
               </motion.div>
             ))}

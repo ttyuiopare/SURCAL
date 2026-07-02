@@ -33,6 +33,7 @@ export default function MessagesInboxPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [sendError, setSendError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -185,10 +186,18 @@ export default function MessagesInboxPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setImageFile(file);
-      const url = URL.createObjectURL(file);
-      setImagePreview(url);
+      if (!file.type.startsWith('image/')) {
+        setSendError('Please choose an image file.');
+      } else if (file.size > 10 * 1024 * 1024) {
+        setSendError('That image is too large — please keep it under 10MB.');
+      } else {
+        setSendError('');
+        setImageFile(file);
+        setImagePreview(URL.createObjectURL(file));
+      }
     }
+    // Reset so re-selecting the same file still fires onChange.
+    e.target.value = '';
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -199,18 +208,22 @@ export default function MessagesInboxPage() {
     if (!convo) return;
 
     setUploadingImage(true);
+    setSendError('');
     let imageUrl = null;
 
     if (imageFile) {
       const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
+      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
       const filePath = `messages/${currentUser.id}/${fileName}`;
-      
+
       const { error: uploadError } = await supabase.storage.from('request_images').upload(filePath, imageFile);
-      if (!uploadError) {
-        const { data: { publicUrl } } = supabase.storage.from('request_images').getPublicUrl(filePath);
-        imageUrl = publicUrl;
+      if (uploadError) {
+        setSendError(`Photo upload failed: ${uploadError.message}. (Is the "request_images" storage bucket set up?)`);
+        setUploadingImage(false);
+        return;
       }
+      const { data: { publicUrl } } = supabase.storage.from('request_images').getPublicUrl(filePath);
+      imageUrl = publicUrl;
     }
 
     const msgText = newMessage.trim() || '📸 Sent a photo';
@@ -242,13 +255,24 @@ export default function MessagesInboxPage() {
     }));
 
     // Save to DB
-    const { data: savedMsg } = await supabase.from('messages').insert([{
+    const { data: savedMsg, error: insertError } = await supabase.from('messages').insert([{
       request_id: convo.requestId,
       sender_id: currentUser.id,
       receiver_id: convo.counterpartyId,
       content: msgText,
       image_url: imageUrl
     }]).select('id').single();
+
+    if (insertError) {
+      setSendError(`Message failed to send: ${insertError.message}`);
+      // Roll back the optimistic bubble so it doesn't look sent.
+      setConversations(prev => prev.map(c =>
+        c.id === selectedConvoId
+          ? { ...c, messages: c.messages.filter(m => m.id !== tempMsg.id) }
+          : c
+      ));
+      return;
+    }
 
     // Fire-and-forget AI moderation on the message text.
     if (newMessage.trim()) {
@@ -386,6 +410,11 @@ export default function MessagesInboxPage() {
                      <X size={14} />
                    </button>
                  </div>
+              </div>
+            )}
+            {sendError && (
+              <div style={{ padding: '0.75rem 1.5rem', background: 'rgba(231,76,60,0.1)', color: 'var(--danger-red)', fontSize: '0.85rem', borderTop: '1px solid var(--border-light)' }}>
+                {sendError}
               </div>
             )}
             <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-light)', background: 'var(--bg-surface)' }}>

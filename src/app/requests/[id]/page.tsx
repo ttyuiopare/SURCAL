@@ -4,8 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { scoreBid, getSellerTrustScore } from '@/app/actions/ai';
 import { moderateContent } from '@/app/actions/moderation';
-import { Shield, MapPin, ExternalLink } from 'lucide-react';
+import { Shield, MapPin, ExternalLink, Trash2 } from 'lucide-react';
 import { useAuth } from '@/app/providers/AuthProvider';
+import { deleteBid } from '@/app/actions/requests';
 import ShippingAddressForm, { type ShippingAddress } from '@/app/components/ShippingAddressForm';
 import { CARRIERS, trackingUrl, carrierLabel } from '@/utils/trackingLinks';
 
@@ -42,6 +43,7 @@ export default function RequestDetailPage() {
   const [comment, setComment] = useState('');
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewDone, setReviewDone] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
 
   // Seller competition state (reverse auction)
   const [competingBids, setCompetingBids] = useState<{ id: string; price: number; seller_id: string }[]>([]);
@@ -218,6 +220,20 @@ export default function RequestDetailPage() {
       setTimeline('');
     }
     setBidding(false);
+  };
+
+  const handleWithdrawBid = async () => {
+    if (!myBid) return;
+    if (!window.confirm('Withdraw your offer? It will be removed from the buyer’s list.')) return;
+    setWithdrawing(true);
+    const res = await deleteBid(myBid.id);
+    setWithdrawing(false);
+    if (res.ok) {
+      setMyBid(null);
+      setChatMessages([]);
+    } else {
+      alert(res.error);
+    }
   };
 
   const handleMessageSeller = async (sellerId: string) => {
@@ -725,6 +741,17 @@ export default function RequestDetailPage() {
                       {myBid.status}
                     </span>
                   </div>
+
+                  {myBid.status === 'pending' && (
+                    <button
+                      type="button"
+                      onClick={handleWithdrawBid}
+                      disabled={withdrawing}
+                      style={{ marginTop: '1rem', width: '100%', padding: '0.6rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', background: 'transparent', border: '1px solid rgba(231,76,60,0.4)', color: 'var(--danger-red)', borderRadius: '8px', cursor: 'pointer' }}
+                    >
+                      <Trash2 size={15} /> {withdrawing ? 'Withdrawing…' : 'Withdraw Offer'}
+                    </button>
+                  )}
 
                   {myBid.status === 'pending' && sellersCompetingCount > 1 && (
                     <div style={{ marginTop: '1rem', padding: '0.9rem 1rem', background: isWinning ? 'rgba(39, 174, 96, 0.08)' : 'rgba(230, 126, 34, 0.08)', border: `1px solid ${isWinning ? 'rgba(39, 174, 96, 0.3)' : 'rgba(230, 126, 34, 0.3)'}`, borderRadius: '8px' }}>
