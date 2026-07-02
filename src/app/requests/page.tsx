@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter, Clock, ChevronDown, Tag, MapPin } from 'lucide-react';
+import { Search, Filter, Clock, Tag, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../providers/AuthProvider';
@@ -10,6 +10,12 @@ import { useAuth } from '../providers/AuthProvider';
 export default function RequestsPage() {
   const { user, profile, supabase } = useAuth();
   const [requests, setRequests] = useState<any[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [budgetMin, setBudgetMin] = useState('');
+  const [budgetMax, setBudgetMax] = useState('');
+  const [shipSpeed, setShipSpeed] = useState<'any' | 'fast' | 'slow'>('any');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'budget_high' | 'budget_low'>('newest');
   const [searchQuery, setSearchQuery] = useState('');
   const [loadingState, setLoadingState] = useState('Loading marketplace...');
 
@@ -21,13 +27,18 @@ export default function RequestsPage() {
       return;
     }
 
-    async function loadRequests() {
+    async function loadData() {
       try {
-        const { data, error } = await supabase
-          .from('requests')
-          .select('*, profiles!requests_buyer_id_fkey(name)')
-          .eq('status', 'open')
-          .order('created_at', { ascending: false });
+        const [{ data: cats }, { data, error }] = await Promise.all([
+          supabase.from('categories').select('id, name').order('name'),
+          supabase
+            .from('requests')
+            .select('*, profiles!requests_buyer_id_fkey(name), categories(name)')
+            .eq('status', 'open')
+            .order('created_at', { ascending: false }),
+        ]);
+
+        if (cats) setCategories(cats);
 
         if (error) {
           setLoadingState('Database Error: ' + error.message);
@@ -40,16 +51,42 @@ export default function RequestsPage() {
         setLoadingState('Error: ' + err.message);
       }
     }
-    loadRequests();
+    loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   if (loadingState !== 'done') return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center', color: loadingState.startsWith('Error') ? 'red' : 'inherit' }}>{loadingState}</div>;
 
-  const filtered = requests.filter(r => 
-    r.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    r.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const min = parseFloat(budgetMin);
+  const max = parseFloat(budgetMax);
+
+  const filtered = requests.filter(r => {
+    const q = searchQuery.toLowerCase();
+    const matchesSearch =
+      (r.title || '').toLowerCase().includes(q) ||
+      (r.description || '').toLowerCase().includes(q);
+
+    const matchesCategory = selectedCategory === 'all' || r.category_id === selectedCategory;
+
+    const budget = parseFloat(r.budget) || 0;
+    const matchesMin = isNaN(min) || budget >= min;
+    const matchesMax = isNaN(max) || budget <= max;
+
+    let matchesSpeed = true;
+    if (shipSpeed !== 'any' && r.deadline && r.created_at) {
+      const days = (new Date(r.deadline).getTime() - new Date(r.created_at).getTime()) / 86400000;
+      matchesSpeed = shipSpeed === 'fast' ? days <= 3 : days >= 7 && days <= 28;
+    }
+
+    return matchesSearch && matchesCategory && matchesMin && matchesMax && matchesSpeed;
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortBy === 'oldest') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    if (sortBy === 'budget_high') return (parseFloat(b.budget) || 0) - (parseFloat(a.budget) || 0);
+    if (sortBy === 'budget_low') return (parseFloat(a.budget) || 0) - (parseFloat(b.budget) || 0);
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime(); // newest
+  });
 
   return (
     <div style={{ minHeight: '100vh', padding: '120px var(--container-padding) 60px', backgroundColor: 'var(--bg-color)' }}>
@@ -79,38 +116,44 @@ export default function RequestsPage() {
                <div style={{ marginBottom: '2rem' }}>
                  <h4 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--primary-navy)' }}>Category</h4>
                  <label style={{ marginBottom: '0.8rem', color: 'var(--text-secondary)', display: 'flex', gap: '0.5rem', cursor: 'pointer' }}>
-                   <input type="checkbox" defaultChecked /> All Categories
+                   <input
+                     type="radio"
+                     name="category"
+                     checked={selectedCategory === 'all'}
+                     onChange={() => setSelectedCategory('all')}
+                   /> All Categories
                  </label>
-                 <label style={{ marginBottom: '0.8rem', color: 'var(--text-secondary)', display: 'flex', gap: '0.5rem', cursor: 'pointer' }}>
-                   <input type="checkbox" /> Electronics & Tech
-                 </label>
-                 <label style={{ marginBottom: '0.8rem', color: 'var(--text-secondary)', display: 'flex', gap: '0.5rem', cursor: 'pointer' }}>
-                   <input type="checkbox" /> Sneakers & Apparel
-                 </label>
-                 <label style={{ marginBottom: '0.8rem', color: 'var(--text-secondary)', display: 'flex', gap: '0.5rem', cursor: 'pointer' }}>
-                   <input type="checkbox" /> Collectibles
-                 </label>
+                 {categories.map((c) => (
+                   <label key={c.id} style={{ marginBottom: '0.8rem', color: 'var(--text-secondary)', display: 'flex', gap: '0.5rem', cursor: 'pointer' }}>
+                     <input
+                       type="radio"
+                       name="category"
+                       checked={selectedCategory === c.id}
+                       onChange={() => setSelectedCategory(c.id)}
+                     /> {c.name}
+                   </label>
+                 ))}
                </div>
 
                <div style={{ marginBottom: '2rem', borderTop: '1px solid var(--border-light)', paddingTop: '1.5rem' }}>
                  <h4 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--primary-navy)' }}>Budget Range</h4>
                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                   <input type="number" placeholder="Min" style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-light)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+                   <input type="number" placeholder="Min" value={budgetMin} onChange={(e) => setBudgetMin(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-light)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} />
                    <span style={{ color: 'var(--text-secondary)' }}>-</span>
-                   <input type="number" placeholder="Max" style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-light)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} />
+                   <input type="number" placeholder="Max" value={budgetMax} onChange={(e) => setBudgetMax(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid var(--border-light)', background: 'var(--bg-color)', color: 'var(--text-primary)' }} />
                  </div>
                </div>
 
                <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '1.5rem' }}>
                  <h4 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--primary-navy)' }}>Shipping Speed</h4>
                  <label style={{ marginBottom: '0.8rem', color: 'var(--text-secondary)', display: 'flex', gap: '0.5rem', cursor: 'pointer' }}>
-                   <input type="radio" name="time" defaultChecked /> Any
+                   <input type="radio" name="time" checked={shipSpeed === 'any'} onChange={() => setShipSpeed('any')} /> Any
                  </label>
                  <label style={{ marginBottom: '0.8rem', color: 'var(--text-secondary)', display: 'flex', gap: '0.5rem', cursor: 'pointer' }}>
-                   <input type="radio" name="time" /> Under 3 Days
+                   <input type="radio" name="time" checked={shipSpeed === 'fast'} onChange={() => setShipSpeed('fast')} /> Under 3 Days
                  </label>
                  <label style={{ marginBottom: '0.8rem', color: 'var(--text-secondary)', display: 'flex', gap: '0.5rem', cursor: 'pointer' }}>
-                   <input type="radio" name="time" /> 1-4 weeks
+                   <input type="radio" name="time" checked={shipSpeed === 'slow'} onChange={() => setShipSpeed('slow')} /> 1-4 weeks
                  </label>
                </div>
             </div>
@@ -133,24 +176,31 @@ export default function RequestsPage() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
                 <span>Sort by:</span>
-                <div style={{ padding: '0.8rem 1rem', background: 'var(--bg-surface)', border: '1px solid var(--border-light)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                  Newest <ChevronDown size={16} />
-                </div>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                  style={{ padding: '0.8rem 1rem', background: 'var(--bg-surface)', border: '1px solid var(--border-light)', borderRadius: '12px', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '0.95rem' }}
+                >
+                  <option value="newest">Newest</option>
+                  <option value="oldest">Oldest</option>
+                  <option value="budget_high">Budget: High to Low</option>
+                  <option value="budget_low">Budget: Low to High</option>
+                </select>
               </div>
             </div>
 
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontWeight: 500 }}>
-              {filtered.length} Items found
+              {sorted.length} Items found
             </p>
 
             {/* List Body */}
-            {filtered.length === 0 ? (
+            {sorted.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '6rem 2rem', color: 'var(--text-secondary)', background: 'var(--bg-surface)', borderRadius: '12px', border: '1px dashed var(--border-light)' }}>
                  No items matching your exact search. Try adjusting keywords.
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {filtered.map((req, i) => (
+                {sorted.map((req, i) => (
                   <motion.div 
                     key={req.id}
                     className="glass-card list-row-hover"
@@ -191,9 +241,11 @@ export default function RequestsPage() {
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                      {req.categories?.name && (
+                        <span style={{ padding: '0.4rem 0.8rem', background: 'rgba(226, 37, 120, 0.08)', border: '1px solid rgba(226, 37, 120, 0.25)', borderRadius: '6px', fontSize: '0.8rem', color: 'var(--primary-magenta)', fontWeight: 600 }}>{req.categories.name}</span>
+                      )}
                       <span style={{ padding: '0.4rem 0.8rem', background: 'var(--bg-color)', border: '1px solid var(--border-light)', borderRadius: '6px', fontSize: '0.8rem', color: 'var(--text-primary)' }}>Authentic</span>
-                      <span style={{ padding: '0.4rem 0.8rem', background: 'var(--bg-color)', border: '1px solid var(--border-light)', borderRadius: '6px', fontSize: '0.8rem', color: 'var(--text-primary)' }}>New or Used</span>
                       
                       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Buyer: <strong>{req.profiles?.name || 'Private'}</strong></span>
