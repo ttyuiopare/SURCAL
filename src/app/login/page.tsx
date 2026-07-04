@@ -17,10 +17,6 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [showVerifyStep, setShowVerifyStep] = useState(false);
-  const [verifyData, setVerifyData] = useState({ fullName: '', address: '', routingNumber: '', accountNumber: '' });
-  const [currentUserId, setCurrentUserId] = useState('');
-
   const [showMfaStep, setShowMfaStep] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
   const [factorId, setFactorId] = useState('');
@@ -186,9 +182,10 @@ export default function LoginPage() {
 
         if (result?.success && result?.user) {
           if (role === 'seller') {
-            setCurrentUserId(result.user.id);
-            setShowVerifyStep(true);
-            setLoading(false);
+            // Sellers must complete real Stripe Connect onboarding before they
+            // can receive payouts. Send them straight there (the middleware
+            // also enforces this on every seller page until it's done).
+            window.location.href = '/seller/verify';
             return;
           } else {
             // 2FA is optional — go straight to the dashboard. Users can enable
@@ -225,17 +222,6 @@ export default function LoginPage() {
 
 
 
-  const handleVerifySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.from('profiles').update({ is_verified: true }).eq('id', currentUserId);
-    setLoading(false);
-    if (error) {
-      setError(error.message);
-    } else {
-      window.location.href = '/dashboard';
-    }
-  };
 
   if (accessChecking) {
     return (
@@ -334,12 +320,12 @@ export default function LoginPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-color)', paddingTop: '80px' }}>
       <div className="glass-card" style={{ width: '100%', maxWidth: '450px', padding: '3rem', margin: '2rem' }}>
-        {accessIsAdmin && !isLogin && !showVerifyStep && !showMfaStep && (
+        {accessIsAdmin && !isLogin && !showMfaStep && (
           <div style={{ marginBottom: '1rem', padding: '0.6rem 0.9rem', background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.3)', borderRadius: '8px', fontSize: '0.8rem', color: 'var(--ai-purple, #8b5cf6)', textAlign: 'center', fontWeight: 600 }}>
             ADMIN ACCESS CODE — new account will be created as admin
           </div>
         )}
-        {!showVerifyStep && !showMfaStep && (
+        {!showMfaStep && (
           <>
             <h1 className="heading-lg" style={{ textAlign: 'center', marginBottom: '0.5rem' }}>{isLogin ? 'Welcome Back' : 'Join Surcal'}</h1>
             <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '2rem' }}>
@@ -405,34 +391,6 @@ export default function LoginPage() {
                   to reset 2FA.
                 </p>
               </div>
-            </form>
-          </div>
-        ) : showVerifyStep ? (
-          <div>
-            <h2 className="heading-md" style={{ textAlign: 'center', marginBottom: '1.5rem', color: 'var(--primary-navy)' }}>Complete Seller Verification</h2>
-            <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '2rem' }}>As a seller, you must verify your identity to receive payouts.</p>
-            <form onSubmit={handleVerifySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-               <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Legal Full Name</label>
-                  <input type="text" required value={verifyData.fullName} onChange={e => setVerifyData({...verifyData, fullName: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} />
-               </div>
-               <div>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Residential Address</label>
-                  <input type="text" required value={verifyData.address} onChange={e => setVerifyData({...verifyData, address: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} />
-               </div>
-               <div style={{ display: 'flex', gap: '1rem' }}>
-                  <div style={{ flex: 1 }}>
-                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Bank Routing Number</label>
-                     <input type="text" required value={verifyData.routingNumber} onChange={e => setVerifyData({...verifyData, routingNumber: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} pattern="\d{9}" title="9 digit routing number" />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Account Number</label>
-                     <input type="text" required value={verifyData.accountNumber} onChange={e => setVerifyData({...verifyData, accountNumber: e.target.value})} style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }} />
-                  </div>
-               </div>
-               <button type="submit" disabled={loading} className="button-primary" style={{ width: '100%', padding: '1rem', justifyContent: 'center', marginTop: '1rem' }}>
-                  {loading ? 'Verifying...' : 'Submit Identity & Continue'}
-               </button>
             </form>
           </div>
         ) : (
@@ -573,7 +531,7 @@ export default function LoginPage() {
         </form>
         )}
 
-        {!showVerifyStep && !showMfaStep && (
+        {!showMfaStep && (
         <div style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <button type="button" onClick={() => { setIsLogin(!isLogin); setError(''); }} style={{ background: 'none', border: 'none', color: 'var(--primary-navy)', fontWeight: 600, cursor: 'pointer', padding: 0 }}>
