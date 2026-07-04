@@ -228,10 +228,10 @@ export default function RequestsPage() {
 
                     <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '1.5rem' }}>
                       <div style={{ flex: '0 0 120px', height: '120px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-light)', background: 'var(--bg-color)' }}>
-                         <img 
-                           src={req.image_url || `https://images.unsplash.com/photo-1620189507195-68309c04c4d0?w=400&auto=format&fit=crop&q=60`} 
+                         <img
+                           src={req.image_url || '/mark.png'}
                            alt={req.title}
-                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                           style={{ width: '100%', height: '100%', objectFit: req.image_url ? 'cover' : 'contain', background: req.image_url ? 'transparent' : 'var(--bg-color)', padding: req.image_url ? 0 : '0.5rem' }}
                          />
                       </div>
                       <div style={{ flex: 1 }}>

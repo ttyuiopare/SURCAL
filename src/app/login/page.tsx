@@ -560,14 +560,12 @@ export default function LoginPage() {
             />
           </div>
 
-          {!isLogin && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
-              <input type="checkbox" id="terms" checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} required />
-              <label htmlFor="terms" style={{ color: 'var(--text-secondary)' }}>
-                I agree to the <Link href="/terms" target="_blank" style={{ color: 'var(--primary-magenta)', textDecoration: 'none', fontWeight: 600 }}>Terms & Conditions</Link>
-              </label>
-            </div>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
+            <input type="checkbox" id="terms" checked={acceptedTerms} onChange={(e) => setAcceptedTerms(e.target.checked)} required={!isLogin} />
+            <label htmlFor="terms" style={{ color: 'var(--text-secondary)' }}>
+              I agree to the <Link href="/terms" target="_blank" style={{ color: 'var(--primary-magenta)', textDecoration: 'none', fontWeight: 600 }}>Terms &amp; Conditions</Link>
+            </label>
+          </div>
 
           <button type="submit" disabled={loading} className="button-primary" style={{ width: '100%', padding: '1rem', justifyContent: 'center', marginTop: '0.5rem' }}>
             {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
