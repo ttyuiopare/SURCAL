@@ -17,14 +17,23 @@ export default function SellerVerifyPage() {
   const [error, setError] = useState('');
   const [pendingMessage, setPendingMessage] = useState('');
 
-  // Gate: only unverified sellers belong here.
+  // Gate: unverified sellers belong here — and admins are allowed too, so the
+  // owner can set up their own Stripe payout account (otherwise an admin can
+  // never receive escrow payouts, which breaks their own checkouts).
   useEffect(() => {
     if (!user) {
       router.push('/login');
       return;
     }
-    if (profile && (profile.role !== 'seller' || profile.stripe_onboarding_complete || profile.is_admin)) {
+    if (!profile) return;
+    // Already onboarded → send them to their hub.
+    if (profile.stripe_onboarding_complete) {
       router.replace(profile.role === 'seller' ? '/seller' : '/buyer');
+      return;
+    }
+    // Plain buyers (not admins) don't onboard as sellers.
+    if (profile.role === 'buyer' && !profile.is_admin) {
+      router.replace('/buyer');
     }
   }, [user, profile, router]);
 
