@@ -745,7 +745,7 @@ export default function RequestDetailPage() {
             </div>
           ) : userId ? (
             myBid ? (
-              <div className="glass-card" style={{ padding: '0', display: 'flex', flexDirection: 'column', height: '600px', overflow: 'hidden' }}>
+              <div className="glass-card" style={{ padding: '0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <div style={{ padding: '1.5rem', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-light)' }}>
                   <h3 style={{ fontSize: '1.2rem', margin: '0 0 0.5rem 0', color: 'var(--primary-navy)' }}>Your Offer</h3>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -916,7 +916,7 @@ export default function RequestDetailPage() {
                   )}
                 </div>
 
-                <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', background: 'rgba(0,0,0,0.01)' }}>
+                <div style={{ height: '300px', padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', background: 'rgba(0,0,0,0.01)' }}>
                   {chatMessages.length === 0 ? (
                     <div style={{ textAlign: 'center', color: 'var(--text-secondary)', margin: 'auto 0' }}>
                       <p>No messages yet.</p>
