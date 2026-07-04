@@ -67,11 +67,12 @@ export async function deleteRequest(requestId: string): Promise<ActionResult> {
       };
     }
 
+    // FK-safe order: transactions reference bids (transactions_bid_id_fkey), so
+    // they must be deleted BEFORE the bids. Non-admins are already blocked above
+    // when a transaction exists, so in practice this only runs for admins.
+    await safeDelete(() => admin.from('transactions').delete().eq('request_id', requestId));
     await safeDelete(() => admin.from('bids').delete().eq('request_id', requestId));
     await safeDelete(() => admin.from('messages').delete().eq('request_id', requestId));
-    if (isAdmin) {
-      await safeDelete(() => admin.from('transactions').delete().eq('request_id', requestId));
-    }
 
     const { error: delErr } = await admin.from('requests').delete().eq('id', requestId);
     if (delErr) return { ok: false, error: delErr.message };
@@ -111,6 +112,21 @@ export async function deleteBid(bidId: string): Promise<ActionResult> {
         ok: false,
         error: 'This offer was already accepted and can’t be withdrawn. Contact support.',
       };
+    }
+
+    // A funded escrow order references this bid (transactions_bid_id_fkey).
+    // Block non-admins; for admins, remove the transaction first so the FK
+    // doesn't reject the bid delete.
+    const { data: linkedTx } = await admin
+      .from('transactions')
+      .select('id')
+      .eq('bid_id', bidId)
+      .maybeSingle();
+    if (linkedTx) {
+      if (!isAdmin) {
+        return { ok: false, error: 'This offer has an active order and can’t be removed. Contact support.' };
+      }
+      await safeDelete(() => admin.from('transactions').delete().eq('bid_id', bidId));
     }
 
     const { error: delErr } = await admin.from('bids').delete().eq('id', bidId);
