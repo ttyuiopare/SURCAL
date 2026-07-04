@@ -7,6 +7,7 @@ import { moderateContent } from '@/app/actions/moderation';
 import { Shield, MapPin, ExternalLink, Trash2 } from 'lucide-react';
 import { useAuth } from '@/app/providers/AuthProvider';
 import { deleteBid } from '@/app/actions/requests';
+import FulfillmentTracker from '@/app/components/FulfillmentTracker';
 import ShippingAddressForm, { type ShippingAddress } from '@/app/components/ShippingAddressForm';
 import { CARRIERS, trackingUrl, carrierLabel } from '@/utils/trackingLinks';
 
@@ -125,6 +126,17 @@ export default function RequestDetailPage() {
            const { data: msgs } = await supabase.from('messages').select('*').eq('request_id', id).order('created_at', { ascending: true });
            if (msgs) setChatMessages(msgs);
          }
+
+         // Load the escrow transaction if this seller's bid was accepted & funded,
+         // so the seller can see fulfillment status and add tracking. (Previously
+         // this was only fetched for the buyer, so sellers never saw shipping.)
+         const { data: sellerTx } = await supabase
+           .from('transactions')
+           .select('*')
+           .eq('request_id', id)
+           .eq('seller_id', user.id)
+           .maybeSingle();
+         if (sellerTx) setTransaction(sellerTx);
 
          // Load competing bids (reverse-auction visibility)
          const { data: allBids } = await supabase
@@ -651,6 +663,7 @@ export default function RequestDetailPage() {
                       )}
                       {bid.status === 'accepted' && (
                         <div style={{ marginTop: '0.5rem', padding: '1rem', background: !transaction ? 'rgba(230, 126, 34, 0.1)' : 'rgba(39, 174, 96, 0.1)', color: !transaction ? 'var(--warning-orange)' : 'var(--success-green)', borderRadius: '8px', textAlign: 'center', border: !transaction ? '1px solid rgba(230, 126, 34, 0.2)' : '1px solid rgba(39, 174, 96, 0.2)' }}>
+                          {transaction && <FulfillmentTracker transaction={transaction} />}
                           {!transaction ? (
                              <>
                                <p style={{ margin: '0 0 0.8rem 0', fontWeight: 'bold' }}>Offer Accepted (Unfunded)</p>
@@ -751,6 +764,12 @@ export default function RequestDetailPage() {
                     >
                       <Trash2 size={15} /> {withdrawing ? 'Withdrawing…' : 'Withdraw Offer'}
                     </button>
+                  )}
+
+                  {transaction && (
+                    <div style={{ marginTop: '1.5rem' }}>
+                      <FulfillmentTracker transaction={transaction} />
+                    </div>
                   )}
 
                   {myBid.status === 'pending' && sellersCompetingCount > 1 && (
