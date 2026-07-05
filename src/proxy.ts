@@ -28,6 +28,8 @@ function isPublicPath(pathname: string): boolean {
   // waitlist form / validate their beta code.
   if (pathname.startsWith('/api/waitlist')) return true;
   if (pathname.startsWith('/api/access/')) return true;
+  // Cron endpoints have no user session; they authenticate via CRON_SECRET.
+  if (pathname.startsWith('/api/cron/')) return true;
   return false;
 }
 

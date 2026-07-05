@@ -65,53 +65,60 @@ export default function PostRequestPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!categoryId) { setError('Please select a category.'); return; }
+    if (!user) { setError('You must be logged in to post a request.'); return; }
 
     setLoading(true);
     setError('');
 
-    if (!user) {
-      setError('You must be logged in to post a request.');
-      setLoading(false);
-      return;
-    }
+    try {
+      const deadlineDate = new Date();
+      deadlineDate.setDate(deadlineDate.getDate() + parseInt(deadlineDays));
 
-    const deadlineDate = new Date();
-    deadlineDate.setDate(deadlineDate.getDate() + parseInt(deadlineDays));
+      let imageUrl = null;
+      if (image) {
+        const fileExt = image.name.split('.').pop();
+        const filePath = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage.from('request_images').upload(filePath, image);
+        if (uploadError) {
+          setError('Failed to upload image: ' + uploadError.message);
+          return;
+        }
+        const { data } = supabase.storage.from('request_images').getPublicUrl(filePath);
+        imageUrl = data.publicUrl;
+      }
 
-    let imageUrl = null;
-    if (image) {
-      const fileExt = image.name.split('.').pop();
-      const filePath = `${user.id}/${Math.random()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage.from('request_images').upload(filePath, image);
-      if (uploadError) {
-        setError('Failed to upload image: ' + uploadError.message);
-        setLoading(false);
+      // Improve the description with AI, but never let a slow/hung AI call block
+      // the post — fall back to the raw description after 8s.
+      let ai_description = description;
+      try {
+        ai_description = await Promise.race<string>([
+          improveRequestDescription(description),
+          new Promise<string>((resolve) => setTimeout(() => resolve(description), 8000)),
+        ]);
+      } catch {
+        ai_description = description;
+      }
+
+      const { data: inserted, error: insertError } = await supabase
+        .from('requests')
+        .insert([{
+          buyer_id: user.id,
+          category_id: categoryId,
+          title,
+          description,
+          ai_description,
+          budget: parseFloat(budget),
+          deadline: deadlineDate.toISOString(),
+          image_url: imageUrl,
+        }])
+        .select('id')
+        .single();
+
+      if (insertError) {
+        setError(insertError.message);
         return;
       }
-      const { data } = supabase.storage.from('request_images').getPublicUrl(filePath);
-      imageUrl = data.publicUrl;
-    }
 
-    const ai_description = await improveRequestDescription(description);
-
-    const { data: inserted, error: insertError } = await supabase
-      .from('requests')
-      .insert([{
-        buyer_id: user.id,
-        category_id: categoryId,
-        title,
-        description,
-        ai_description,
-        budget: parseFloat(budget),
-        deadline: deadlineDate.toISOString(),
-        image_url: imageUrl,
-      }])
-      .select('id')
-      .single();
-
-    if (insertError) {
-      setError(insertError.message);
-    } else {
       setSuccess(true);
       setTitle('');
       setDescription('');
@@ -121,8 +128,7 @@ export default function PostRequestPage() {
       setImage(null);
       setAiPrice(null);
 
-      // Fire-and-forget seller matching. Don't await — the buyer's confirmation
-      // shouldn't wait on AI re-ranking + notification fan-out.
+      // Fire-and-forget seller matching + moderation — don't block confirmation.
       if (inserted?.id) {
         notifyMatchingSellers(inserted.id).catch((err) =>
           console.error('[post-request] matching failed:', err)
@@ -135,9 +141,11 @@ export default function PostRequestPage() {
           link: `/requests/${inserted.id}`,
         }).catch((err) => console.error('[post-request] moderation failed:', err));
       }
+    } catch (err: any) {
+      setError(err?.message || 'Something went wrong posting your request. Please try again.');
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (

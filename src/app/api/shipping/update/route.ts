@@ -17,7 +17,8 @@ export async function POST(req: Request) {
       .update({
         shipping_carrier: carrier,
         tracking_number: trackingNumber,
-        status: 'shipped' // Optional state change
+        status: 'shipped',
+        shipped_at: new Date().toISOString(), // starts the auto-release window
       })
       .eq('id', transactionId)
       .eq('seller_id', user.id);
