@@ -70,6 +70,14 @@ export default function PostRequestPage() {
     setLoading(true);
     setError('');
 
+    // Safety net: never let the button stay stuck. If any step hangs (network,
+    // a slow API), force-recover after 25s with a helpful message. Runs
+    // independently of the awaits below, so it fires even if one never resolves.
+    const safetyTimer = setTimeout(() => {
+      setLoading(false);
+      setError('That took too long. Your request may have still posted — check "My Requests". If it isn\'t there, please try again.');
+    }, 25000);
+
     try {
       const deadlineDate = new Date();
       deadlineDate.setDate(deadlineDate.getDate() + parseInt(deadlineDays));
@@ -144,6 +152,7 @@ export default function PostRequestPage() {
     } catch (err: any) {
       setError(err?.message || 'Something went wrong posting your request. Please try again.');
     } finally {
+      clearTimeout(safetyTimer);
       setLoading(false);
     }
   };
