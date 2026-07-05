@@ -87,18 +87,9 @@ export default function PostRequestPage() {
         imageUrl = data.publicUrl;
       }
 
-      // Improve the description with AI, but never let a slow/hung AI call block
-      // the post — fall back to the raw description after 8s.
-      let ai_description = description;
-      try {
-        ai_description = await Promise.race<string>([
-          improveRequestDescription(description),
-          new Promise<string>((resolve) => setTimeout(() => resolve(description), 8000)),
-        ]);
-      } catch {
-        ai_description = description;
-      }
-
+      // Save the request immediately with the raw description. AI "improvement"
+      // is a non-critical enhancement and must NEVER block or hang the post, so
+      // it runs in the background after the request is saved (see below).
       const { data: inserted, error: insertError } = await supabase
         .from('requests')
         .insert([{
@@ -106,7 +97,7 @@ export default function PostRequestPage() {
           category_id: categoryId,
           title,
           description,
-          ai_description,
+          ai_description: description,
           budget: parseFloat(budget),
           deadline: deadlineDate.toISOString(),
           image_url: imageUrl,
@@ -128,8 +119,17 @@ export default function PostRequestPage() {
       setImage(null);
       setAiPrice(null);
 
-      // Fire-and-forget seller matching + moderation — don't block confirmation.
+      // Fire-and-forget background work — none of this blocks confirmation.
       if (inserted?.id) {
+        // AI polish of the description, saved back to the row when it returns.
+        improveRequestDescription(description)
+          .then((improved) => {
+            if (improved && improved !== description) {
+              return supabase.from('requests').update({ ai_description: improved }).eq('id', inserted!.id);
+            }
+          })
+          .catch((err) => console.error('[post-request] ai improve failed:', err));
+
         notifyMatchingSellers(inserted.id).catch((err) =>
           console.error('[post-request] matching failed:', err)
         );
