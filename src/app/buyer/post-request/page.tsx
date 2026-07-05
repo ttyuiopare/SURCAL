@@ -8,6 +8,45 @@ import { moderateContent } from '@/app/actions/moderation';
 import { Sparkles } from 'lucide-react';
 import { useAuth } from '../../providers/AuthProvider';
 
+/**
+ * Downscale + re-encode an image to a reasonable JPEG before upload. iPad photos
+ * are large HEIC files that can stall the upload; this keeps them small and in a
+ * universally-supported format. Falls back to the original file on any error.
+ */
+async function prepareImage(file: File, maxDim = 1600, quality = 0.85): Promise<File> {
+  try {
+    const url = URL.createObjectURL(file);
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = () => reject(new Error('decode failed'));
+      el.src = url;
+    });
+    URL.revokeObjectURL(url);
+
+    let { width, height } = img;
+    if (width > maxDim || height > maxDim) {
+      const scale = maxDim / Math.max(width, height);
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return file;
+    ctx.drawImage(img, 0, 0, width, height);
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, 'image/jpeg', quality)
+    );
+    if (!blob) return file;
+    return new File([blob], 'photo.jpg', { type: 'image/jpeg' });
+  } catch {
+    return file;
+  }
+}
+
 export default function PostRequestPage() {
   const { user, supabase } = useAuth();
   const [title, setTitle] = useState('');
@@ -84,15 +123,24 @@ export default function PostRequestPage() {
 
       let imageUrl = null;
       if (image) {
-        const fileExt = image.name.split('.').pop();
-        const filePath = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage.from('request_images').upload(filePath, image);
-        if (uploadError) {
-          setError('Failed to upload image: ' + uploadError.message);
-          return;
+        // Shrink/convert first (iPad HEIC photos are huge), then upload with a
+        // timeout. A slow/failed photo must NOT block the request — we post
+        // without it rather than hang.
+        const fileToUpload = await prepareImage(image);
+        const filePath = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+
+        const uploadResult: any = await Promise.race([
+          supabase.storage.from('request_images').upload(filePath, fileToUpload, { contentType: 'image/jpeg' }),
+          new Promise((resolve) => setTimeout(() => resolve({ error: { message: 'Upload timed out' } }), 15000)),
+        ]);
+
+        if (uploadResult?.error) {
+          console.error('[post-request] image upload failed:', uploadResult.error.message);
+          // Continue without the image — the request still posts.
+        } else {
+          const { data } = supabase.storage.from('request_images').getPublicUrl(filePath);
+          imageUrl = data.publicUrl;
         }
-        const { data } = supabase.storage.from('request_images').getPublicUrl(filePath);
-        imageUrl = data.publicUrl;
       }
 
       // Save the request immediately with the raw description. AI "improvement"
