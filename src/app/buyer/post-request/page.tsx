@@ -6,12 +6,10 @@ import { improveRequestDescription } from '@/app/actions/ai';
 import { notifyMatchingSellers } from '@/app/actions/matching';
 import { moderateContent } from '@/app/actions/moderation';
 import { Sparkles } from 'lucide-react';
-import BuyerSidebar from '../BuyerSidebar';
 import { useAuth } from '../../providers/AuthProvider';
 
 export default function PostRequestPage() {
-  const { user, profile, supabase } = useAuth();
-  const isBuyer = profile?.role === 'buyer';
+  const { user, supabase } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [budget, setBudget] = useState('');
@@ -144,8 +142,6 @@ export default function PostRequestPage() {
 
   return (
     <div style={{ minHeight: '100vh', paddingTop: '80px', display: 'flex', backgroundColor: 'var(--bg-color)' }}>
-      {isBuyer && <BuyerSidebar active="post-request" />}
-
       <main style={{ flex: 1, padding: '3rem var(--container-padding)' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <h1 className="heading-xl" style={{ marginBottom: '1rem', textAlign: 'center' }}>What do you want to buy?</h1>
