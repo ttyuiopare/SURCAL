@@ -142,7 +142,7 @@ async function aiRerank(
   request: RequestRow,
   candidates: InventoryRow[]
 ): Promise<{ inv: InventoryRow; score: number }[]> {
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY!, maxRetries: 1, timeout: 20_000 });
 
   const prompt = `You're matching a marketplace buyer request to seller inventory items.
 

@@ -41,7 +41,7 @@ Respond ONLY with valid JSON, no prose:
 async function classify(text: string): Promise<Verdict | null> {
   if (!process.env.ANTHROPIC_API_KEY) return null;
   try {
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, maxRetries: 1, timeout: 20_000 });
     const msg = await anthropic.messages.create({
       model: 'claude-haiku-4-5',
       max_tokens: 300,

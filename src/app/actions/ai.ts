@@ -5,6 +5,10 @@ import { createClient } from '@/utils/supabase/server';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
+  // Fail fast on rate limits instead of retrying with long backoff (which piles
+  // up serverless invocations when many AI calls fire at once).
+  maxRetries: 1,
+  timeout: 20_000,
 });
 
 export async function improveRequestDescription(originalDescription: string) {

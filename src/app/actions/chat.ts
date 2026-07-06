@@ -55,7 +55,7 @@ export async function smartAssistantReply(input: ChatInput): Promise<{ reply: st
     userContext += `\nThey are currently on the page: ${input.pagePath}`;
   }
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, maxRetries: 1, timeout: 20_000 });
 
   // Sanitize + trim. Keep last 12 turns to control token cost.
   const turns = input.messages
