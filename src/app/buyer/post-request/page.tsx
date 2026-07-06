@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { notifyMatchingSellers } from '@/app/actions/matching';
-import { moderateContent } from '@/app/actions/moderation';
 import { Sparkles } from 'lucide-react';
 import { useAuth } from '../../providers/AuthProvider';
 
@@ -126,9 +124,6 @@ export default function PostRequestPage() {
     }, 25000);
 
     try {
-      const deadlineDate = new Date();
-      deadlineDate.setDate(deadlineDate.getDate() + parseInt(deadlineDays));
-
       let imageUrl = null;
       if (image) {
         // Shrink/convert first (iPad HEIC photos are huge), then upload with a
@@ -151,28 +146,27 @@ export default function PostRequestPage() {
         }
       }
 
-      // Insert WITHOUT reading the row back. `.select().single()` re-reads the
-      // row through the `requests` SELECT policy, which references `bids` and
-      // bogs down / stalls once there are interconnected requests + bids — that
-      // was making the post hang after a few submissions. We generate the id
-      // client-side so no read-back (and no recursive policy) is needed.
-      const requestId = crypto.randomUUID();
-      const { error: insertError } = await supabase
-        .from('requests')
-        .insert([{
-          id: requestId,
-          buyer_id: user.id,
-          category_id: categoryId,
-          title,
-          description,
-          ai_description: description,
-          budget: parseFloat(budget),
-          deadline: deadlineDate.toISOString(),
-          image_url: imageUrl,
-        }]);
+      // Create the request on the SERVER (admin insert) instead of from the
+      // browser Supabase client. The browser client's auth-token refresh was
+      // stalling the insert after a few rapid posts; the server route avoids
+      // that entirely. Abort after 20s so the fetch can't hang.
+      const controller = new AbortController();
+      const abortTimer = setTimeout(() => controller.abort(), 20000);
+      let res: Response;
+      try {
+        res = await fetch('/api/requests/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description, categoryId, budget, deadlineDays, imageUrl }),
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(abortTimer);
+      }
 
-      if (insertError) {
-        setError(insertError.message);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error || `Could not post your request (HTTP ${res.status}). Please try again.`);
         return;
       }
 
@@ -184,18 +178,6 @@ export default function PostRequestPage() {
       setDeadlineDays('');
       setImage(null);
       setAiPrice(null);
-
-      // Fire-and-forget background work — none of this blocks confirmation.
-      notifyMatchingSellers(requestId).catch((err) =>
-        console.error('[post-request] matching failed:', err)
-      );
-      moderateContent({
-        type: 'request',
-        contentId: requestId,
-        userId: user.id,
-        text: `${title}\n\n${description}`,
-        link: `/requests/${requestId}`,
-      }).catch((err) => console.error('[post-request] moderation failed:', err));
     } catch (err: any) {
       setError(err?.message || 'Something went wrong posting your request. Please try again.');
     } finally {
