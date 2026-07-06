@@ -13,34 +13,43 @@ import { useAuth } from '../../providers/AuthProvider';
  * universally-supported format. Falls back to the original file on any error.
  */
 async function prepareImage(file: File, maxDim = 1600, quality = 0.85): Promise<File> {
-  try {
+  const process = async (): Promise<File> => {
     const url = URL.createObjectURL(file);
-    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const el = new Image();
-      el.onload = () => resolve(el);
-      el.onerror = () => reject(new Error('decode failed'));
-      el.src = url;
-    });
-    URL.revokeObjectURL(url);
-
-    let { width, height } = img;
-    if (width > maxDim || height > maxDim) {
-      const scale = maxDim / Math.max(width, height);
-      width = Math.round(width * scale);
-      height = Math.round(height * scale);
+    try {
+      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const el = new Image();
+        el.onload = () => resolve(el);
+        el.onerror = () => reject(new Error('decode failed'));
+        el.src = url;
+      });
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        const scale = maxDim / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return file;
+      ctx.drawImage(img, 0, 0, width, height);
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, 'image/jpeg', quality)
+      );
+      return blob ? new File([blob], 'photo.jpg', { type: 'image/jpeg' }) : file;
+    } finally {
+      URL.revokeObjectURL(url);
     }
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return file;
-    ctx.drawImage(img, 0, 0, width, height);
+  };
 
-    const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, 'image/jpeg', quality)
-    );
-    if (!blob) return file;
-    return new File([blob], 'photo.jpg', { type: 'image/jpeg' });
+  try {
+    // iOS Safari's canvas/toBlob can stall on large photos — never let it hang.
+    // Fall back to the original file after 6s.
+    return await Promise.race<File>([
+      process(),
+      new Promise<File>((resolve) => setTimeout(() => resolve(file), 6000)),
+    ]);
   } catch {
     return file;
   }
@@ -130,7 +139,7 @@ export default function PostRequestPage() {
 
         const uploadResult: any = await Promise.race([
           supabase.storage.from('request_images').upload(filePath, fileToUpload, { contentType: 'image/jpeg' }),
-          new Promise((resolve) => setTimeout(() => resolve({ error: { message: 'Upload timed out' } }), 15000)),
+          new Promise((resolve) => setTimeout(() => resolve({ error: { message: 'Upload timed out' } }), 12000)),
         ]);
 
         if (uploadResult?.error) {
