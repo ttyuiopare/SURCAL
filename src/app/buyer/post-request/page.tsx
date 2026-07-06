@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { improveRequestDescription } from '@/app/actions/ai';
 import { notifyMatchingSellers } from '@/app/actions/matching';
 import { moderateContent } from '@/app/actions/moderation';
 import { Sparkles } from 'lucide-react';
@@ -143,12 +142,16 @@ export default function PostRequestPage() {
         }
       }
 
-      // Save the request immediately with the raw description. AI "improvement"
-      // is a non-critical enhancement and must NEVER block or hang the post, so
-      // it runs in the background after the request is saved (see below).
-      const { data: inserted, error: insertError } = await supabase
+      // Insert WITHOUT reading the row back. `.select().single()` re-reads the
+      // row through the `requests` SELECT policy, which references `bids` and
+      // bogs down / stalls once there are interconnected requests + bids — that
+      // was making the post hang after a few submissions. We generate the id
+      // client-side so no read-back (and no recursive policy) is needed.
+      const requestId = crypto.randomUUID();
+      const { error: insertError } = await supabase
         .from('requests')
         .insert([{
+          id: requestId,
           buyer_id: user.id,
           category_id: categoryId,
           title,
@@ -157,9 +160,7 @@ export default function PostRequestPage() {
           budget: parseFloat(budget),
           deadline: deadlineDate.toISOString(),
           image_url: imageUrl,
-        }])
-        .select('id')
-        .single();
+        }]);
 
       if (insertError) {
         setError(insertError.message);
@@ -176,27 +177,16 @@ export default function PostRequestPage() {
       setAiPrice(null);
 
       // Fire-and-forget background work — none of this blocks confirmation.
-      if (inserted?.id) {
-        // AI polish of the description, saved back to the row when it returns.
-        improveRequestDescription(description)
-          .then((improved) => {
-            if (improved && improved !== description) {
-              return supabase.from('requests').update({ ai_description: improved }).eq('id', inserted!.id);
-            }
-          })
-          .catch((err) => console.error('[post-request] ai improve failed:', err));
-
-        notifyMatchingSellers(inserted.id).catch((err) =>
-          console.error('[post-request] matching failed:', err)
-        );
-        moderateContent({
-          type: 'request',
-          contentId: inserted.id,
-          userId: user.id,
-          text: `${title}\n\n${description}`,
-          link: `/requests/${inserted.id}`,
-        }).catch((err) => console.error('[post-request] moderation failed:', err));
-      }
+      notifyMatchingSellers(requestId).catch((err) =>
+        console.error('[post-request] matching failed:', err)
+      );
+      moderateContent({
+        type: 'request',
+        contentId: requestId,
+        userId: user.id,
+        text: `${title}\n\n${description}`,
+        link: `/requests/${requestId}`,
+      }).catch((err) => console.error('[post-request] moderation failed:', err));
     } catch (err: any) {
       setError(err?.message || 'Something went wrong posting your request. Please try again.');
     } finally {
