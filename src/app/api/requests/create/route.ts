@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(req: Request) {
   try {
-    const { title, description, categoryId, budget, deadlineDays, imageUrl } = await req.json();
+    const { title, description, categoryId, budget, deadlineDays, imageBase64 } = await req.json();
 
     if (!title || !description || !categoryId || budget == null || !deadlineDays) {
       return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
@@ -29,6 +29,35 @@ export async function POST(req: Request) {
     deadline.setDate(deadline.getDate() + parseInt(String(deadlineDays), 10));
 
     const admin = createAdminClient();
+
+    // Upload the photo server-side (admin client) so it doesn't depend on the
+    // browser's storage auth, which was stalling on Safari. imageBase64 is a
+    // data URL ("data:image/jpeg;base64,....").
+    let imageUrl: string | null = null;
+    let imageFailed = false;
+    if (typeof imageBase64 === 'string' && imageBase64.startsWith('data:')) {
+      try {
+        const m = imageBase64.match(/^data:(.+?);base64,(.+)$/);
+        if (m) {
+          const contentType = m[1];
+          const buffer = Buffer.from(m[2], 'base64');
+          const ext = (contentType.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+          const filePath = `${user.id}/${Date.now()}-${Math.round(Math.random() * 1e9)}.${ext}`;
+          const { error: upErr } = await admin.storage
+            .from('request_images')
+            .upload(filePath, buffer, { contentType });
+          if (upErr) {
+            imageFailed = true;
+            console.error('[requests/create] image upload failed:', upErr.message);
+          } else {
+            imageUrl = admin.storage.from('request_images').getPublicUrl(filePath).data.publicUrl;
+          }
+        }
+      } catch (e: any) {
+        imageFailed = true;
+        console.error('[requests/create] image processing failed:', e?.message);
+      }
+    }
     const { data: inserted, error } = await admin
       .from('requests')
       .insert([{
@@ -61,7 +90,7 @@ export async function POST(req: Request) {
       link: `/requests/${requestId}`,
     }).catch((e) => console.error('[requests/create] moderation:', e));
 
-    return NextResponse.json({ success: true, id: requestId });
+    return NextResponse.json({ success: true, id: requestId, imageAttached: !!imageUrl, imageFailed });
   } catch (err: any) {
     console.error('[requests/create] threw:', err);
     return NextResponse.json({ error: err?.message ?? 'Failed to create request' }, { status: 500 });

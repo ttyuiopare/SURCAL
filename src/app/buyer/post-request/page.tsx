@@ -53,6 +53,15 @@ async function prepareImage(file: File, maxDim = 1600, quality = 0.85): Promise<
   }
 }
 
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error('read failed'));
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function PostRequestPage() {
   const { user, supabase } = useAuth();
   const [title, setTitle] = useState('');
@@ -124,25 +133,17 @@ export default function PostRequestPage() {
     }, 25000);
 
     try {
-      let imageUrl = null;
+      // Shrink/convert the photo in the browser (small + HEIC→JPEG), then send
+      // the bytes to the server to upload. Uploading server-side avoids the
+      // browser storage-auth stall that was dropping photos on Safari.
+      let imageBase64: string | null = null;
       if (image) {
-        // Shrink/convert first (iPad HEIC photos are huge), then upload with a
-        // timeout. A slow/failed photo must NOT block the request — we post
-        // without it rather than hang.
-        const fileToUpload = await prepareImage(image);
-        const filePath = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
-
-        const uploadResult: any = await Promise.race([
-          supabase.storage.from('request_images').upload(filePath, fileToUpload, { contentType: 'image/jpeg' }),
-          new Promise((resolve) => setTimeout(() => resolve({ error: { message: 'Upload timed out' } }), 12000)),
-        ]);
-
-        if (uploadResult?.error) {
-          console.error('[post-request] image upload failed:', uploadResult.error.message);
-          // Continue without the image — the request still posts.
+        const prepared = await prepareImage(image);
+        // Keep well under Vercel's ~4.5MB request-body limit (base64 adds ~33%).
+        if (prepared.size <= 2_500_000) {
+          imageBase64 = await fileToDataUrl(prepared).catch(() => null);
         } else {
-          const { data } = supabase.storage.from('request_images').getPublicUrl(filePath);
-          imageUrl = data.publicUrl;
+          console.warn('[post-request] image too large after processing; posting without it');
         }
       }
 
@@ -157,7 +158,7 @@ export default function PostRequestPage() {
         res = await fetch('/api/requests/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, description, categoryId, budget, deadlineDays, imageUrl }),
+          body: JSON.stringify({ title, description, categoryId, budget, deadlineDays, imageBase64 }),
           signal: controller.signal,
         });
       } finally {
