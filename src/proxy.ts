@@ -21,6 +21,13 @@ function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.has(pathname)) return true;
   if (pathname.startsWith('/login')) return true;
   if (pathname.startsWith('/signup')) return true;
+  // Public SEO surfaces: category landing pages, blog articles, and the
+  // metadata routes crawlers must reach without a session.
+  if (pathname === '/blog' || pathname.startsWith('/blog/')) return true;
+  if (pathname === '/buy' || pathname.startsWith('/buy/')) return true;
+  if (pathname === '/sitemap.xml') return true;
+  if (pathname === '/robots.txt') return true;
+  if (pathname.startsWith('/opengraph-image')) return true;
   if (pathname.startsWith('/api/webhooks')) return true;
   if (pathname.startsWith('/api/health')) return true;
   // Pre-launch gate endpoints must be reachable without a session: visitors
