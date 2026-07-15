@@ -1,8 +1,11 @@
 import React from 'react';
+import { jsonLdScript, faqSchema } from '@/lib/seo';
 
 export const metadata = {
-  title: 'FAQ | Surcal',
-  description: 'Frequently Asked Questions about Surcal.',
+  title: 'FAQ — Buying, Selling & Escrow on Surcal',
+  description:
+    'How Surcal works: post a request, get competing offers, and pay through Stripe escrow. Answers on fees, payments, seller verification, refunds and shipping.',
+  alternates: { canonical: '/faq' },
 };
 
 export default function FAQPage() {
@@ -59,6 +62,12 @@ export default function FAQPage() {
 
   return (
     <div style={{ minHeight: '100vh', padding: '120px var(--container-padding)', backgroundColor: 'var(--bg-color)' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(
+          faqSchema(faqs.map((f) => ({ question: f.question, answer: f.answer })))
+        )}
+      />
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
           <h1 className="heading-xl" style={{ marginBottom: '1rem' }}>Frequently Asked Questions</h1>

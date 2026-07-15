@@ -7,6 +7,13 @@ import ClientFooterLinks from './components/ClientFooterLinks';
 import SmartAssistantChat from './components/SmartAssistantChat';
 import { AuthProvider, type Profile } from './providers/AuthProvider';
 import { createClient } from '@/utils/supabase/server';
+import {
+  SITE_URL,
+  SITE_NAME,
+  jsonLdScript,
+  organizationSchema,
+  websiteSchema,
+} from '@/lib/seo';
 import './globals.css';
 
 const bebas = Bebas_Neue({
@@ -22,8 +29,47 @@ const dmsans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Surcal | The Buyer's Market",
-  description: 'A premium reverse marketplace where buyers post requests and sellers make offers.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'Surcal | Post What You Want. Sellers Compete for Your Order.',
+    template: '%s | Surcal',
+  },
+  description:
+    'Tell Surcal the exact item you want to buy — verified sellers send you competing offers within hours. Escrow-protected by Stripe, free to post. Sneakers, electronics, collectibles, watches and more.',
+  applicationName: SITE_NAME,
+  keywords: [
+    'reverse marketplace',
+    'post what you want to buy',
+    'sellers compete',
+    'buy sneakers below resale',
+    'buy electronics best price',
+    'get offers on items',
+    'escrow marketplace',
+    'buy collectibles online',
+    'request a product',
+  ],
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    siteName: SITE_NAME,
+    url: SITE_URL,
+    title: 'Surcal | Post What You Want. Sellers Compete for Your Order.',
+    description:
+      'Post the exact item you want to buy and let verified sellers compete with offers. Escrow-protected. Free to post.',
+    // og:image is provided site-wide by app/opengraph-image.tsx
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Surcal | Post What You Want. Sellers Compete for Your Order.',
+    description:
+      'Post the exact item you want to buy and let verified sellers compete with offers. Escrow-protected. Free to post.',
+    // twitter:image also derived from app/opengraph-image.tsx
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
+  },
 };
 
 export default async function RootLayout({
@@ -64,6 +110,12 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={jsonLdScript([organizationSchema(), websiteSchema()])}
+        />
+      </head>
       <body className={`${dmsans.className} ${bebas.variable} ${dmsans.variable}`}>
         <AuthProvider initialUser={user} initialProfile={profile}>
           <nav className="glass-nav">

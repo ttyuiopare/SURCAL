@@ -18,6 +18,12 @@ export default function ClientFooterLinks() {
           color: 'var(--text-secondary)',
         }}
       >
+        <Link href="/buy" style={{ textDecoration: 'none', color: 'inherit' }}>
+          Browse Categories
+        </Link>
+        <Link href="/blog" style={{ textDecoration: 'none', color: 'inherit' }}>
+          Blog
+        </Link>
         <Link href="/about" style={{ textDecoration: 'none', color: 'inherit' }}>
           About Us
         </Link>
@@ -46,6 +52,12 @@ export default function ClientFooterLinks() {
       </Link>
       <Link href="/messages" style={{ textDecoration: 'none', color: 'inherit' }}>
         Inbox
+      </Link>
+      <Link href="/buy" style={{ textDecoration: 'none', color: 'inherit' }}>
+        Browse Categories
+      </Link>
+      <Link href="/blog" style={{ textDecoration: 'none', color: 'inherit' }}>
+        Blog
       </Link>
       <Link href="/about" style={{ textDecoration: 'none', color: 'inherit' }}>
         About Us

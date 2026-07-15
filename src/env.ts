@@ -6,6 +6,7 @@
 type EnvDef = { key: string; level: 'required' | 'recommended'; note: string };
 
 const ENV_DEFS: EnvDef[] = [
+  { key: 'NEXT_PUBLIC_SITE_URL',              level: 'recommended', note: 'Canonical site origin (e.g. https://surcal.com) — used for SEO canonicals, OpenGraph, and the sitemap' },
   { key: 'NEXT_PUBLIC_SUPABASE_URL',          level: 'required',    note: 'Supabase project URL' },
   { key: 'NEXT_PUBLIC_SUPABASE_ANON_KEY',     level: 'required',    note: 'Supabase anon (publishable) key' },
   { key: 'SUPABASE_SERVICE_ROLE_KEY',         level: 'recommended', note: 'Required by admin operations, webhooks, and the matching engine' },
