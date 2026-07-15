@@ -70,6 +70,12 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
   },
+  // Google Search Console verification. Set NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+  // in Vercel to the "content" value Google gives you for the HTML-tag method;
+  // the meta tag is omitted entirely when the env var is unset.
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
 };
 
 export default async function RootLayout({
