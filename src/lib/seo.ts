@@ -6,9 +6,10 @@
 //
 // ⚠️  Set NEXT_PUBLIC_SITE_URL to your real domain in Vercel, or change the
 //     fallback here, so canonicals and social previews point at the right host.
+//     Uses the www host because the apex (surcal.xyz) 308-redirects to www.
 
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL || 'https://surcal.com'
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://www.surcal.xyz'
 ).replace(/\/$/, '');
 
 export const SITE_NAME = 'Surcal';
