@@ -22,6 +22,14 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Tree-shake barrel imports so a route only ships the icons it actually uses.
+  // NOTE: framer-motion is deliberately NOT in this list. Splitting its barrel
+  // breaks AnimatePresence's React context (the onboarding survey relies on
+  // <AnimatePresence mode="wait"> to advance between questions — with the
+  // optimization on, the exit animation never resolves and the flow hangs).
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },

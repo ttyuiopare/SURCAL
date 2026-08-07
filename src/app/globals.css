@@ -1,4 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap');
+/* Fonts are self-hosted and preloaded via next/font (see app/layout.tsx),
+   exposed as the --font-bebas / --font-dmsans CSS variables. The old
+   render-blocking @import of Google Fonts here duplicated that load and
+   delayed first paint, so it was removed. */
 
 :root {
   color-scheme: light only;
@@ -191,6 +194,39 @@ a:hover {
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 600;
+}
+
+/* Lightweight entrance animations — CSS replacement for framer-motion on the
+   landing page. Elements animate once on load; `both` fill-mode holds the
+   hidden state through any delay and the final state after finishing. */
+@keyframes anim-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes anim-fade-right {
+  from { opacity: 0; transform: translateX(50px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes anim-fade-left {
+  from { opacity: 0; transform: translateX(-50px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes anim-grow-x {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+.anim-fade-up    { animation: anim-fade-up 0.6s ease-out both; }
+.anim-fade-right { animation: anim-fade-right 0.6s ease-out both; }
+.anim-fade-left  { animation: anim-fade-left 0.6s ease-out both; }
+.anim-grow-x     { animation: anim-grow-x 1s ease-out 0.4s both; }
+
+/* Respect users who prefer reduced motion: show content in its final state. */
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade-up, .anim-fade-right, .anim-fade-left, .anim-grow-x {
+    animation: none;
+  }
+  .anim-grow-x { width: 100%; }
 }
 
 /* Mobile App Layout Adjustments */

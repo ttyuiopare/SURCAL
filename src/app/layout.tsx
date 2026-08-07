@@ -4,8 +4,7 @@ import Link from 'next/link';
 import ClientNav from './components/ClientNav';
 import Logo from './components/Logo';
 import ClientFooterLinks from './components/ClientFooterLinks';
-import SmartAssistantChat from './components/SmartAssistantChat';
-import SharePrompt from './components/SharePrompt';
+import DeferredWidgets from './components/DeferredWidgets';
 import { AuthProvider, type Profile } from './providers/AuthProvider';
 import { createClient } from '@/utils/supabase/server';
 import {
@@ -21,12 +20,14 @@ const bebas = Bebas_Neue({
   subsets: ['latin'],
   weight: ['400'],
   variable: '--font-bebas',
+  display: 'swap',
 });
 
 const dmsans = DM_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '700'],
   variable: '--font-dmsans',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -252,8 +253,7 @@ export default async function RootLayout({
               </p>
             </div>
           </footer>
-          <SmartAssistantChat />
-          <SharePrompt />
+          <DeferredWidgets />
         </AuthProvider>
       </body>
     </html>

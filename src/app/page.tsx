@@ -1,15 +1,8 @@
-'use client';
-
-import React from 'react';
-import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles, Zap, DollarSign, Shield, CheckCircle, TrendingUp, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useAuth } from './providers/AuthProvider';
 
 export default function Home() {
-  const { profile } = useAuth();
-  void profile;
   const ctaHref = '/post-request';
   const ctaPrimary = 'Request a Product';
   const ctaFinal = 'Get Started for Free';
@@ -20,10 +13,8 @@ export default function Home() {
         {/* Clean, Bright Hero Section */}
         <section style={{ width: '100%', maxWidth: '1200px', padding: 'var(--container-padding)', textAlign: 'center', marginBottom: '6rem' }}>
           
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+          <div
+            className="anim-fade-up"
             style={{ maxWidth: '800px', margin: '0 auto' }}
           >
             <div className="badge-ai" style={{ marginBottom: '2rem' }}>
@@ -57,7 +48,7 @@ export default function Home() {
                 style={{ objectFit: 'cover' }}
               />
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* Value Proposition Cards */}
@@ -70,12 +61,8 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem' }}>
             
             {/* Buyer Focus */}
-            <motion.div 
-              className="glass-card"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+            <div
+              className="glass-card anim-fade-up"
               style={{ borderTop: '4px solid var(--primary-navy)' }}
             >
               <div style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(30, 58, 95, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', color: 'var(--primary-navy)' }}>
@@ -83,39 +70,31 @@ export default function Home() {
               </div>
               <h3 style={{ fontSize: '1.5rem', color: 'var(--primary-navy)', marginBottom: '1rem', fontWeight: 600 }}>Buyers hold the power</h3>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>Describe the exact item you want to buy. Set your target price and condition. Sit back while the market comes to you.</p>
-            </motion.div>
+            </div>
 
             {/* Seller Focus */}
-            <motion.div 
-              className="glass-card"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
-              style={{ borderTop: '4px solid var(--secondary-blue)' }}
+            <div
+              className="glass-card anim-fade-up"
+              style={{ borderTop: '4px solid var(--secondary-blue)', animationDelay: '0.1s' }}
             >
               <div style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(46, 95, 163, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', color: 'var(--secondary-blue)' }}>
                 <Zap size={24} />
               </div>
               <h3 style={{ fontSize: '1.5rem', color: 'var(--primary-navy)', marginBottom: '1rem', fontWeight: 600 }}>Sellers bid to win</h3>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>Don&apos;t wait for your items to sell. Browse real requests from ready-to-buy customers and make them an offer they can&apos;t refuse.</p>
-            </motion.div>
+            </div>
 
             {/* Smart Assistant Focus */}
-            <motion.div 
-              className="glass-card"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-              style={{ borderTop: '4px solid var(--ai-teal)' }}
+            <div
+              className="glass-card anim-fade-up"
+              style={{ borderTop: '4px solid var(--ai-teal)', animationDelay: '0.2s' }}
             >
               <div style={{ width: '50px', height: '50px', borderRadius: '12px', background: 'rgba(29, 158, 117, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', color: 'var(--ai-teal)' }}>
                 <Sparkles size={24} />
               </div>
               <h3 style={{ fontSize: '1.5rem', color: 'var(--primary-navy)', marginBottom: '1rem', fontWeight: 600 }}>Surcal Smart Assistant Quality Filtering</h3>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>Our Smart Assistant automatically scores every bid 1-10 and flags spam. Buyers never have to sift through low-quality offers.</p>
-            </motion.div>
+            </div>
 
           </div>
         </section>
@@ -172,12 +151,9 @@ export default function Home() {
                   <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--success-green)" /> Highlights missing crucial details</li>
                 </ul>
               </div>
-              <motion.div 
-                className="glass-card" 
+              <div
+                className="glass-card anim-fade-right"
                 style={{ flex: '1 1 400px', padding: '2rem', height: '300px', position: 'relative', overflow: 'hidden', border: '1px solid rgba(29, 158, 117, 0.2)' }}
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
               >
                  <div style={{ position: 'absolute', top: '15%', left: '-10%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(29,158,117,0.15) 0%, rgba(255,255,255,0) 70%)', borderRadius: '50%' }}></div>
                  <div style={{ position: 'relative', zIndex: 1 }}>
@@ -187,17 +163,14 @@ export default function Home() {
                       <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>"Looking for a Sony A7III Mirrorless Camera (Body Only). Must be in excellent condition with a shutter count under 20k, original box and charger included..."</p>
                    </div>
                  </div>
-              </motion.div>
+              </div>
             </div>
 
             {/* Feature 2 */}
             <div style={{ display: 'flex', gap: '4rem', alignItems: 'center', flexWrap: 'wrap-reverse' }}>
-              <motion.div 
-                className="glass-card" 
+              <div
+                className="glass-card anim-fade-left"
                 style={{ flex: '1 1 400px', padding: '2rem', height: '300px', position: 'relative', overflow: 'hidden', border: '1px solid rgba(46, 95, 163, 0.2)' }}
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
               >
                  <div style={{ position: 'absolute', top: '50%', right: '-20%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(46,95,163,0.15) 0%, rgba(255,255,255,0) 70%)', borderRadius: '50%', transform: 'translateY(-50%)' }}></div>
                  <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -223,7 +196,7 @@ export default function Home() {
                     </div>
 
                  </div>
-              </motion.div>
+              </div>
               <div style={{ flex: '1 1 400px' }}>
                 <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(46, 95, 163, 0.1)', color: 'var(--secondary-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
                   <TrendingUp size={30} />
@@ -256,12 +229,9 @@ export default function Home() {
                   <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--app-purple)" /> Shipping address never shared with losing bidders</li>
                 </ul>
               </div>
-              <motion.div 
-                className="glass-card" 
+              <div
+                className="glass-card anim-fade-right"
                 style={{ flex: '1 1 400px', padding: '2rem', height: '300px', position: 'relative', overflow: 'hidden', border: '1px solid rgba(83, 58, 183, 0.2)' }}
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
               >
                  <div style={{ position: 'absolute', top: '15%', left: '-10%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(83,58,183,0.15) 0%, rgba(255,255,255,0) 70%)', borderRadius: '50%' }}></div>
                  <div style={{ position: 'relative', zIndex: 1, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -272,11 +242,11 @@ export default function Home() {
                        <p style={{ margin: 0, fontWeight: 600, fontSize: '1.1rem', color: 'var(--primary-navy)', marginBottom: '0.5rem' }}>Payment Secured</p>
                        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Funds are placed in escrow via Stripe.</p>
                        <div style={{ width: '100%', height: '4px', background: 'var(--border-light)', borderRadius: '2px', marginTop: '1.5rem', position: 'relative', overflow: 'hidden' }}>
-                          <motion.div initial={{ width: 0 }} whileInView={{ width: '100%' }} transition={{ duration: 1, delay: 0.5 }} style={{ position: 'absolute', top: 0, left: 0, height: '100%', background: 'var(--success-green)' }}></motion.div>
+                          <div className="anim-grow-x" style={{ position: 'absolute', top: 0, left: 0, height: '100%', background: 'var(--success-green)' }}></div>
                        </div>
                     </div>
                  </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
