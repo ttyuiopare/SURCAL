@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Suspense, useMemo, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ArrowRight } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
@@ -65,7 +65,6 @@ function questionsForRole(role: 'buyer' | 'seller'): Question[] {
 }
 
 function OnboardingSurvey() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const role: 'buyer' | 'seller' =
     searchParams.get('role') === 'seller' ? 'seller' : 'buyer';
@@ -96,15 +95,27 @@ function OnboardingSurvey() {
 
   const finish = async (finalAnswers: Record<string, string[]>) => {
     setSaving(true);
+    // Saving the survey is best-effort and nothing in the app reads the
+    // `onboarded` flag, so a slow or hung updateUser call must never trap the
+    // user on the final question. supabase-js serialises auth calls behind a
+    // Web Locks lock, and our AuthProvider refetches the profile on the
+    // USER_UPDATED event this very call emits — which can deadlock with no
+    // timeout. Give the save a short window, then leave regardless.
     try {
       const supabase = createClient();
-      await supabase.auth.updateUser({
-        data: { onboarding_survey: finalAnswers, onboarded: true },
-      });
+      await Promise.race([
+        supabase.auth.updateUser({
+          data: { onboarding_survey: finalAnswers, onboarded: true },
+        }),
+        new Promise((resolve) => setTimeout(resolve, 2500)),
+      ]);
     } catch {
-      // Saving the survey is best-effort — never block the user from continuing.
+      // ignore — continue to the destination regardless
     }
-    router.push(finalHref);
+    // Hard navigation so the server layout re-fetches the profile and the
+    // destination's own guards run against fresh state (a soft router.push can
+    // land on /dashboard before the client profile settles).
+    window.location.href = finalHref;
   };
 
   const next = () => {
