@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MessageSquare, Phone, ChevronDown, CheckCircle } from 'lucide-react';
+import { MessageSquare, ChevronDown, CheckCircle } from 'lucide-react';
 
 const faqs = [
   {
@@ -98,12 +98,7 @@ export default function SupportPage() {
             
             <div className="glass-card" style={{ marginTop: '3rem', padding: '2rem', background: 'linear-gradient(135deg, rgba(83, 58, 183, 0.05) 0%, rgba(226, 37, 120, 0.05) 100%)' }}>
               <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', fontWeight: 600, color: 'var(--primary-navy)' }}>Still need help?</h3>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Use the form on the right, or call us directly. We're available during business hours.</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                <a href="tel:+13147641341" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--primary-navy)', textDecoration: 'none', fontWeight: 500 }}>
-                  <Phone size={18} color="var(--primary-magenta)" /> 314-764-1341
-                </a>
-              </div>
+              <p style={{ color: 'var(--text-secondary)', margin: 0 }}>Open a support ticket using the form on the right and our team will get back to you by email, usually within one business day.</p>
             </div>
           </section>
 

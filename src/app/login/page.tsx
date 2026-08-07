@@ -181,18 +181,12 @@ export default function LoginPage() {
         }
 
         if (result?.success && result?.user) {
-          if (role === 'seller') {
-            // Sellers must complete real Stripe Connect onboarding before they
-            // can receive payouts. Send them straight there (the middleware
-            // also enforces this on every seller page until it's done).
-            window.location.href = '/seller/verify';
-            return;
-          } else {
-            // 2FA is optional — go straight to the dashboard. Users can enable
-            // 2FA later from Settings.
-            window.location.href = '/dashboard';
-            return;
-          }
+          // Every new account first sees the welcome walkthrough. It's
+          // role-aware and, on finish, sends buyers to the dashboard and
+          // sellers on to Stripe Connect onboarding (/seller/verify) — which
+          // the proxy still enforces on every other seller page until done.
+          window.location.href = `/onboarding?role=${role}`;
+          return;
         }
       }
     } catch (err: any) {

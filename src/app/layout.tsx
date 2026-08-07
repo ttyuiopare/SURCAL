@@ -5,6 +5,7 @@ import ClientNav from './components/ClientNav';
 import Logo from './components/Logo';
 import ClientFooterLinks from './components/ClientFooterLinks';
 import SmartAssistantChat from './components/SmartAssistantChat';
+import SharePrompt from './components/SharePrompt';
 import { AuthProvider, type Profile } from './providers/AuthProvider';
 import { createClient } from '@/utils/supabase/server';
 import {
@@ -38,15 +39,46 @@ export const metadata: Metadata = {
     'Tell Surcal the exact item you want to buy — verified sellers send you competing offers within hours. Escrow-protected by Stripe, free to post. Sneakers, electronics, collectibles, watches and more.',
   applicationName: SITE_NAME,
   keywords: [
+    // Core concept
     'reverse marketplace',
     'post what you want to buy',
     'sellers compete',
+    'sellers compete for your order',
+    'request a product',
+    'get offers on items',
+    'name your price marketplace',
+    'buyer request marketplace',
+    'want to buy listings',
+    'ISO marketplace',
+    // Trust / payments
+    'escrow marketplace',
+    'escrow protected buying',
+    'secure online marketplace',
+    'buyer protection marketplace',
+    'verified sellers',
+    'Stripe escrow',
+    // Buyer intent
     'buy sneakers below resale',
     'buy electronics best price',
-    'get offers on items',
-    'escrow marketplace',
     'buy collectibles online',
-    'request a product',
+    'buy watches online',
+    'buy trading cards',
+    'buy designer handbags',
+    'find the best price online',
+    'compare seller offers',
+    'buy hard to find items',
+    'source rare items',
+    // Seller side
+    'sell to buyers online',
+    'find buyers for your items',
+    'sell sneakers online',
+    'sell electronics online',
+    'sell collectibles online',
+    'make money selling online',
+    // Alternatives / comparison
+    'eBay alternative',
+    'marketplace to buy and sell',
+    'online marketplace app',
   ],
   alternates: { canonical: '/' },
   openGraph: {
@@ -221,6 +253,7 @@ export default async function RootLayout({
             </div>
           </footer>
           <SmartAssistantChat />
+          <SharePrompt />
         </AuthProvider>
       </body>
     </html>

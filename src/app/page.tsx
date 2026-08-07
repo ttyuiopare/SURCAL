@@ -47,11 +47,14 @@ export default function Home() {
               </Link>
             </div>
 
-            <div style={{ width: '100%', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', border: '1px solid var(--border-light)' }}>
-              <img 
-                src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2670&auto=format&fit=crop" 
-                alt="High End Headphones Product" 
-                style={{ width: '100%', height: '400px', objectFit: 'cover', display: 'block' }} 
+            <div style={{ position: 'relative', width: '100%', height: '400px', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', border: '1px solid var(--border-light)' }}>
+              <Image
+                src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1600&auto=format&fit=crop"
+                alt="High End Headphones Product"
+                fill
+                priority
+                sizes="(max-width: 800px) 100vw, 800px"
+                style={{ objectFit: 'cover' }}
               />
             </div>
           </motion.div>

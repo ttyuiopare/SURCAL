@@ -48,6 +48,9 @@ function isPublicPath(pathname: string): boolean {
 // route enforces its own auth/role checks server-side.
 function isVerifyExempt(pathname: string): boolean {
   if (pathname === '/seller/verify') return true;
+  // New sellers see the post-signup welcome walkthrough before we funnel them
+  // to Stripe onboarding; its final CTA sends them on to /seller/verify.
+  if (pathname === '/onboarding') return true;
   if (pathname.startsWith('/settings')) return true;
   if (pathname.startsWith('/api/')) return true;
   if (isPublicPath(pathname)) return true;
