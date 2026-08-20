@@ -15,6 +15,7 @@ const ENV_DEFS: EnvDef[] = [
   { key: 'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY',level: 'recommended', note: 'Required by the @stripe/stripe-js client' },
   { key: 'ANTHROPIC_API_KEY',                 level: 'recommended', note: 'Required for the Smart Assistant (bid scoring, request improvement, matching, chat)' },
   { key: 'RESEND_API_KEY',                    level: 'recommended', note: 'Required for outbound email notifications' },
+  { key: 'ADMIN_ALERT_EMAIL',                 level: 'recommended', note: 'Where operator alerts go (inventory matches, unmet demand). Comma-separated; falls back to the support inbox' },
   { key: 'VAPID_PUBLIC_KEY',                  level: 'recommended', note: 'Required for browser push notifications' },
   { key: 'NEXT_PUBLIC_VAPID_PUBLIC_KEY',      level: 'recommended', note: 'Client-side VAPID public key (same value as VAPID_PUBLIC_KEY)' },
   { key: 'VAPID_PRIVATE_KEY',                 level: 'recommended', note: 'Required for browser push notifications (server-only)' },

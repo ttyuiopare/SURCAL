@@ -3,6 +3,8 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { createAdminClient } from '@/utils/supabase/admin';
 import { notifyUser } from '@/utils/notifications';
+import { sendAdminAlert, matchAlertsEnabled } from '@/utils/adminAlert';
+import { SITE_URL } from '@/lib/seo';
 
 const MATCH_THRESHOLD = 0.7;
 const MAX_AI_CANDIDATES = 30;
@@ -48,7 +50,10 @@ export async function notifyMatchingSellers(requestId: string): Promise<{ matche
   // 2. Cheap candidate pre-filter: same category + keyword overlap.
   const candidates = await preFilterInventory(request);
 
-  if (candidates.length === 0) return { matched: 0 };
+  if (candidates.length === 0) {
+    await recordNoMatch(request);
+    return { matched: 0 };
+  }
 
   // 3. AI re-rank if we have the key; otherwise notify everyone who passed the pre-filter.
   const matched = process.env.ANTHROPIC_API_KEY
@@ -62,6 +67,11 @@ export async function notifyMatchingSellers(requestId: string): Promise<{ matche
     if (m.inv.seller_id === request.buyer_id) continue; // never notify the buyer themselves
     const existing = bySeller.get(m.inv.seller_id);
     if (!existing || m.score > existing.score) bySeller.set(m.inv.seller_id, m);
+  }
+
+  if (bySeller.size === 0) {
+    await recordNoMatch(request);
+    return { matched: 0 };
   }
 
   await Promise.allSettled(
@@ -81,7 +91,92 @@ export async function notifyMatchingSellers(requestId: string): Promise<{ matche
     )
   );
 
+  // Log the match + tell the operator, so there's a record of who was told what
+  // even when a seller ignores their notification.
+  await recordMatches(request, bySeller);
+
   return { matched: bySeller.size };
+}
+
+/**
+ * Writes the match rows and emails the operator a digest for this request.
+ * Best-effort throughout — never let bookkeeping break the notification path.
+ */
+async function recordMatches(
+  request: RequestRow,
+  bySeller: Map<string, { score: number; inv: InventoryRow }>
+): Promise<void> {
+  const admin = createAdminClient();
+  const entries = Array.from(bySeller.entries());
+
+  try {
+    await admin.from('inventory_match_log').insert(
+      entries.map(([sellerId, { inv, score }]) => ({
+        request_id: request.id,
+        seller_id: sellerId,
+        inventory_id: inv.id,
+        score,
+        outcome: 'matched',
+      }))
+    );
+  } catch (err) {
+    console.error('[matching] match log insert failed:', err);
+  }
+
+  if (!matchAlertsEnabled()) return;
+
+  try {
+    const { data: sellers } = await admin
+      .from('profiles')
+      .select('id, name, email')
+      .in('id', entries.map(([id]) => id));
+
+    const nameById = new Map((sellers ?? []).map((s) => [s.id, s]));
+
+    const lines = entries
+      .sort((a, b) => b[1].score - a[1].score)
+      .map(([sellerId, { inv, score }]) => {
+        const s = nameById.get(sellerId);
+        return `  • ${s?.name || 'Unknown seller'} (${s?.email || 'no email'}) — has "${inv.title}" · match ${Math.round(score * 100)}%`;
+      })
+      .join('\n');
+
+    await sendAdminAlert(
+      `${entries.length} seller${entries.length === 1 ? '' : 's'} matched: "${request.title}"`,
+      `A buyer posted "${request.title}" (budget $${request.budget}).\n\n` +
+        `These sellers have something that fits and were notified:\n${lines}\n\n` +
+        `Request: ${SITE_URL}/requests/${request.id}\n` +
+        `Inventory browser: ${SITE_URL}/admin/inventory`
+    );
+  } catch (err) {
+    console.error('[matching] admin alert failed:', err);
+  }
+}
+
+/**
+ * A request that matched nobody. Worth logging and alerting on: it's unmet
+ * demand, and the cue to go find a seller who can fill it.
+ */
+async function recordNoMatch(request: RequestRow): Promise<void> {
+  const admin = createAdminClient();
+
+  try {
+    await admin.from('inventory_match_log').insert([
+      { request_id: request.id, seller_id: null, inventory_id: null, score: null, outcome: 'no_match' },
+    ]);
+  } catch (err) {
+    console.error('[matching] no-match log insert failed:', err);
+  }
+
+  if (!matchAlertsEnabled()) return;
+
+  await sendAdminAlert(
+    `No seller matched: "${request.title}"`,
+    `A buyer posted "${request.title}" (budget $${request.budget}) and no seller inventory matched it.\n\n` +
+      `${request.description.slice(0, 400)}\n\n` +
+      `Request: ${SITE_URL}/requests/${request.id}\n` +
+      `Inventory browser: ${SITE_URL}/admin/inventory`
+  );
 }
 
 async function preFilterInventory(request: RequestRow): Promise<InventoryRow[]> {
