@@ -3,7 +3,7 @@ import { createClient } from '@/utils/supabase/server';
 import { createAdminClient } from '@/utils/supabase/admin';
 import { sendEmail } from '@/utils/email';
 
-const INBOX = process.env.SUPPORT_INBOX_EMAIL || 'support@surcal.xyz';
+const INBOX = process.env.SUPPORT_INBOX_EMAIL || 'support@getsurcal.com';
 
 export async function POST(req: Request) {
   try {

@@ -147,7 +147,7 @@ export default function AdminInventoryBrowser({
                     {item.sellerEmail && (
                       <a
                         href={`mailto:${item.sellerEmail}?subject=${encodeURIComponent(`A buyer on Surcal is looking for ${item.title}`)}&body=${encodeURIComponent(
-                          `Hi ${item.sellerName},\n\nA buyer just posted a request that matches the "${item.title}" you have listed on Surcal. Take a look and get an offer in early:\n\nhttps://www.surcal.xyz/requests\n\n— Surcal`
+                          `Hi ${item.sellerName},\n\nA buyer just posted a request that matches the "${item.title}" you have listed on Surcal. Take a look and get an offer in early:\n\nhttps://www.getsurcal.com/requests\n\n— Surcal`
                         )}`}
                         className="button-secondary"
                         style={smallBtn}

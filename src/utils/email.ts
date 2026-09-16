@@ -5,8 +5,8 @@ const FROM = process.env.RESEND_FROM_EMAIL || 'Surcal <onboarding@resend.dev>';
 
 /** Address support / admin-composed mail is sent from (and replies routed to). */
 export const SUPPORT_FROM =
-  process.env.SUPPORT_FROM_EMAIL || 'Surcal Support <support@surcal.xyz>';
-export const SUPPORT_REPLY_TO = process.env.SUPPORT_INBOX_EMAIL || 'support@surcal.xyz';
+  process.env.SUPPORT_FROM_EMAIL || 'Surcal Support <support@getsurcal.com>';
+export const SUPPORT_REPLY_TO = process.env.SUPPORT_INBOX_EMAIL || 'support@getsurcal.com';
 
 let _resend: Resend | null = null;
 function getResend(): Resend | null {

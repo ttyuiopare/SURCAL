@@ -152,7 +152,7 @@ export default function AdminSupportList({ tickets }: { tickets: TicketRow[] }) 
                       rows={4}
                       value={bodies[t.id] ?? ''}
                       onChange={(e) => setBodies((prev) => ({ ...prev, [t.id]: e.target.value }))}
-                      placeholder={`Write a reply to ${t.name}. They&apos;ll receive it as an email from support@surcal.xyz.`}
+                      placeholder={`Write a reply to ${t.name}. They&apos;ll receive it as an email from support@getsurcal.com.`}
                       style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid var(--border-light)', fontFamily: 'inherit', fontSize: '0.95rem', resize: 'vertical', background: 'var(--bg-surface)' }}
                     />
                     {errorById[t.id] && (

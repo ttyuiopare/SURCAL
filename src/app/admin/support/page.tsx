@@ -56,7 +56,7 @@ export default async function AdminSupportPage({ searchParams }: { searchParams:
           <div>
             <h1 className="heading-lg" style={{ margin: 0 }}>Support Tickets</h1>
             <p style={{ margin: '0.5rem 0 0', color: 'var(--text-secondary)' }}>
-              Reply from <code style={{ background: 'rgba(0,0,0,0.05)', padding: '0.1rem 0.3rem', borderRadius: '4px' }}>support@surcal.xyz</code> via Resend. Replies are logged below the original.
+              Reply from <code style={{ background: 'rgba(0,0,0,0.05)', padding: '0.1rem 0.3rem', borderRadius: '4px' }}>support@getsurcal.com</code> via Resend. Replies are logged below the original.
             </p>
           </div>
           <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
