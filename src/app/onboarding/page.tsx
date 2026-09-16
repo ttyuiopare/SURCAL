@@ -1,7 +1,6 @@
 'use client';
 
-import React, { Suspense, useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, ArrowRight } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
@@ -10,75 +9,211 @@ type Question = {
   id: string;
   prompt: string;
   subtitle?: string;
-  type: 'single' | 'multi';
-  options: string[];
+  type: 'single' | 'multi' | 'text';
+  options?: string[];
+  placeholder?: string;
 };
 
-// A short, role-aware survey. Buyers and sellers get different questions; the
-// "how did you hear about us" question is shared. Answers are saved to the
-// user's auth metadata (no DB migration needed) and the user is then routed to
-// their destination — dashboard for buyers, Stripe onboarding for sellers.
-function questionsForRole(role: 'buyer' | 'seller'): Question[] {
-  const source: Question = {
-    id: 'source',
-    prompt: 'How did you hear about Surcal?',
-    type: 'single',
-    options: ['TikTok', 'Instagram', 'A friend', 'Google search', 'Reddit', 'Other'],
-  };
+const CATEGORY_OPTIONS = [
+  'Sneakers',
+  'Electronics',
+  'Collectibles',
+  'Watches',
+  'Trading cards',
+  'Fashion',
+  'Other',
+];
 
-  if (role === 'seller') {
-    return [
+const ACCOUNT_Q: Question = {
+  id: 'account',
+  prompt: 'Are you here to buy or sell?',
+  subtitle: 'This shapes everything else we ask you.',
+  type: 'single',
+  options: ['Buy', 'Sell'],
+};
+
+const SELLER_TYPE_Q: Question = {
+  id: 'sellerType',
+  prompt: 'Are you selling as an individual or a business?',
+  subtitle: 'Businesses get a public store page on Surcal.',
+  type: 'single',
+  options: ['Individual', 'Business'],
+};
+
+// The flow is built from the answers given so far: the first question decides
+// buyer vs seller, the second (sellers only) decides individual vs business,
+// and each path adds its own questions.
+function buildFlow(answers: Record<string, string[]>): Question[] {
+  const list: Question[] = [ACCOUNT_Q];
+  const account = answers.account?.[0];
+  if (!account) return list;
+
+  if (account === 'Sell') {
+    list.push(SELLER_TYPE_Q);
+    const sellerType = answers.sellerType?.[0];
+    if (sellerType === 'Business') {
+      list.push(
+        {
+          id: 'businessName',
+          prompt: "What's your business called?",
+          subtitle: 'This names your public store page — you can change it later.',
+          type: 'text',
+          placeholder: 'e.g. Prime Kicks Co.',
+        },
+        {
+          id: 'businessCategory',
+          prompt: 'What does your business mainly sell?',
+          type: 'single',
+          options: CATEGORY_OPTIONS,
+        },
+        {
+          id: 'volume',
+          prompt: 'Roughly how many items do you sell per month?',
+          type: 'single',
+          options: ['1–5', '6–20', '21–50', '50+'],
+        },
+        {
+          id: 'channels',
+          prompt: 'Where do you sell today?',
+          subtitle: 'Pick all that apply.',
+          type: 'multi',
+          options: ['eBay', 'StockX', 'Facebook / Marketplace', 'Instagram', 'Our own website', 'In person', 'Nowhere yet'],
+        },
+        {
+          id: 'source',
+          prompt: 'How did you hear about Surcal?',
+          type: 'single',
+          options: ['TikTok', 'Instagram', 'A friend', 'Google search', 'Reddit', 'Other'],
+        },
+      );
+    } else if (sellerType === 'Individual') {
+      list.push(
+        {
+          id: 'sells',
+          prompt: 'What do you sell?',
+          subtitle: 'Pick all that apply.',
+          type: 'multi',
+          options: CATEGORY_OPTIONS,
+        },
+        {
+          id: 'experience',
+          prompt: 'How long have you been selling?',
+          type: 'single',
+          options: ["I'm just starting out", 'Under a year', '1–3 years', '3+ years'],
+        },
+        {
+          id: 'volume',
+          prompt: 'Roughly how many items do you sell per month?',
+          type: 'single',
+          options: ['1–5', '6–20', '21–50', '50+'],
+        },
+        {
+          id: 'channels',
+          prompt: 'Where do you sell today?',
+          subtitle: 'Pick all that apply.',
+          type: 'multi',
+          options: ['eBay', 'StockX', 'Facebook / Marketplace', 'Instagram', 'In person', 'Nowhere yet'],
+        },
+        {
+          id: 'source',
+          prompt: 'How did you hear about Surcal?',
+          type: 'single',
+          options: ['TikTok', 'Instagram', 'A friend', 'Google search', 'Reddit', 'Other'],
+        },
+      );
+    }
+  } else {
+    list.push(
       {
-        id: 'sells',
-        prompt: 'What do you sell?',
-        subtitle: 'Pick all that apply.',
-        type: 'multi',
-        options: ['Sneakers', 'Electronics', 'Collectibles', 'Watches', 'Trading cards', 'Fashion', 'Other'],
+        id: 'goal',
+        prompt: 'What brings you to Surcal?',
+        type: 'single',
+        options: ['Find specific items', 'Get the best price', 'Sell my stuff too', 'Just exploring'],
       },
       {
-        id: 'channels',
-        prompt: 'Where do you sell today?',
+        id: 'categories',
+        prompt: 'What are you into?',
         subtitle: 'Pick all that apply.',
         type: 'multi',
-        options: ['eBay', 'StockX', 'Facebook / Marketplace', 'Instagram', 'In person', 'Nowhere yet'],
+        options: CATEGORY_OPTIONS,
       },
-      source,
-    ];
+      {
+        id: 'budget',
+        prompt: "What's your typical budget per item?",
+        type: 'single',
+        options: ['Under $100', '$100–$500', '$500–$1,000', '$1,000+', 'It varies'],
+      },
+      {
+        id: 'frequency',
+        prompt: 'How often do you shop for items like these?',
+        type: 'single',
+        options: ['Weekly', 'Monthly', 'A few times a year', 'This is my first time'],
+      },
+      {
+        id: 'source',
+        prompt: 'How did you hear about Surcal?',
+        type: 'single',
+        options: ['TikTok', 'Instagram', 'A friend', 'Google search', 'Reddit', 'Other'],
+      },
+    );
   }
+  return list;
+}
 
-  return [
-    {
-      id: 'goal',
-      prompt: 'What brings you to Surcal?',
-      type: 'single',
-      options: ['Find specific items', 'Get the best price', 'Sell my stuff too', 'Just exploring'],
-    },
-    {
-      id: 'categories',
-      prompt: 'What are you into?',
-      subtitle: 'Pick all that apply.',
-      type: 'multi',
-      options: ['Sneakers', 'Electronics', 'Collectibles', 'Watches', 'Trading cards', 'Fashion', 'Other'],
-    },
-    source,
-  ];
+function destinationFor(answers: Record<string, string[]>): string {
+  if (answers.account?.[0] === 'Sell') {
+    return answers.sellerType?.[0] === 'Business' ? '/store' : '/seller/verify';
+  }
+  return '/dashboard';
 }
 
 function OnboardingSurvey() {
-  const searchParams = useSearchParams();
-  const role: 'buyer' | 'seller' =
-    searchParams.get('role') === 'seller' ? 'seller' : 'buyer';
-
-  const questions = useMemo(() => questionsForRole(role), [role]);
-  const [index, setIndex] = useState(0);
+  const [checking, setChecking] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
+  const [index, setIndex] = useState(0);
   const [saving, setSaving] = useState(false);
 
-  const q = questions[index];
+  // Returning users who already completed the survey skip straight to their
+  // destination instead of seeing the questions a second time.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+        const user = data.user;
+        if (cancelled) return;
+        if (!user) {
+          window.location.href = '/login';
+          return;
+        }
+        setUserId(user.id);
+        if (user.user_metadata?.onboarded) {
+          const role = user.user_metadata?.role === 'seller' ? 'seller' : 'buyer';
+          window.location.replace(role === 'seller' ? '/seller' : '/dashboard');
+          return;
+        }
+      } catch {
+        // Fall through to the survey — it's still usable if detection fails.
+      } finally {
+        if (!cancelled) setChecking(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const questions = useMemo(() => buildFlow(answers), [answers]);
+  const q = questions[Math.min(index, questions.length - 1)];
   const selected = answers[q.id] || [];
-  const isLast = index === questions.length - 1;
-  const finalHref = role === 'seller' ? '/seller/verify' : '/dashboard';
-  const finalLabel = role === 'seller' ? 'Set up payouts' : 'Finish';
+  // The branching questions (account, sellerType) always reveal more
+  // questions, so they're never the last one even when they end the current
+  // list — otherwise the button would say "Finish" mid-flow.
+  const growsAfterAnswer = q.id === 'account' || q.id === 'sellerType';
+  const isLast = !growsAfterAnswer && q.id === questions[questions.length - 1].id;
+  const flowComplete = questions.length > 1;
 
   const toggle = (option: string) => {
     setAnswers((prev) => {
@@ -95,27 +230,46 @@ function OnboardingSurvey() {
 
   const finish = async (finalAnswers: Record<string, string[]>) => {
     setSaving(true);
-    // Saving the survey is best-effort and nothing in the app reads the
-    // `onboarded` flag, so a slow or hung updateUser call must never trap the
-    // user on the final question. supabase-js serialises auth calls behind a
-    // Web Locks lock, and our AuthProvider refetches the profile on the
-    // USER_UPDATED event this very call emits — which can deadlock with no
-    // timeout. Give the save a short window, then leave regardless.
+    const account = finalAnswers.account?.[0] === 'Sell' ? 'seller' : 'buyer';
+    const accountType =
+      account === 'seller' && finalAnswers.sellerType?.[0] === 'Business'
+        ? 'business'
+        : 'individual';
+    const businessName = finalAnswers.businessName?.[0];
+
+    // Both saves are best-effort and nothing blocks on them, so a slow or hung
+    // call must never trap the user on the final question. supabase-js
+    // serialises auth calls behind a Web Locks lock, and our AuthProvider
+    // refetches the profile on the USER_UPDATED event updateUser emits — which
+    // can deadlock with no timeout. Give the metadata save a short window and
+    // leave regardless.
     try {
       const supabase = createClient();
-      await Promise.race([
+      const metadataSave = Promise.race([
         supabase.auth.updateUser({
-          data: { onboarding_survey: finalAnswers, onboarded: true },
+          data: { role: account, onboarding_survey: finalAnswers, onboarded: true },
         }),
         new Promise((resolve) => setTimeout(resolve, 2500)),
       ]);
+      const profileSave =
+        userId &&
+        supabase
+          .from('profiles')
+          .update({
+            role: account,
+            account_type: accountType,
+            ...(businessName ? { business_name: businessName } : {}),
+            onboarded_at: new Date().toISOString(),
+          })
+          .eq('id', userId);
+      await Promise.all([metadataSave, profileSave ?? Promise.resolve()]);
     } catch {
       // ignore — continue to the destination regardless
     }
     // Hard navigation so the server layout re-fetches the profile and the
     // destination's own guards run against fresh state (a soft router.push can
     // land on /dashboard before the client profile settles).
-    window.location.href = finalHref;
+    window.location.href = destinationFor(finalAnswers);
   };
 
   const next = () => {
@@ -126,7 +280,27 @@ function OnboardingSurvey() {
     }
   };
 
-  const skip = () => (isLast ? finish(answers) : setIndex((i) => i + 1));
+  // Skip exits the survey entirely — with a branching flow you can't skip the
+  // buyer/seller question and keep walking, so skipping means "just finish".
+  const skip = () => finish(answers);
+
+  const canContinue = q.type === 'text' ? (selected[0] ?? '').trim().length > 0 : selected.length > 0;
+
+  if (checking) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--bg-color)',
+        }}
+      >
+        <p style={{ color: 'var(--text-secondary)' }}>Loading…</p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -154,27 +328,29 @@ function OnboardingSurvey() {
               marginBottom: '0.9rem',
             }}
           >
-            Question {index + 1} of {questions.length}
+            Question {index + 1}{flowComplete ? ` of ${questions.length}` : ''}
           </p>
-          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-            {questions.map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  width: i === index ? '28px' : '8px',
-                  height: '8px',
-                  borderRadius: '999px',
-                  background: i <= index ? 'var(--primary-magenta)' : 'var(--border-light)',
-                  transition: 'width 0.3s ease, background 0.3s ease',
-                }}
-              />
-            ))}
-          </div>
+          {flowComplete && (
+            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+              {questions.map((question, i) => (
+                <div
+                  key={question.id}
+                  style={{
+                    width: i === index ? '28px' : '8px',
+                    height: '8px',
+                    borderRadius: '999px',
+                    background: i <= index ? 'var(--primary-magenta)' : 'var(--border-light)',
+                    transition: 'width 0.3s ease, background 0.3s ease',
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         <AnimatePresence mode="wait">
           <motion.div
-            key={index}
+            key={q.id}
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -24 }}
@@ -193,41 +369,63 @@ function OnboardingSurvey() {
             )}
 
             {/* Options */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.7rem', justifyContent: 'center' }}>
-              {q.options.map((option) => {
-                const active = selected.includes(option);
-                return (
-                  <button
-                    key={option}
-                    onClick={() => toggle(option)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.45rem',
-                      padding: '0.7rem 1.1rem',
-                      borderRadius: '999px',
-                      border: `1.5px solid ${active ? 'var(--primary-magenta)' : 'var(--border-light)'}`,
-                      background: active ? 'rgba(226, 37, 120, 0.08)' : 'var(--bg-surface)',
-                      color: active ? 'var(--primary-magenta)' : 'var(--text-primary)',
-                      fontWeight: active ? 700 : 500,
-                      fontSize: '0.95rem',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease',
-                    }}
-                  >
-                    {active && <Check size={15} />}
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
+            {q.type === 'text' ? (
+              <input
+                type="text"
+                value={selected[0] ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setAnswers((prev) => ({ ...prev, [q.id]: value ? [value] : [] }));
+                }}
+                placeholder={q.placeholder}
+                autoFocus
+                maxLength={60}
+                style={{
+                  width: '100%',
+                  padding: '1rem',
+                  borderRadius: '10px',
+                  border: '1.5px solid var(--border-light)',
+                  fontSize: '1.05rem',
+                  textAlign: 'center',
+                }}
+              />
+            ) : (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.7rem', justifyContent: 'center' }}>
+                {q.options!.map((option) => {
+                  const active = selected.includes(option);
+                  return (
+                    <button
+                      key={option}
+                      onClick={() => toggle(option)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.45rem',
+                        padding: '0.7rem 1.1rem',
+                        borderRadius: '999px',
+                        border: `1.5px solid ${active ? 'var(--primary-magenta)' : 'var(--border-light)'}`,
+                        background: active ? 'rgba(226, 37, 120, 0.08)' : 'var(--bg-surface)',
+                        color: active ? 'var(--primary-magenta)' : 'var(--text-primary)',
+                        fontWeight: active ? 700 : 500,
+                        fontSize: '0.95rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {active && <Check size={15} />}
+                      {option}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
 
         {/* Primary action */}
         <button
           onClick={next}
-          disabled={selected.length === 0 || saving}
+          disabled={!canContinue || saving}
           className="button-primary"
           style={{
             width: '100%',
@@ -236,11 +434,11 @@ function OnboardingSurvey() {
             gap: '0.5rem',
             fontSize: '1.05rem',
             marginTop: '2.25rem',
-            opacity: selected.length === 0 || saving ? 0.5 : 1,
-            cursor: selected.length === 0 || saving ? 'not-allowed' : 'pointer',
+            opacity: !canContinue || saving ? 0.5 : 1,
+            cursor: !canContinue || saving ? 'not-allowed' : 'pointer',
           }}
         >
-          {saving ? 'Saving…' : isLast ? finalLabel : 'Next'} <ArrowRight size={18} />
+          {saving ? 'Saving…' : isLast ? 'Finish' : 'Next'} <ArrowRight size={18} />
         </button>
 
         {/* Skip */}
@@ -265,7 +463,6 @@ function OnboardingSurvey() {
 }
 
 export default function OnboardingPage() {
-  // useSearchParams requires a Suspense boundary in the App Router.
   return (
     <Suspense
       fallback={

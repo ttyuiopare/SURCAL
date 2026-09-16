@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ShieldCheck, CreditCard, Loader2, CheckCircle, Wrench } from 'lucide-react';
+import { ShieldCheck, CreditCard, Loader2, CheckCircle, Wrench, LogOut } from 'lucide-react';
 import { useAuth } from '../../providers/AuthProvider';
 import { devMarkSellerVerified } from '../../actions/dev-bypass';
 
@@ -16,6 +16,7 @@ export default function SellerVerifyPage() {
   const [checking, setChecking] = useState(justReturned);
   const [error, setError] = useState('');
   const [pendingMessage, setPendingMessage] = useState('');
+  const [signingOut, setSigningOut] = useState(false);
 
   // Gate: unverified sellers belong here — and admins are allowed too, so the
   // owner can set up their own Stripe payout account (otherwise an admin can
@@ -197,6 +198,44 @@ export default function SellerVerifyPage() {
         <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textAlign: 'center', marginTop: '1rem', opacity: 0.8 }}>
           You'll be redirected to Stripe and brought right back here when you're done.
         </p>
+
+        {/* Not ready? Give them a way out — the verification gate funnels every
+            seller page here, so without this it can feel like a trap. */}
+        <div
+          style={{
+            marginTop: '1.75rem',
+            paddingTop: '1.5rem',
+            borderTop: '1px solid var(--border-light)',
+            textAlign: 'center',
+          }}
+        >
+          <p style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            Not ready to verify right now? Log out and pick up anytime — your account and progress
+            are saved.
+          </p>
+          <button
+            type="button"
+            onClick={async () => {
+              setSigningOut(true);
+              await supabase.auth.signOut();
+              window.location.href = '/login';
+            }}
+            disabled={signingOut}
+            className="button-secondary"
+            style={{
+              padding: '0.7rem 1.4rem',
+              justifyContent: 'center',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              fontSize: '0.9rem',
+              opacity: signingOut ? 0.6 : 1,
+            }}
+          >
+            <LogOut size={15} />
+            {signingOut ? 'Logging out…' : 'Log out'}
+          </button>
+        </div>
 
         {process.env.NODE_ENV !== 'production' && (
           <DevBypassButton />

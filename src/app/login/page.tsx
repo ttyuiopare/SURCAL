@@ -7,12 +7,12 @@ import { logIn, signUp, verifyMfa } from './actions';
 
 export default function LoginPage() {
   const supabase = useMemo(() => createClient(), []);
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [userState, setUserState] = useState('');
-  const [role, setRole] = useState('buyer');
+  const [role] = useState('buyer');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -181,11 +181,11 @@ export default function LoginPage() {
         }
 
         if (result?.success && result?.user) {
-          // Every new account first sees the welcome walkthrough. It's
-          // role-aware and, on finish, sends buyers to the dashboard and
-          // sellers on to Stripe Connect onboarding (/seller/verify) — which
-          // the proxy still enforces on every other seller page until done.
-          window.location.href = `/onboarding?role=${role}`;
+          // Every new account first sees the onboarding survey, which asks
+          // buyer-vs-seller (and individual-vs-business for sellers) and
+          // routes from there: buyers to the dashboard, individual sellers to
+          // Stripe onboarding, businesses to their store page setup.
+          window.location.href = '/onboarding';
           return;
         }
       }
@@ -392,20 +392,6 @@ export default function LoginPage() {
           
           {!isLogin && (
             <>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>I want to...</label>
-                <div style={{ display: 'flex', gap: '1.5rem', background: 'rgba(0,0,0,0.02)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 500 }}>
-                    <input type="radio" name="role" value="buyer" checked={role === 'buyer'} onChange={() => setRole('buyer')} />
-                    Be a Buyer
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 500 }}>
-                    <input type="radio" name="role" value="seller" checked={role === 'seller'} onChange={() => setRole('seller')} />
-                    Be a Seller
-                  </label>
-                </div>
-              </div>
-
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Full Name</label>
                 <input 

@@ -25,6 +25,9 @@ function isPublicPath(pathname: string): boolean {
   // metadata routes crawlers must reach without a session.
   if (pathname === '/blog' || pathname.startsWith('/blog/')) return true;
   if (pathname === '/buy' || pathname.startsWith('/buy/')) return true;
+  // Business store pages are public marketing surfaces (shareable links).
+  // The bare /store path is the authed editor and is NOT public.
+  if (pathname.startsWith('/store/')) return true;
   if (pathname === '/sitemap.xml') return true;
   if (pathname === '/robots.txt') return true;
   if (pathname.startsWith('/opengraph-image')) return true;
@@ -51,6 +54,9 @@ function isVerifyExempt(pathname: string): boolean {
   // New sellers see the post-signup welcome walkthrough before we funnel them
   // to Stripe onboarding; its final CTA sends them on to /seller/verify.
   if (pathname === '/onboarding') return true;
+  // Business sellers coming out of the survey set up their store page before
+  // completing Stripe verification.
+  if (pathname === '/store') return true;
   if (pathname.startsWith('/settings')) return true;
   if (pathname.startsWith('/api/')) return true;
   if (isPublicPath(pathname)) return true;
