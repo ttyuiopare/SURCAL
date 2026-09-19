@@ -238,31 +238,49 @@ function OnboardingSurvey() {
     const businessName = finalAnswers.businessName?.[0];
 
     // Both saves are best-effort and nothing blocks on them, so a slow or hung
-    // call must never trap the user on the final question. supabase-js
-    // serialises auth calls behind a Web Locks lock, and our AuthProvider
-    // refetches the profile on the USER_UPDATED event updateUser emits — which
-    // can deadlock with no timeout. Give the metadata save a short window and
-    // leave regardless.
+    // call must never trap the user on the final question.
+    //
+    // ORDER MATTERS: supabase.auth.updateUser() emits USER_UPDATED while still
+    // holding supabase-js's internal auth lock; the AuthProvider handler then
+    // wedges that lock and every LATER client-side call — including a profiles
+    // update — never even starts, leaving finish() on "Saving…" forever. So
+    // the plain-REST profile update runs FIRST, while the lock is free, the
+    // metadata save goes second, and each is raced against a timer so the hard
+    // navigation below can never be blocked.
     try {
       const supabase = createClient();
-      const metadataSave = Promise.race([
+      if (userId) {
+        const TIMED_OUT = Symbol('timed-out');
+        const onboardedAt = new Date().toISOString();
+        const fullUpdate: { error?: { message: string } | null } | typeof TIMED_OUT =
+          await Promise.race([
+            supabase
+              .from('profiles')
+              .update({
+                role: account,
+                account_type: accountType,
+                ...(businessName ? { business_name: businessName } : {}),
+                onboarded_at: onboardedAt,
+              })
+              .eq('id', userId),
+            new Promise<typeof TIMED_OUT>((resolve) => setTimeout(() => resolve(TIMED_OUT), 4000)),
+          ]);
+        // A database without the business columns (migration 22 not applied
+        // yet) rejects the whole row update on the unknown column — retry
+        // with `role` alone, which exists in every schema version.
+        if (fullUpdate !== TIMED_OUT && fullUpdate.error) {
+          await Promise.race([
+            supabase.from('profiles').update({ role: account }).eq('id', userId),
+            new Promise((resolve) => setTimeout(resolve, 3000)),
+          ]);
+        }
+      }
+      await Promise.race([
         supabase.auth.updateUser({
           data: { role: account, onboarding_survey: finalAnswers, onboarded: true },
         }),
         new Promise((resolve) => setTimeout(resolve, 2500)),
       ]);
-      const profileSave =
-        userId &&
-        supabase
-          .from('profiles')
-          .update({
-            role: account,
-            account_type: accountType,
-            ...(businessName ? { business_name: businessName } : {}),
-            onboarded_at: new Date().toISOString(),
-          })
-          .eq('id', userId);
-      await Promise.all([metadataSave, profileSave ?? Promise.resolve()]);
     } catch {
       // ignore — continue to the destination regardless
     }

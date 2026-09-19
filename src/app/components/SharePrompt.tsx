@@ -5,8 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../providers/AuthProvider';
 
 // Paths where we never want to interrupt with the share prompt (signup flow,
-// auth, and the share page itself).
-const SKIP_PATHS = ['/onboarding', '/login', '/share'];
+// auth, the share page itself, and the post-survey store setup landing).
+const SKIP_PATHS = ['/onboarding', '/login', '/share', '/store'];
 
 /**
  * Counts logged-in visits (full page loads) in localStorage and, on the second
