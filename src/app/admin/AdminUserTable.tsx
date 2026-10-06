@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useTransition } from 'react';
-import { Ban, UserX, ShieldCheck, ShieldOff, Trash2, RotateCcw, MoreVertical } from 'lucide-react';
-import { banUser, unbanUser, kickUser, setAdmin, deleteUser } from '../actions/admin';
+import { Ban, UserX, ShieldCheck, ShieldOff, Trash2, RotateCcw, MoreVertical, PauseCircle, PlayCircle } from 'lucide-react';
+import { banUser, unbanUser, kickUser, setAdmin, deleteUser, suspendUser, unsuspendUser } from '../actions/admin';
 
 export type AdminUserRow = {
   id: string;
@@ -11,6 +11,7 @@ export type AdminUserRow = {
   role: string;
   is_admin: boolean;
   banned_at: string | null;
+  suspended_at: string | null;
   is_verified: boolean | null;
   created_at: string;
 };
@@ -70,9 +71,10 @@ export default function AdminUserTable({
             {users.map((u) => {
               const isSelf = u.id === currentUserId;
               const banned = !!u.banned_at;
+              const suspended = !banned && !!u.suspended_at;
               const rowBusy = pending && busyId === u.id;
               return (
-                <tr key={u.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.04)', opacity: banned ? 0.65 : 1 }}>
+                <tr key={u.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.04)', opacity: banned || suspended ? 0.65 : 1 }}>
                   <Td>
                     <div style={{ fontWeight: 600, color: 'var(--primary-navy)' }}>
                       {u.name || '(no name)'}
@@ -92,7 +94,11 @@ export default function AdminUserTable({
                   <Td>
                     {banned ? (
                       <Pill color="var(--danger-red, #e74c3c)" filled>
-                        banned
+                        disabled
+                      </Pill>
+                    ) : suspended ? (
+                      <Pill color="var(--warning-orange, #e67e22)" filled>
+                        suspended
                       </Pill>
                     ) : u.is_verified ? (
                       <Pill color="var(--success-green, #1d9e75)" filled>
@@ -119,19 +125,44 @@ export default function AdminUserTable({
                           <UserX size={14} /> Kick
                         </ActionButton>
                       )}
-                      {!isSelf && !banned && (
+                      {!isSelf && !banned && !suspended && (
                         <ActionButton
-                          tone="danger"
-                          title="Ban this user"
+                          tone="warning"
+                          title="Temporarily suspend this account"
                           disabled={rowBusy}
                           onClick={() =>
                             confirmAction(
-                              `Ban "${u.name || u.email}"? They will be signed out and can't sign in until you unban.`,
+                              `Suspend "${u.name || u.email}"? They'll be signed out and see a suspended-account page until you unsuspend them.`,
+                              () => runAction(u.id, () => suspendUser(u.id))
+                            )
+                          }
+                        >
+                          <PauseCircle size={14} /> Suspend
+                        </ActionButton>
+                      )}
+                      {!isSelf && suspended && (
+                        <ActionButton
+                          tone="success"
+                          title="End the suspension"
+                          disabled={rowBusy}
+                          onClick={() => runAction(u.id, () => unsuspendUser(u.id))}
+                        >
+                          <PlayCircle size={14} /> Unsuspend
+                        </ActionButton>
+                      )}
+                      {!isSelf && !banned && !suspended && (
+                        <ActionButton
+                          tone="danger"
+                          title="Permanently disable this account"
+                          disabled={rowBusy}
+                          onClick={() =>
+                            confirmAction(
+                              `Disable "${u.name || u.email}" for violating policies? They will be signed out and shown a disabled-account page until you reinstate them.`,
                               () => runAction(u.id, () => banUser(u.id))
                             )
                           }
                         >
-                          <Ban size={14} /> Ban
+                          <Ban size={14} /> Disable
                         </ActionButton>
                       )}
                       {!isSelf && banned && (
@@ -141,7 +172,7 @@ export default function AdminUserTable({
                           disabled={rowBusy}
                           onClick={() => runAction(u.id, () => unbanUser(u.id))}
                         >
-                          <RotateCcw size={14} /> Unban
+                          <RotateCcw size={14} /> Reinstate
                         </ActionButton>
                       )}
                       {!isSelf && (

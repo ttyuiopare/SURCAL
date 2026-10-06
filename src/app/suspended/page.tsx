@@ -1,10 +1,15 @@
 'use client';
 
 import React from 'react';
-import { Ban } from 'lucide-react';
+import { PauseCircle } from 'lucide-react';
 import { useAuth } from '../providers/AuthProvider';
 
-export default function BannedPage() {
+/**
+ * Shown (via the proxy funnel) to users whose account an admin has temporarily
+ * suspended. Distinct from /banned — suspension is reversible and the copy
+ * says "temporarily"; the support ticket form is the way to appeal.
+ */
+export default function SuspendedPage() {
   const { supabase } = useAuth();
 
   const handleSignOut = async () => {
@@ -29,23 +34,24 @@ export default function BannedPage() {
             width: '64px',
             height: '64px',
             borderRadius: '999px',
-            background: 'rgba(231, 76, 60, 0.1)',
-            color: 'var(--danger-red, #e74c3c)',
+            background: 'rgba(230, 126, 34, 0.1)',
+            color: 'var(--warning-orange, #e67e22)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             marginBottom: '1.5rem',
           }}
         >
-          <Ban size={28} />
+          <PauseCircle size={28} />
         </div>
-        <h1 className="heading-lg" style={{ marginBottom: '1rem' }}>Account Disabled</h1>
+        <h1 className="heading-lg" style={{ marginBottom: '1rem' }}>Account Suspended</h1>
         <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '2rem' }}>
-          Your account has been disabled for violating policies. If you believe this is a mistake,{' '}
+          Your account has been temporarily suspended for violating policies. While suspended you
+          can&apos;t browse, buy, or sell. If you believe this is a mistake,{' '}
           <a href="/support" style={{ color: 'var(--primary-magenta, #e2117e)' }}>
             contact support
-          </a>
-          {' '}or call <strong>314-764-1341</strong>.
+          </a>{' '}
+          or call <strong>314-764-1341</strong> and our team will review your account.
         </p>
         <button onClick={handleSignOut} className="button-secondary">
           Sign out

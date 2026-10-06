@@ -103,7 +103,7 @@ export async function proxy(request: NextRequest) {
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role, banned_at, stripe_onboarding_complete, is_admin')
+      .select('role, banned_at, suspended_at, stripe_onboarding_complete, is_admin')
       .eq('id', user.id)
       .maybeSingle();
 
@@ -111,6 +111,20 @@ export async function proxy(request: NextRequest) {
     if (profile?.banned_at && pathname !== '/banned' && !PUBLIC_PATHS.has(pathname)) {
       const url = request.nextUrl.clone();
       url.pathname = '/banned';
+      const redirectRes = NextResponse.redirect(url);
+      copyCookies(supabaseResponse, redirectRes);
+      return redirectRes;
+    }
+
+    // Suspended users (temporary) are funneled to /suspended, same pattern.
+    if (
+      !profile?.banned_at &&
+      profile?.suspended_at &&
+      pathname !== '/suspended' &&
+      !PUBLIC_PATHS.has(pathname)
+    ) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/suspended';
       const redirectRes = NextResponse.redirect(url);
       copyCookies(supabaseResponse, redirectRes);
       return redirectRes;
@@ -143,6 +157,8 @@ export async function proxy(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = profile?.banned_at
         ? '/banned'
+        : profile?.suspended_at
+        ? '/suspended'
         : needsVerification
         ? '/seller/verify'
         : profile?.role === 'seller'

@@ -60,6 +60,42 @@ export async function unbanUser(userId: string): Promise<ActionResult> {
   }
 }
 
+/** Temporarily suspends a user: they're signed out everywhere and funneled to
+ *  /suspended on every page until an admin clears it. Reversible — distinct
+ *  from banUser (the permanent "disabled" state). */
+export async function suspendUser(userId: string): Promise<ActionResult> {
+  try {
+    const callerId = await requireAdmin();
+    if (callerId === userId) return { ok: false, error: 'You cannot suspend yourself.' };
+
+    const admin = createAdminClient();
+    await admin
+      .from('profiles')
+      .update({ suspended_at: new Date().toISOString() })
+      .eq('id', userId);
+
+    // Revoke sessions so the suspension takes effect immediately.
+    await admin.auth.admin.signOut(userId, 'global').catch(() => {});
+
+    revalidatePath('/admin');
+    return { ok: true };
+  } catch (err: any) {
+    return { ok: false, error: err?.message ?? 'Suspend failed' };
+  }
+}
+
+export async function unsuspendUser(userId: string): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+    const admin = createAdminClient();
+    await admin.from('profiles').update({ suspended_at: null }).eq('id', userId);
+    revalidatePath('/admin');
+    return { ok: true };
+  } catch (err: any) {
+    return { ok: false, error: err?.message ?? 'Unsuspend failed' };
+  }
+}
+
 /**
  * Force-signs out a user without banning them. Useful for kicking someone
  * out of an active session (e.g. compromised account) while leaving access

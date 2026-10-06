@@ -28,7 +28,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const admin = createAdminClient();
   let query = admin
     .from('profiles')
-    .select('id, name, email, role, is_admin, banned_at, is_verified, created_at')
+    .select('id, name, email, role, is_admin, banned_at, suspended_at, is_verified, created_at')
     .order('created_at', { ascending: false })
     .limit(200);
 
