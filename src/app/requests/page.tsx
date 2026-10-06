@@ -9,7 +9,13 @@ import { useAuth } from '../providers/AuthProvider';
 
 export default function RequestsPage() {
   const { user, profile, supabase } = useAuth();
+  // Fetch the feed in pages: pulling all open requests at once (1000+ rows,
+  // ~800KB of JSON, 1000 animated cards) freezes the tab for many seconds.
+  // 60 paints instantly and "Load more" appends the rest on demand.
+  const PAGE_SIZE = 60;
   const [requests, setRequests] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [budgetMin, setBudgetMin] = useState('');
@@ -29,13 +35,17 @@ export default function RequestsPage() {
 
     async function loadData() {
       try {
-        const [{ data: cats }, { data, error }] = await Promise.all([
+        const [{ data: cats }, { data, error, count }] = await Promise.all([
           supabase.from('categories').select('id, name').order('name'),
           supabase
             .from('requests')
-            .select('*, profiles!requests_buyer_id_fkey(name), categories(name)')
+            .select(
+              '*, profiles!requests_buyer_id_fkey(name), categories(name)',
+              { count: 'exact' }
+            )
             .eq('status', 'open')
-            .order('created_at', { ascending: false }),
+            .order('created_at', { ascending: false })
+            .range(0, PAGE_SIZE - 1),
         ]);
 
         if (cats) setCategories(cats);
@@ -46,6 +56,7 @@ export default function RequestsPage() {
         }
 
         setRequests(data || []);
+        setTotalCount(count ?? data?.length ?? 0);
         setLoadingState('done');
       } catch (err: any) {
         setLoadingState('Error: ' + err.message);
@@ -54,6 +65,25 @@ export default function RequestsPage() {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  async function loadMore() {
+    if (loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const { data, error } = await supabase
+        .from('requests')
+        .select('*, profiles!requests_buyer_id_fkey(name), categories(name)')
+        .eq('status', 'open')
+        .order('created_at', { ascending: false })
+        .range(requests.length, requests.length + PAGE_SIZE * 2 - 1);
+      if (!error && data) {
+        setRequests((prev) => [...prev, ...data]);
+        setTotalCount((prev) => Math.max(prev, requests.length + data.length));
+      }
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   if (loadingState !== 'done') return <div style={{ minHeight: '100vh', paddingTop: '120px', textAlign: 'center', color: loadingState.startsWith('Error') ? 'red' : 'inherit' }}>{loadingState}</div>;
 
@@ -190,7 +220,7 @@ export default function RequestsPage() {
             </div>
 
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontWeight: 500 }}>
-              {sorted.length} Items found
+              {sorted.length} Items found{totalCount > sorted.length ? ` · ${totalCount} open requests total` : ''}
             </p>
 
             {/* List Body */}
@@ -255,6 +285,23 @@ export default function RequestsPage() {
 
                   </motion.div>
                 ))}
+              </div>
+            )}
+
+            {/* Pagination — the feed is fetched in pages, so offer the rest */}
+            {requests.length < totalCount && (
+              <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                <button
+                  className="button-secondary"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  style={{ padding: '0.9rem 2rem', opacity: loadingMore ? 0.6 : 1 }}
+                >
+                  {loadingMore ? 'Loading…' : 'Load more requests'}
+                </button>
+                <p style={{ margin: '0.75rem 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  Showing {requests.length} of {totalCount} open requests
+                </p>
               </div>
             )}
 
