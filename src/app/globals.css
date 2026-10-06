@@ -204,7 +204,11 @@ a:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
+  /* Keep the logo and the link group apart even when the links are long
+     (a seller+admin nav has 10+ entries). Without this, an overflowing link
+     group collapses the space and the logo sits flush against "Requests". */
+  gap: 1.5rem;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 1rem var(--container-padding);
 }
@@ -214,12 +218,22 @@ a:hover {
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.02em;
+  flex-shrink: 0;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: clamp(0.85rem, 1.5vw, 2rem);
+  flex-wrap: nowrap;
+}
+
+/* Nav labels must stay on one line — wrapping mid-link ("Post / Request")
+   is what broke the bar's layout. Overflow is handled by the tighter gaps
+   and the 1280px media query below instead. */
+.nav-links a,
+.nav-links button {
+  white-space: nowrap;
 }
 
 .nav-links a {
@@ -230,6 +244,15 @@ a:hover {
 
 .nav-links a:hover {
   color: var(--primary-magenta);
+}
+
+@media (max-width: 1280px) {
+  .nav-links {
+    gap: 0.7rem;
+  }
+  .nav-links a {
+    font-size: 0.85rem;
+  }
 }
 
 /* Tags and Badges */
