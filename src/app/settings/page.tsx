@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Save, User as UserIcon, Shield } from 'lucide-react';
+import { Save, User as UserIcon, Shield, Store } from 'lucide-react';
 import { useAuth } from '../providers/AuthProvider';
 import NotificationPreferences from '../components/NotificationPreferences';
 
@@ -13,6 +13,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [showVerifyForm, setShowVerifyForm] = useState(false);
+  const [switchingToSeller, setSwitchingToSeller] = useState(false);
   const [verifyData, setVerifyData] = useState({ fullName: '', address: '', routingNumber: '', accountNumber: '' });
   const [name, setName] = useState(profile?.name || '');
 
@@ -118,6 +119,40 @@ export default function SettingsPage() {
              </button>
           </div>
         </motion.div>
+
+        {/* Switch to a seller account (buyers who want to sell later — the
+            counterpart of the "I'll just buy" escape on /seller/verify). */}
+        {profile?.role === 'buyer' && (
+          <motion.div className="glass-card" style={{ padding: '2.5rem', marginBottom: '2rem' }} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
+            <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.8rem', color: 'var(--text-primary)' }}>
+              <Store size={20} /> Start Selling
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
+              Want to sell on Surcal? Switch to a seller account — you&apos;ll verify your payouts
+              account with Stripe once, then you can list inventory and bid on requests.
+            </p>
+            <button
+              className="button-secondary"
+              disabled={switchingToSeller}
+              onClick={async () => {
+                setSwitchingToSeller(true);
+                const { error: updateErr } = await supabase
+                  .from('profiles')
+                  .update({ role: 'seller' })
+                  .eq('id', user!.id);
+                if (updateErr) {
+                  alert(updateErr.message);
+                  setSwitchingToSeller(false);
+                  return;
+                }
+                window.location.href = '/seller/verify';
+              }}
+              style={{ width: '100%', justifyContent: 'center', opacity: switchingToSeller ? 0.6 : 1 }}
+            >
+              {switchingToSeller ? 'Switching…' : 'Switch to a seller account'}
+            </button>
+          </motion.div>
+        )}
 
         {/* Seller Verification Info */}
         {profile?.role === 'seller' && (

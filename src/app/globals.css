@@ -4,7 +4,7 @@
    delayed first paint, so it was removed. */
 
 :root {
-  color-scheme: light only;
+  color-scheme: light dark;
 
   /* PRD Brand Colors */
   --primary-magenta: #E5007D;
@@ -28,6 +28,55 @@
   --section-spacing: 6rem;
   --border-radius-lg: 16px;
   --border-radius-md: 12px;
+}
+
+/* Dark theme — same variables, deep-navy surfaces so the magenta brand
+   still pops. The `dark` class is applied to <html> before first paint by
+   the inline script in layout.tsx (localStorage, falling back to the OS
+   preference), so there is no light-mode flash on load. */
+html.dark {
+  color-scheme: dark;
+
+  --bg-color: #0B1220;
+  --bg-surface: #121C30;
+  --text-primary: #EDF2FA;
+  --text-secondary: #9AA8BF;
+  --border-light: #253048;
+}
+
+html.dark .glass-card {
+  background: rgba(18, 28, 48, 0.72);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .glass-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.55), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  border-color: rgba(229, 0, 125, 0.45);
+}
+
+html.dark .glass-nav {
+  background: rgba(11, 18, 32, 0.85);
+}
+
+/* Many form controls are styled inline with white backgrounds and
+   near-black borders (rgba(0,0,0,0.1)), which inline styles prevent the
+   variables from reaching — force the dark equivalents. */
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark select,
+html.dark textarea {
+  background-color: #0E1729 !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-light) !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748B;
+}
+
+/* Footer border is set inline as rgba(0,0,0,0.05) — too dark for dark mode. */
+html.dark .glass-footer {
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 html,
@@ -260,6 +309,10 @@ a:hover {
     z-index: 50;
     overflow-x: auto;
     flex-wrap: nowrap;
+  }
+
+  html.dark .nav-links {
+    background: rgba(11, 18, 32, 0.96);
   }
 
   .nav-links a, .nav-links button {

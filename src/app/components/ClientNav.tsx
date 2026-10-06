@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useAuth } from '../providers/AuthProvider';
 import NotificationBell from './NotificationBell';
+import ThemeToggle from './ThemeToggle';
 
 export default function ClientNav() {
   const { user, profile } = useAuth();
@@ -17,6 +18,7 @@ export default function ClientNav() {
         <Link href="/about" style={{ textDecoration: 'none' }}>
           About
         </Link>
+        <ThemeToggle />
         <Link
           href="/login"
           className="button-primary"
@@ -81,6 +83,7 @@ export default function ClientNav() {
       <Link href="/settings" style={{ textDecoration: 'none' }}>
         Settings
       </Link>
+      <ThemeToggle />
       <Link
         href={isSeller ? '/seller' : '/buyer'}
         className="button-secondary"

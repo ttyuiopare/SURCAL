@@ -17,6 +17,7 @@ export default function SellerVerifyPage() {
   const [error, setError] = useState('');
   const [pendingMessage, setPendingMessage] = useState('');
   const [signingOut, setSigningOut] = useState(false);
+  const [switchingToBuyer, setSwitchingToBuyer] = useState(false);
 
   // Gate: unverified sellers belong here — and admins are allowed too, so the
   // owner can set up their own Stripe payout account (otherwise an admin can
@@ -213,28 +214,68 @@ export default function SellerVerifyPage() {
             Not ready to verify right now? Log out and pick up anytime — your account and progress
             are saved.
           </p>
-          <button
-            type="button"
-            onClick={async () => {
-              setSigningOut(true);
-              await supabase.auth.signOut();
-              window.location.href = '/login';
-            }}
-            disabled={signingOut}
-            className="button-secondary"
+          <div
             style={{
-              padding: '0.7rem 1.4rem',
+              display: 'flex',
+              gap: '0.75rem',
               justifyContent: 'center',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              fontSize: '0.9rem',
-              opacity: signingOut ? 0.6 : 1,
+              flexWrap: 'wrap',
             }}
           >
-            <LogOut size={15} />
-            {signingOut ? 'Logging out…' : 'Log out'}
-          </button>
+            <button
+              type="button"
+              onClick={async () => {
+                setSigningOut(true);
+                await supabase.auth.signOut();
+                window.location.href = '/login';
+              }}
+              disabled={signingOut || switchingToBuyer}
+              className="button-secondary"
+              style={{
+                padding: '0.7rem 1.4rem',
+                justifyContent: 'center',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                fontSize: '0.9rem',
+                opacity: signingOut || switchingToBuyer ? 0.6 : 1,
+              }}
+            >
+              <LogOut size={15} />
+              {signingOut ? 'Logging out…' : 'Log out'}
+            </button>
+            {/* Changed their mind about selling entirely: demote to buyer so
+                the verification gate stops funneling them and they can still
+                use the site. Reversible from Settings. */}
+            <button
+              type="button"
+              onClick={async () => {
+                setSwitchingToBuyer(true);
+                const { error: updateErr } = await supabase
+                  .from('profiles')
+                  .update({ role: 'buyer' })
+                  .eq('id', user!.id);
+                if (updateErr) {
+                  setError(updateErr.message);
+                  setSwitchingToBuyer(false);
+                  return;
+                }
+                window.location.href = '/buyer';
+              }}
+              disabled={signingOut || switchingToBuyer}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-secondary)',
+                cursor: signingOut || switchingToBuyer ? 'wait' : 'pointer',
+                fontSize: '0.9rem',
+                textDecoration: 'underline',
+                textUnderlineOffset: '3px',
+              }}
+            >
+              {switchingToBuyer ? 'Switching…' : "Changed my mind — I'll just buy"}
+            </button>
+          </div>
         </div>
 
         {process.env.NODE_ENV !== 'production' && (

@@ -150,6 +150,14 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Apply the saved (or OS-preferred) theme before first paint so dark
+            mode never flashes light on load. Keep this tiny and synchronous. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var t=localStorage.getItem('surcal-theme');if(t==='dark'||(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();",
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={jsonLdScript([organizationSchema(), websiteSchema()])}
