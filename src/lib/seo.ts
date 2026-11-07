@@ -43,7 +43,7 @@ export function organizationSchema() {
     url: SITE_URL,
     logo: absoluteUrl('/mark.png'),
     description:
-      'Surcal is a reverse marketplace where buyers post the exact item they want and verified sellers compete with offers. Escrow-protected by Stripe.',
+      'Surcal is a reverse marketplace where buyers post the exact item they want and verified sellers compete with offers. Private and secure payment.',
     sameAs: [] as string[], // add social profile URLs (X, Instagram, etc.) here
   };
 }

@@ -83,7 +83,7 @@ export default function RequestDetailPage() {
             if (!recRes.ok) {
               alert('Payment recorded with Stripe but Surcal had a problem saving it: ' + (recData.error ?? recRes.status) + ' — refresh the page in a moment; the webhook may still resolve it.');
             } else {
-              alert('🎉 Payment Authorized! The funds have been placed in Escrow via Stripe.');
+              alert('🎉 Payment Authorized! Your payment is held privately and securely.');
             }
             window.history.replaceState({}, '', `/requests/${id}`);
             if (data) data.status = 'in_progress';

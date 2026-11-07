@@ -21,7 +21,7 @@ export default function TermsPage() {
 
         <section>
           <h2 style={{ color: 'var(--accent-purple)', marginBottom: '0.5rem' }}>3. Escrow and Payments</h2>
-          <p>Surcal uses a secure Escrow system to protect both buyers and sellers. When a bid is accepted, the buyer&apos;s funds are held in Escrow via our payment partner (Stripe). Funds are only released to the seller once the buyer confirms delivery or a set auto-release period expires. Please read our specific <a href="/escrow-policy" style={{ color: 'var(--surcal-magenta)' }}>Escrow & Payment Policy</a> for full details.</p>
+          <p>Surcal uses a secure Escrow system to protect both buyers and sellers. When a bid is accepted, the buyer&apos;s funds are held in a private, secure escrow account by our payment partner. Funds are only released to the seller once the buyer confirms delivery or a set auto-release period expires. Please read our specific <a href="/escrow-policy" style={{ color: 'var(--surcal-magenta)' }}>Escrow & Payment Policy</a> for full details.</p>
         </section>
 
         <section>

@@ -84,7 +84,7 @@ export default function ShippingAddressForm({
           <h2 className="heading-md" style={{ margin: 0, color: 'var(--primary-navy)' }}>Where should we ship?</h2>
         </div>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-          Only the seller you accepted will see this address. After you confirm we'll send you to Stripe to fund the escrow.
+          Only the seller you accepted will see this address. After you confirm, you'll complete a private and secure payment.
         </p>
 
         {err && (

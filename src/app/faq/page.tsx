@@ -4,7 +4,7 @@ import { jsonLdScript, faqSchema } from '@/lib/seo';
 export const metadata = {
   title: 'FAQ — Buying, Selling & Escrow on Surcal',
   description:
-    'How Surcal works: post a request, get competing offers, and pay through Stripe escrow. Answers on fees, payments, seller verification, refunds and shipping.',
+    'How Surcal works: post a request, get competing offers, and pay with private, secure payment. Answers on fees, payments, seller verification, refunds and shipping.',
   alternates: { canonical: '/faq' },
 };
 
@@ -28,11 +28,11 @@ export default function FAQPage() {
     },
     {
       question: "How does payment work, step by step?",
-      answer: "1) You accept a seller's offer. 2) You pay through Stripe checkout (credit, debit, or Apple/Google Pay). 3) The money goes into escrow — held safely, not sent to the seller yet. 4) The seller ships the item and adds a tracking number. 5) When it arrives, you click 'Confirm Delivery & Release Funds'. 6) Stripe releases the money to the seller, minus the 5% platform fee."
+      answer: "1) You accept a seller's offer. 2) You pay through a secure checkout (credit, debit, or Apple/Google Pay). 3) The money goes into escrow — held safely, not sent to the seller yet. 4) The seller ships the item and adds a tracking number. 5) When it arrives, you click 'Confirm Delivery & Release Funds'. 6) The payment is released to the seller, minus the 5% platform fee."
     },
     {
       question: "Why is my payment held in escrow?",
-      answer: "So you don't have to trust a stranger with your money. Until you confirm the item arrived and matches the description, the seller doesn't see a cent. If something goes wrong, the funds are still under your control. Stripe Connect powers this — the same escrow technology used by major marketplaces."
+      answer: "So you don't have to trust a stranger with your money. Until you confirm the item arrived and matches the description, the seller doesn't see a cent. If something goes wrong, the funds are still under your control. Surcal uses the same escrow technology used by major marketplaces."
     },
     {
       question: "When does the seller actually get paid?",
@@ -40,7 +40,7 @@ export default function FAQPage() {
     },
     {
       question: "What if the item never arrives or isn't what was promised?",
-      answer: "Don't confirm delivery. As long as escrow isn't released, the seller hasn't been paid. You can dispute the order from your Orders page, and our support team will investigate. If the dispute is upheld, we'll refund you in full through Stripe — no chargebacks needed."
+      answer: "Don't confirm delivery. As long as escrow isn't released, the seller hasn't been paid. You can dispute the order from your Orders page, and our support team will investigate. If the dispute is upheld, we'll refund you in full — no chargebacks needed."
     },
     {
       question: "What payment methods can I use?",

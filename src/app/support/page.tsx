@@ -18,8 +18,8 @@ const faqs = [
     answer: "Yes! While many users source digital services, bulk orders, custom hardware, or localized services are very common. Buyers can attach photos directly to their request to show exactly what physical product they need sourced or manufactured."
   },
   {
-    question: "How does Escrow and Stripe work?",
-    answer: "When a buyer accepts a seller's bid, their payment is immediately captured but held securely in Escrow via our Stripe Connect platform. It is only released to the seller once the buyer has marked the request as fully delivered and completed."
+    question: "How does payment protection work?",
+    answer: "When a buyer accepts a seller's bid, their payment is immediately captured but held securely in a private escrow account. It is only released to the seller once the buyer has marked the request as fully delivered and completed."
   },
   {
     question: "How do disputes work?",

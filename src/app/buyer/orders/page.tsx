@@ -90,7 +90,7 @@ export default function OrdersPage() {
             <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>Track your active purchases and escrow payments.</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#2ecc71', background: 'rgba(46, 204, 113, 0.1)', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 600, fontSize: '0.9rem' }}>
-            <ShieldCheck size={18} /> Stripe Escrow Active
+            <ShieldCheck size={18} /> Payment Held Securely
           </div>
         </div>
 

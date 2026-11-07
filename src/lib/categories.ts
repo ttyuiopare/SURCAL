@@ -54,7 +54,7 @@ export const CATEGORIES: BuyCategory[] = [
       {
         question: 'How do I make sure sneakers are authentic on Surcal?',
         answer:
-          'Every seller completes Stripe identity verification before they can bid, and your payment stays in escrow until you confirm the pair arrived as described. Add clear reference photos and legit-check requirements to your request so sellers know exactly what you expect.',
+          'Every seller completes identity verification before they can bid, and your payment stays in escrow until you confirm the pair arrived as described. Add clear reference photos and legit-check requirements to your request so sellers know exactly what you expect.',
       },
       {
         question: 'Can I really pay less than StockX or GOAT?',
@@ -69,7 +69,7 @@ export const CATEGORIES: BuyCategory[] = [
     shortLabel: 'Electronics & Computers',
     title: 'Buy Electronics at the Best Price — Skip the eBay Markup',
     description:
-      'Post the phone, laptop, camera or console you want and let verified sellers send competing offers. Transparent pricing, Stripe escrow, live tracking. Free to post.',
+      'Post the phone, laptop, camera or console you want and let verified sellers send competing offers. Transparent pricing, private and secure payment, live tracking. Free to post.',
     h1: 'Post the tech you want. Skip the markup.',
     intro:
       'Whether it is the latest iPhone, a specific MacBook config, a mirrorless camera body or a hard-to-find GPU, describe exactly what you need and let sellers compete. Surcal shows you side-by-side offers so you see the real market price — no listing fees eating into the deal, no guessing whether you overpaid.',
@@ -90,7 +90,7 @@ export const CATEGORIES: BuyCategory[] = [
       {
         question: 'Is it safe to buy expensive electronics from a stranger?',
         answer:
-          'Yes — that is exactly what escrow solves. Your payment is held by Stripe and only released when you confirm the item arrived and matches the description. Every order includes live USPS/UPS/FedEx tracking.',
+          'Yes — that is exactly what escrow solves. Your payment is held securely and only released when you confirm the item arrived and matches the description. Every order includes live USPS/UPS/FedEx tracking.',
       },
       {
         question: 'Can I specify condition and included accessories?',
@@ -131,7 +131,7 @@ export const CATEGORIES: BuyCategory[] = [
       {
         question: 'How does Surcal protect high-value collectible purchases?',
         answer:
-          'Funds are held in Stripe escrow until you confirm the item, sellers are identity-verified, and your address is never shared with losing bidders. If an item is not as described, you can dispute before releasing payment.',
+          'Funds are held privately and securely until you confirm the item, sellers are identity-verified, and your address is never shared with losing bidders. If an item is not as described, you can dispute before releasing payment.',
       },
     ],
   },
@@ -177,7 +177,7 @@ export const CATEGORIES: BuyCategory[] = [
     shortLabel: 'Home & Garden',
     title: 'Buy Home & Garden Items — Post What You Want, Sellers Compete',
     description:
-      'Post the furniture, appliance or outdoor item you want and let verified sellers send competing offers. Transparent pricing, Stripe escrow. Free to post.',
+      'Post the furniture, appliance or outdoor item you want and let verified sellers send competing offers. Transparent pricing, private and secure payment. Free to post.',
     h1: 'Furnish it for less — let sellers compete',
     intro:
       'From a specific mid-century sideboard to a discontinued appliance or patio set, describe what you want and let sellers bring you offers instead of scrolling endless listings. See competing prices side by side and pay through escrow so your money is protected until it arrives.',
@@ -216,7 +216,7 @@ export const CATEGORIES: BuyCategory[] = [
       'Post the watch or piece you want and let verified sellers compete with offers. Set authentication and condition requirements. Escrow-protected, free to post.',
     h1: 'Post the piece. Buy with escrow protection.',
     intro:
-      'High-value watches and jewelry are exactly where trust matters most. Post the reference you want — model, condition, box-and-papers — and let verified sellers compete. Every payment is held in Stripe escrow until you confirm authenticity, so a grail watch never means sending money on faith.',
+      'High-value watches and jewelry are exactly where trust matters most. Post the reference you want — model, condition, box-and-papers — and let verified sellers compete. Every payment is private and secure until you confirm authenticity, so a grail watch never means sending money on faith.',
     targetSearches: [
       'buy luxury watch safely online',
       'find a specific Rolex reference',
@@ -239,7 +239,7 @@ export const CATEGORIES: BuyCategory[] = [
       {
         question: 'Is my payment protected on expensive pieces?',
         answer:
-          'Yes. Stripe holds your funds in escrow until you confirm the item is genuine and as described. If something is wrong, you dispute before any money reaches the seller.',
+          'Yes. Your funds are held securely until you confirm the item is genuine and as described. If something is wrong, you dispute before any money reaches the seller.',
       },
     ],
   },

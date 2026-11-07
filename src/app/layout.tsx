@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     template: '%s | Surcal',
   },
   description:
-    'Tell Surcal the exact item you want to buy — verified sellers send you competing offers within hours. Escrow-protected by Stripe, free to post. Sneakers, electronics, collectibles, watches and more.',
+    'Tell Surcal the exact item you want to buy — verified sellers send you competing offers within hours. Private and secure payment, free to post. Sneakers, electronics, collectibles, watches and more.',
   applicationName: SITE_NAME,
   keywords: [
     // Core concept
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     'secure online marketplace',
     'buyer protection marketplace',
     'verified sellers',
-    'Stripe escrow',
+    'private and secure payment',
     // Buyer intent
     'buy sneakers below resale',
     'buy electronics best price',

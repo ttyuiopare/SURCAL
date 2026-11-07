@@ -12,7 +12,7 @@ How Surcal works:
 - Sellers browse open requests and submit bids (price + message + timeline).
 - Surcal scores each bid 1-10 for quality and flags spam.
 - Sellers maintain an inventory of items they have; when a buyer posts a matching request, sellers are notified instantly.
-- Payments go through Stripe escrow until the buyer confirms delivery.
+- Payments are private and secure — held until the buyer confirms delivery.
 - Platform fee is 5% on completed transactions. No per-bid or subscription fees.
 
 Your job:

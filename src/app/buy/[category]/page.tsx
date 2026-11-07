@@ -98,7 +98,7 @@ export default async function CategoryPage({
           <ol style={{ color: 'var(--text-secondary)', lineHeight: 1.8, paddingLeft: '1.25rem', fontSize: '1.05rem' }}>
             <li><strong>Post your request.</strong> Describe the exact item, condition, and your target price — the Smart Assistant helps fill in the details.</li>
             <li><strong>Sellers compete.</strong> Verified sellers send competing offers, each scored 1–10 so you skip the spam.</li>
-            <li><strong>Pick and pay safely.</strong> Accept the best offer. Your payment stays in Stripe escrow until the item arrives as described.</li>
+            <li><strong>Pick and pay safely.</strong> Accept the best offer. Your payment stays private and secure until the item arrives as described.</li>
           </ol>
         </section>
 

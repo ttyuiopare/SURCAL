@@ -219,9 +219,9 @@ export default function Home() {
                 <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'rgba(83, 58, 183, 0.1)', color: 'var(--app-purple)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
                   <Shield size={30} />
                 </div>
-                <h3 className="heading-md" style={{ marginBottom: '1rem', color: 'var(--primary-navy)' }}>Stripe Escrow on Every Order</h3>
+                <h3 className="heading-md" style={{ marginBottom: '1rem', color: 'var(--primary-navy)' }}>Private and Secure Payment on Every Order</h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-                  Powered by Stripe Connect, your payment is held safely in escrow until your item arrives. The seller only gets paid once you confirm delivery — so you never have to wire money to a stranger and hope.
+                  Your payment is held privately and securely until your item arrives. The seller only gets paid once you confirm delivery — so you never have to wire money to a stranger and hope.
                 </p>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem', color: 'var(--text-secondary)' }}>
                   <li style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><CheckCircle size={18} color="var(--app-purple)" /> Funds held until delivery confirmed</li>
@@ -240,7 +240,7 @@ export default function Home() {
                          <CheckCircle size={24} />
                        </div>
                        <p style={{ margin: 0, fontWeight: 600, fontSize: '1.1rem', color: 'var(--primary-navy)', marginBottom: '0.5rem' }}>Payment Secured</p>
-                       <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Funds are placed in escrow via Stripe.</p>
+                       <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Funds are held privately and securely.</p>
                        <div style={{ width: '100%', height: '4px', background: 'var(--border-light)', borderRadius: '2px', marginTop: '1.5rem', position: 'relative', overflow: 'hidden' }}>
                           <div className="anim-grow-x" style={{ position: 'absolute', top: 0, left: 0, height: '100%', background: 'var(--success-green)' }}></div>
                        </div>

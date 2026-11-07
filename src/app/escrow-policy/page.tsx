@@ -13,7 +13,7 @@ export default function EscrowPolicyPage() {
 
         <section>
           <h2 style={{ color: 'var(--accent-purple)', marginBottom: '0.5rem' }}>1. How Escrow Works</h2>
-          <p>When a buyer accepts a seller&apos;s bid, the buyer must pay the full amount upfront. This money does not go directly to the seller; instead, it is securely held in an Escrow account managed by our payment partner, Stripe. The seller is instantly notified that the funds are secured and they can confidently begin work.</p>
+          <p>When a buyer accepts a seller&apos;s bid, the buyer must pay the full amount upfront. This money does not go directly to the seller; instead, it is privately and securely held in escrow by our payment partner. The seller is instantly notified that the funds are secured and they can confidently begin work.</p>
         </section>
 
         <section>

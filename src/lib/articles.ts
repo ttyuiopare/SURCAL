@@ -25,7 +25,7 @@ export type Article = {
 const CTA: ArticleBlock = {
   type: 'p',
   text:
-    'On Surcal you flip the process: post the exact item you want, let verified sellers compete with offers, and pay through Stripe escrow so your money is protected until it arrives. Posting is free — you only pay when you accept an offer.',
+    'On Surcal you flip the process: post the exact item you want, let verified sellers compete with offers, and pay through private, secure payment so your money is protected until it arrives. Posting is free — you only pay when you accept an offer.',
 };
 
 export const ARTICLES: Article[] = [
@@ -87,7 +87,7 @@ export const ARTICLES: Article[] = [
       {
         type: 'p',
         text:
-          'Most horror stories share one detail: the buyer paid first, directly, with no recourse. Remove that and the risk collapses. Escrow does exactly this — your money is held by a third party (Stripe) and only released to the seller after you confirm the item arrived and matches the description.',
+          'Most horror stories share one detail: the buyer paid first, directly, with no recourse. Remove that and the risk collapses. Escrow does exactly this — your money is held by a trusted third party and only released to the seller after you confirm the item arrived and matches the description.',
       },
       { type: 'h2', text: 'What a safe electronics purchase looks like' },
       {
@@ -173,7 +173,7 @@ export const ARTICLES: Article[] = [
         type: 'ul',
         items: [
           'You agree on a price and pay — but the money goes to escrow, not the seller.',
-          'The escrow provider (Stripe, in Surcal’s case) confirms the funds are held.',
+          'The escrow provider confirms the funds are held.',
           'The seller ships the item and adds tracking, knowing payment is secured.',
           'You receive and inspect the item.',
           'You confirm it is as described, and only then is the money released.',
