@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [userState, setUserState] = useState('');
+  const [userCity, setUserCity] = useState('');
   const [role] = useState('buyer');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
@@ -171,6 +172,7 @@ export default function LoginPage() {
         formData.append('name', name);
         formData.append('role', role);
         formData.append('state', userState);
+        formData.append('city', userCity);
 
         const result = await signUp(formData);
         
@@ -472,6 +474,21 @@ export default function LoginPage() {
                   <option value="WI">Wisconsin</option>
                   <option value="WY">Wyoming</option>
                 </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>City</label>
+                <input
+                  type="text"
+                  placeholder="E.g. Austin"
+                  value={userCity}
+                  onChange={(e) => setUserCity(e.target.value)}
+                  style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }}
+                  required={!isLogin}
+                />
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
+                  Used to show you requests from buyers near you.
+                </p>
               </div>
             </>
           )}

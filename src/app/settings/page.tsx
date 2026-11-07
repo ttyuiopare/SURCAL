@@ -16,6 +16,7 @@ export default function SettingsPage() {
   const [switchingToSeller, setSwitchingToSeller] = useState(false);
   const [verifyData, setVerifyData] = useState({ fullName: '', address: '', routingNumber: '', accountNumber: '' });
   const [name, setName] = useState(profile?.name || '');
+  const [city, setCity] = useState(profile?.city || '');
 
   const router = useRouter();
 
@@ -27,7 +28,8 @@ export default function SettingsPage() {
 
   useEffect(() => {
     setName(profile?.name || '');
-  }, [profile?.name]);
+    setCity(profile?.city || '');
+  }, [profile?.name, profile?.city]);
 
   const loading = !user || !profile;
 
@@ -35,7 +37,7 @@ export default function SettingsPage() {
     e.preventDefault();
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase.from('profiles').update({ name }).eq('id', user.id);
+    const { error } = await supabase.from('profiles').update({ name, city }).eq('id', user.id);
     setSaving(false);
     if (error) {
       alert('Error saving profile');
@@ -81,6 +83,18 @@ export default function SettingsPage() {
                 style={{ width: '100%', padding: '0.8rem 1rem', background: 'var(--bg-surface)', border: '1px solid var(--border-light)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '1rem' }} 
               />
               <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>This is how you appear to other users on the platform.</p>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>City</label>
+              <input
+                type="text"
+                placeholder="E.g. Austin"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                style={{ width: '100%', padding: '0.8rem 1rem', background: 'var(--bg-surface)', border: '1px solid var(--border-light)', borderRadius: '8px', color: 'var(--text-primary)', fontSize: '1rem' }}
+              />
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>Your city powers the Local section — requests from buyers near you.</p>
             </div>
             
             <div>
