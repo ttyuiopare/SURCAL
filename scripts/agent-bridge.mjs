@@ -15,6 +15,11 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+// Invoke the CLI's entry script with node directly — going through a shell
+// mangles messages that contain spaces/quotes/special characters.
+const OPENCLAW_ENTRY = join(
+  process.env.APPDATA || '', 'npm', 'node_modules', 'openclaw', 'openclaw.mjs'
+);
 
 function envLocal(key) {
   const m = readFileSync(join(ROOT, '.env.local'), 'utf8')
@@ -71,8 +76,7 @@ async function poll() {
 
 function runAgent(content) {
   return new Promise((resolve) => {
-    const child = spawn('openclaw', ['agent', '--message', content], {
-      shell: true,
+    const child = spawn(process.execPath, [OPENCLAW_ENTRY, 'agent', '--message', content], {
       cwd: ROOT,
       env: process.env,
     });
