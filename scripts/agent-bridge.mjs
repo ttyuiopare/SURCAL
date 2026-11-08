@@ -69,6 +69,15 @@ async function poll() {
   if (!rows || !rows.length) return;
 
   const msg = rows[0];
+  // Claim the message first (done=true) so the next poll tick doesn't spawn a
+  // second agent run for it while this one is still working.
+  const claim = await fetch(`${URL}/rest/v1/agent_messages?id=eq.${msg.id}`, {
+    method: 'PATCH',
+    headers: HEADERS,
+    body: JSON.stringify({ done: true }),
+  });
+  if (!claim.ok) return;
+
   log('processing:', msg.content.slice(0, 80));
   const reply = await runAgent(msg.content);
   await writeReply(msg, reply);
@@ -124,11 +133,6 @@ async function writeReply(msg, content) {
     log('failed to write reply:', res.status, await res.text());
     return;
   }
-  await fetch(`${URL}/rest/v1/agent_messages?id=eq.${msg.id}`, {
-    method: 'PATCH',
-    headers: HEADERS,
-    body: JSON.stringify({ done: true }),
-  });
   log('replied to', msg.id);
 }
 
