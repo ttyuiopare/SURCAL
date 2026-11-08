@@ -15,10 +15,10 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-// Invoke the CLI's entry script with node directly — going through a shell
+// Invoke ZCode's CLI entry script with node directly — going through a shell
 // mangles messages that contain spaces/quotes/special characters.
-const OPENCLAW_ENTRY = join(
-  process.env.APPDATA || '', 'npm', 'node_modules', 'openclaw', 'openclaw.mjs'
+const ZCODE_ENTRY = join(
+  'C:', 'Program Files', 'ZCode', 'resources', 'glm', 'zcode.cjs'
 );
 
 function envLocal(key) {
@@ -76,7 +76,7 @@ async function poll() {
 
 function runAgent(content) {
   return new Promise((resolve) => {
-    const child = spawn(process.execPath, [OPENCLAW_ENTRY, 'agent', '--message', content], {
+    const child = spawn(process.execPath, [ZCODE_ENTRY, '-p', content], {
       cwd: ROOT,
       env: process.env,
     });
